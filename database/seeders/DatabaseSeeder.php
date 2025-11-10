@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
                 CemeterySeeder::class,
                 BurialSocietyOrganizationSeeder::class,
                 GraveSpaceSeeder::class,
-                LettertypeSeeder::class,
+                LetterTypeSeeder::class,
                 MaterialSeeder::class,
                 AccessorySeeder::class,
                 BasedLedgerSeeder::class,
