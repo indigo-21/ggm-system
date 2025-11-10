@@ -13,8 +13,9 @@
                     <div class="d-flex justify-content-end flex-grow-1">
                         <ul class="navbar">    
                             <li class="dropdown profile">
-                                <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
-                                    <img class="rounded-circle" src="{{ asset('assets/images/profile_av.png') }}" alt="User">
+                                <a href="javascript:void(0);" class="dropdown-toggle d-flex justify-content-end flex-grow-1" data-toggle="dropdown" role="button">
+                                    <img class="rounded-circle mr-2" src="{{ asset('assets/images/profile_av.png') }}" alt="User">
+                                    {{ Auth::user()->firstname }} {{ Auth::user()->lastname }}
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>

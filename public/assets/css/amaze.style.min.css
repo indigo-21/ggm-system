@@ -17860,7 +17860,8 @@ a:hover {
     padding: 15px 18px 0 18px;
 }
 .navbar li.profile .dropdown-menu {
-    width: 250px;
+    /* width: 250px; */
+    width: 285px;
     right: 0;
     left: auto;
 }

@@ -15,15 +15,25 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+        {{-- <div class="flex justify-between w-screen">
+            <div class="w-3/5 min-h-screen">
+                <img  class="w-full min-h-screen" src="{{asset('login1.jpg')}}" alt="">
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+            <div class="w-2/5 min-h-screen flex justify-center items-center">
+                <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+                    {{ $slot }}
+                </div>
+            </div>
+        </div> --}}
+        <div class="flex">
+            <div class="" style="width:60%;">
+                <img  class="w-full min-h-screen" src="{{asset('login1.jpg')}}" alt="">
+            </div>
+            <div class="flex items-center" style="width:40%;">
+                <div class="mx-auto items-center rounded-xl bg-white p-6 shadow-lg outline outline-black/5 dark:bg-[#b7b88c] dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 rounded-md" style="width:80%;background-color:#b7b88c">
+                    {{ $slot }}
+                </div>
             </div>
         </div>
     </body>

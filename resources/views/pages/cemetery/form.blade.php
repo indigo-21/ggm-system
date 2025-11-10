@@ -36,7 +36,10 @@
                             <x-input type="text" name="name" value="{{ $cemetery?->name ?? old('name') }}" inputformat="alphanumeric" label="Cemetery Name" :required="true" :error="$errors->first('name')"/>
                         </div>
                         <div class="footer mb-3 d-flex justify-content-center align-items-center">
-                            <button class="btn btn-danger hidden-xs w-25 ml-2" id="soft-delete" type="button" label="{{$cemetery->name}}" route="{{ route('cemetery.destroy', $cemetery->id) }}" landing_page="{{route('cemetery.index')}}">Delete</button>
+                           @isset($cemetery)
+                            <button class="btn btn-danger hidden-xs w-25 ml-2" id="soft-delete" type="button" label="{{ $cemetery?->name ?? old('name') }}" route="{{ route('cemetery.destroy', $cemetery->id) }}" landing_page="{{route('cemetery.index')}}">Delete</button>
+                           @endisset
+                            
                             <button class="btn btn-primary hidden-xs w-25 ml-2" type="submit">{{ !isset($cemetery) ? "Create" : "Update" }}</button>
                         </div>
                     </form>

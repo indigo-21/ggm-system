@@ -8,7 +8,7 @@
                             <li class="breadcrumb-item"><a href="index.html">Home</a></li>
                             <li class="breadcrumb-item active">Dashboard</li>
                         </ul>
-                        <h1 class="mb-1 mt-1">Good Morning, Alizee</h1>
+                        <h1 class="mb-1 mt-1">Welcome, {{ Auth::user()->firstname }} {{ Auth::user()->lastname }}</h1>
                         <span>Welcome back to your dashboard, if need a help <a href="javascript:void(0);" class="text-secondary">Contact</a> us.</span>
                     </div>            
                     <div class="col-lg-6 col-md-12 text-md-right">
