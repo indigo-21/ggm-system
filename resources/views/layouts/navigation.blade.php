@@ -34,7 +34,7 @@
                                             <x-responsive-nav-link :href="route('logout')"
                                                     onclick="event.preventDefault();
                                                                 this.closest('form').submit();">
-                                                <i class="icon-power mr-2"></i><span>Logout Out</span>
+                                                <i class="icon-power mr-2"></i><span>Log Out</span>
                                             </x-responsive-nav-link>
                                         </form>
                                     </li>
@@ -111,17 +111,20 @@
                                 <li><a class="text-left" href="{{route('order_type.index')}}" class="{{request()->routeIs('order_type') ? 'active' : ''}}">Order Types</a></li>
                             </ul>
                         </x-dropdown-link>   
-                        <x-dropdown-link>
-                            <x-slot name="label_anchor">
-                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-folder"></i><span>Configuration</span></a>
-                            </x-slot>
-                            <ul class="ml-menu">
-                                <li><a class="text-left" href="{{route('user.index')}}" class="{{request()->routeIs('user') ? 'active' : ''}}">Users</a></li>
-                                <li><a class="text-left" href="{{route('location.index')}}" class="{{request()->routeIs('location') ? 'active' : ''}}">Location</a></li>
-                                <li><a class="text-left" href="{{route('account_level.index')}}" class="{{request()->routeIs('account_level') ? 'active' : ''}}">Account Level</a></li>
-                                <li><a class="text-left" href="{{route('module.index')}}" class="{{request()->routeIs('module') ? 'active' : ''}}">Modules</a></li>
-                            </ul>
-                        </x-dropdown-link>     
+                        @if (Auth::id() == 1): 
+                            <x-dropdown-link>
+                                <x-slot name="label_anchor">
+                                    <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-folder"></i><span>Configuration</span></a>
+                                </x-slot>
+                                <ul class="ml-menu">
+                                    <li><a class="text-left" href="{{route('user.index')}}" class="{{request()->routeIs('user') ? 'active' : ''}}">Users</a></li>
+                                    <li><a class="text-left" href="{{route('location.index')}}" class="{{request()->routeIs('location') ? 'active' : ''}}">Location</a></li>
+                                    <li><a class="text-left" href="{{route('account_level.index')}}" class="{{request()->routeIs('account_level') ? 'active' : ''}}">Account Level</a></li>
+                                    <li><a class="text-left" href="{{route('module.index')}}" class="{{request()->routeIs('module') ? 'active' : ''}}">Modules</a></li>
+                                </ul>
+                            </x-dropdown-link>
+                        @endif
+                                 
                     </ul>
                 </div>
             </div>

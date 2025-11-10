@@ -46,14 +46,14 @@
                                 <div class="col-6">
                                     <x-input type="text" name="email" value="{{ $user?->email ?? old('email') }}" inputformat="alphanumeric" label="Email Address" :required="true" :error="$errors->first('email')"/>
                                 </div>
-                                @if (!isset($user))
+                                {{-- @if (!isset($user)) --}}
                                     <div class="col-6">
                                         <x-input type="password" name="password" value="{{ old('password') }}" inputformat="alphanumeric" label="Password" :required="true" :error="$errors->first('password')"/>
                                     </div>
                                     <div class="col-6">
                                         <x-input type="password" name="password_confirmation" value="{{ old('password_confirmation') }}" inputformat="alphanumeric" label="Confirm Password" :required="true" :error="$errors->first('password_confirmation')"/>
                                     </div>
-                                @endif
+                                {{-- @endif --}}
                                 <div class="col-6">
                                     <x-select class="z-index show-tick" name="location" label="Location" :required="true" search="true">
                                         <option value="" disabled selected>-Select Location-</option>
