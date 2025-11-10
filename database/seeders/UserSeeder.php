@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
                 'location_id'       => "2",
                 'firstname'         => 'Jessica',
                 'lastname'          => 'Redmill',
-                'email'             => 'support@indigo21.com',
+                'email'             => 'jessica@garygreenmemorials.co.uk',
                 'username'          => 'jessica',
                 'password'          => Hash::make("jessica"),
                 'email_verified_at' => date('Y-m-d H:i:s'),
