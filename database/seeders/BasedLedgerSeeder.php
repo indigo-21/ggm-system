@@ -55,11 +55,6 @@ class BasedLedgerSeeder extends Seeder
 
             ],
             [
-                'name'          => 'Chippings - Green',
-                'created_by'    => '1'
-
-            ],
-            [
                 'name'          => 'Chippings - Black',
                 'created_by'    => '1'
 
