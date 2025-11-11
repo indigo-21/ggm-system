@@ -69,34 +69,41 @@
                                 <li><a class="text-left" href="#">All Orders</a></li>
                             </ul>
                         </x-dropdown-link>
-                        <x-nav-link>
-                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Schedules</span></a>
-                        </x-nav-link>
-                        <x-nav-link>
-                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Inventory</span></a>
-                        </x-nav-link>
-                        <x-nav-link>
-                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Customers</span></a>
-                        </x-nav-link>
-                        <x-nav-link>
-                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Archives</span></a>
-                        </x-nav-link>
-                        <x-nav-link>
-                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Rylond</span></a>
-                        </x-nav-link>
-                        <x-dropdown-link>
-                            <x-slot name="label_anchor">
-                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-folder"></i><span>Reports</span></a>
-                            </x-slot>
-                            <ul class="ml-menu">
-                                <li><a class="text-left" href="#">Order Reports</a></li>
-                                <li><a class="text-left" href="#">Renovations with no Description</a></li>
-                                <li><a class="text-left" href="#">Unpaid Jobs</a></li>
-                                <li><a class="text-left" href="#">No Grave Number</a></li>
-                                <li><a class="text-left" href="#">Report Status</a></li>
-                                <li><a class="text-left" href="#">Washdown Report</a></li>
-                            </ul>
-                        </x-dropdown-link>
+                        @if (Auth::id() == 1):
+
+                            <x-nav-link>
+                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Schedules</span></a>
+                            </x-nav-link>
+                            <x-nav-link>
+                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Inventory</span></a>
+                            </x-nav-link>
+                            <x-nav-link>
+                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Customers</span></a>
+                            </x-nav-link>
+                            <x-nav-link>
+                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Archives</span></a>
+                            </x-nav-link>
+                            <x-nav-link>
+                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Rylond</span></a>
+                            </x-nav-link>
+                        @endif
+
+                        @if (Auth::id() == 1):
+                            <x-dropdown-link>
+                                <x-slot name="label_anchor">
+                                    <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-folder"></i><span>Reports</span></a>
+                                </x-slot>
+                                <ul class="ml-menu">
+                                    <li><a class="text-left" href="#">Order Reports</a></li>
+                                    <li><a class="text-left" href="#">Renovations with no Description</a></li>
+                                    <li><a class="text-left" href="#">Unpaid Jobs</a></li>
+                                    <li><a class="text-left" href="#">No Grave Number</a></li>
+                                    <li><a class="text-left" href="#">Report Status</a></li>
+                                    <li><a class="text-left" href="#">Washdown Report</a></li>
+                                </ul>
+                            </x-dropdown-link>
+                        @endif
+
                         <x-dropdown-link>
                             <x-slot name="label_anchor">
                                 <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-folder"></i><span>Masterfiles</span></a>
