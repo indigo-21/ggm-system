@@ -35,7 +35,30 @@ $(function () {
         }
     });
 
+    $('.invoice-date').daterangepicker({
+        singleDatePicker: true,
+        startDate: "",
+        locale: {
+        format: 'MMMM DD, YYYY'
+        }
+    });
 
+  
+    CKEDITOR.replace('special_instructions',{
+        height: 300,
+        toolbar:[
+            ["Bold","TextColor"]
+        ]
+    });
+
+     CKEDITOR.replace('customer_notes',{
+        height: 300,
+        toolbar:[
+            ["Bold","TextColor"]
+        ]
+    });
+
+   
         // let start   = moment().startOf('month')
         // let end     = moment().endOf('month');
 
@@ -64,5 +87,20 @@ $(function () {
 
     //Multi-select
     $('#optgroup').multiSelect({ selectableOptgroup: true });
+
+
+
+    // EVENTS
+
+    $(document).on("change","[name=cemetery_id]", function(){
+        let cemetery_id = $(this).val();
+        let child_select = "[name=burial_society_organization_id]";
+        $(`${child_select}`).prop('disabled', true);
+        $(`${child_select}`).selectpicker('destroy');
+        $(`${child_select} option`).addClass("d-none");
+        $(`${child_select} .cemetery_${cemetery_id}`).removeClass("d-none");
+        $(`${child_select}`).prop('disabled', false);
+        $(`${child_select}`).selectpicker('refresh');
+    });
 
 });

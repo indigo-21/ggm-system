@@ -28,6 +28,19 @@
         <link rel="stylesheet" href="{{asset('assets/plugins/sweetalert/sweetalert.css')}}">
         {{-- DateRange --}}
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+        {{-- Summernote --}}
+        <link rel="stylesheet" href="{{asset('assets/plugins/summernote/dist/summernote.css')}}"/>
+        {{-- CKEDITOR --}}
+        <style>
+        .cke{visibility:hidden;}
+        .cke{width:100% !important;}
+        .cke_panel{width: 20% !important;}
+        </style>    
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/skins/kama/editor.css?t=L7C8') }} ">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/plugins/scayt/dialogs/dialog.css?t=L7C8') }} ">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/plugins/tableselection/styles/tableselection.css') }} ">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/plugins/dialog/styles/dialog.css') }} ">
+        
     </head>
     <body class="font-ubuntu">
         <div id="body" class="theme-cyan">
@@ -117,6 +130,15 @@
             {{-- Template Custom --}}
             <script src="{{asset('assets/bundles/mainscripts.bundle.js')}}"></script>
             <script src="{{asset('assets/plugins/sweetalert/sweetalert.min.js')}}"></script>
+            {{-- <script src="{{asset('assets/plugins/summernote/dist/summernote.js')}}"></script> --}}
+            {{-- <script src="{{asset('assets/plugins/ckeditor/ckeditor.js')}}"></script> <!-- Ckeditor --> 
+            <script src="{{asset('assets/plugins/ckeditor/editors.js')}}"></script> <!-- Ckeditor -->                  --}}
+            {{-- CKEDITOR --}}
+            <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/ckeditor.js') }}"></script>
+            <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/config.js?t=L7C8') }}"></script>
+            <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/lang/en.js?t=L7C8') }}"></script>
+            <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/styles.js?t=L7C8') }}"></script>
+
             
             @if(Session::has('success'))
                 <script>

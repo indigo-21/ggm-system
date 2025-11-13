@@ -7,7 +7,7 @@
         'error'         => null
     ])
 
-
+   
     @if($type === "text" || $type === "password")
         <div class="form-group form-float">
             @if ($label)
@@ -19,7 +19,7 @@
                 id="{{ $name }}"
                 value="{{ old($name, $value) }}"
                 class="form-control {{ $class }}"
-                placeholder="Enter {{ $label }}"
+                @if($label) placeholder="Enter {{ $label }}" @endif
                 @if($required) required @endif
                 @if($disabled) disabled @endif
                 @if($uniqueid) data-unique-id="{{ $uniqueid }}" @endif
@@ -41,6 +41,21 @@
                 class="{{ $class }}"
                 @if($required) required @endif
             >
+        </div>
+    @elseif($type === "textarea")
+        <label for="{{ $name }}">{{ $label }}</label>
+        <div class="form-line">
+                <textarea 
+                name="{{ $name }}"
+                id="{{ $name }}"
+                value="{{ old($name, $value) }}"
+                class="form-control no-resize {{ $class }}"
+                placeholder="Enter {{ $label }}"
+                @if($required) required @endif
+                @if($disabled) disabled @endif
+                @if($uniqueid) data-unique-id="{{ $uniqueid }}" @endif
+                @if($inputformat) data-input-format="{{ $inputformat }}" @endif
+                rows="4"></textarea>
         </div>
     @endif
 

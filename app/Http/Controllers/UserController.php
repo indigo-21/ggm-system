@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
-// use Response;
-// use Auth;
+// use Illuminate\Support\Facades\Response;
+// use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 

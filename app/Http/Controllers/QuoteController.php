@@ -6,14 +6,19 @@ use App\Models\User;
 use App\Models\OrderType;
 use App\Models\Location;
 use App\Models\Cemetery;
+use App\Models\BurialSocietyOrganization;
 use App\Http\Controllers\Controller;
+use App\Models\BasedLedger;
+use App\Models\GraveSpace;
+use App\Models\LetterType;
+use App\Models\Material;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
-use Response;
-use Auth;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Auth;
 class QuoteController extends Controller
 {
     /**
@@ -41,6 +46,11 @@ class QuoteController extends Controller
             "locations"     => Location::all(),
             "users"         => User::all(),
             "cemeteries"    => Cemetery::all(),
+            "burial_society_organizations"    => BurialSocietyOrganization::all(),
+            "grave_spaces"    => GraveSpace::all(),
+            "letter_types"    => LetterType::all(),
+            "materials"    => Material::all(),
+            "base_ledgers" => BasedLedger::all(),
             "titles"        => ["None", "Mr","Mrs","Miss","Ms","Dr"],
             "months"        => ["January","February","March","April","May","June","July","August","September","October","November","December"],
             "years"         => ["2024","2025","2026"],

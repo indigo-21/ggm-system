@@ -791,7 +791,7 @@
             }).join("") : b.items;
             a.html(c)
         }),
-        dropdownCheck = renderer.create('<div class="dropdown-menu note-check">', function(a, b) {
+        dropdownCheck = renderer.create('<div class="dropdown-menu note-check" style="color:red"> ', function(a, b) {
             var c = $.isArray(b.items) ? b.items.map(function(a) {
                 var c = "string" == typeof a ? a : a.value || "",
                     d = b.template ? b.template(a) : a;
