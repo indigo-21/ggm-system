@@ -44,7 +44,7 @@
                                     <x-input type="text" name="username" value="{{ $user?->username ?? old('username') }}" inputformat="alphanumeric" label="Username" :required="true" :error="$errors->first('username')"/>
                                 </div>
                                 <div class="col-6">
-                                    <x-input type="text" name="email" value="{{ $user?->email ?? old('email') }}" inputformat="alphanumeric" label="Email Address" :required="true" :error="$errors->first('email')"/>
+                                    <x-input type="text" name="email" value="{{ $user?->email ?? old('email') }}" inputformat="alphanumeric" label="Email Address" :required="true" :error="$errors->first('email')" readonly="true"/>
                                 </div>
                                 {{-- @if (!isset($user)) --}}
                                     <div class="col-6">
