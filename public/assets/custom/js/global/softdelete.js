@@ -38,3 +38,10 @@ $(document).on("click","#soft-delete",function(){
     });
 })
 
+
+function toCapitalCase(input){
+    if (typeof input !== 'string' || input.length === 0) {
+        throw new TypeError('Input must be a non-empty string');
+    }
+    return input.charAt(0).toUpperCase() + input.slice(1);
+}
