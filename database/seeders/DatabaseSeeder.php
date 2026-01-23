@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
                 AccessorySeeder::class,
                 BasedLedgerSeeder::class,
                 OrderTypeSeeder::class,
+                ColoursSeeder::class,
+                CustomerSeeder::class,
 
         ]);
 
