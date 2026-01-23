@@ -40,6 +40,25 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/plugins/scayt/dialogs/dialog.css?t=L7C8') }} ">
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/plugins/tableselection/styles/tableselection.css') }} ">
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/plugins/dialog/styles/dialog.css') }} ">
+
+        <style>
+            .daterangepicker select.hourselect,
+            .daterangepicker select.minuteselect {
+                display: none !important;
+            }
+            .datalist-input[list] {
+                width: 250px;
+                padding: 10px;
+                border: 2px solid #4f46e5;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+
+            .datalist-input[list]:focus {
+                outline: none;
+                border-color: #22c55e;
+            }
+        </style>
         
     </head>
     <body class="font-ubuntu">
@@ -99,6 +118,26 @@
                 </div>
             </div>
 
+            <!-- Medium Size -->
+            <div class="modal fade" id="formModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="title" id="formModalLabel">Modal title</h4>
+                        </div>
+                        <div class="modal-body" id="formModalBody"> 
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default waves-effect" id="formModalSave">SAVE CHANGES</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect" id="formModalClose" data-dismiss="modal">CLOSE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{ $modal ?? '' }}
+
 
 
 
@@ -154,6 +193,7 @@
             {{ $script ?? '' }}
 
             <script src="{{asset('assets/custom/js/global/softdelete.js')}}"></script>
+            <script src="{{asset('assets/custom/js/global/formModal.js')}}"></script>
 
         </div>
     </body>
