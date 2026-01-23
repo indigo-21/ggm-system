@@ -18,9 +18,12 @@ class Input extends Component
         public string $value        = "",
         public string $class        = "",
         public bool $disabled       = false,
+        public bool $readonly       = false,
         public string $uniqueid     = "",
         public string $inputformat  = "",
         public string $message      = "",
+        public bool $checked       = false,
+
     ) {
         $this->label         = Str::headline($label); // auto-generate label if not passed (optional)
         $this->inputformat  = match(strtolower($inputformat)) {
