@@ -4,7 +4,8 @@
         'id'            => '', 
         'label'         => false, 
         'required'      => false, 
-        'error'         => null
+        'error'         => null,
+        'checked'       => false,
     ])
 
    
@@ -22,17 +23,15 @@
                 @if($label) placeholder="Enter {{ $label }}" @endif
                 @if($required) required @endif
                 @if($disabled) disabled @endif
+                @if($readonly) readonly @endif
                 @if($uniqueid) data-unique-id="{{ $uniqueid }}" @endif
                 @if($inputformat) data-input-format="{{ $inputformat }}" @endif
             >
         
-            <label id="{{ $name }}-error" class="error" for="{{ $name }}">{{$error}}</label>
+            <label id="{{ $name }}-error" class="error">{{$error}}</label>
         </div>
     @elseif ($type === "radio")
         <div class="radio inlineblock">
-            @if ($label)
-                <label for="{{ $name }}">{{ $label }}</label>
-            @endif
             <input 
                 type="{{ $type }}"
                 name="{{ $name }}"
@@ -40,7 +39,11 @@
                 value="{{ old($name, $value) }}"
                 class="{{ $class }}"
                 @if($required) required @endif
+                @if($checked) checked @endif
             >
+            @if ($label)
+                <label class="mr-2" for="{{ $id }}">{{ $label }}</label>
+            @endif
         </div>
     @elseif($type === "textarea")
         <label for="{{ $name }}">{{ $label }}</label>
@@ -48,14 +51,13 @@
                 <textarea 
                 name="{{ $name }}"
                 id="{{ $name }}"
-                value="{{ old($name, $value) }}"
                 class="form-control no-resize {{ $class }}"
-                placeholder="Enter {{ $label }}"
+                @if($label) placeholder="Enter {{ $label }}" @endif
                 @if($required) required @endif
                 @if($disabled) disabled @endif
                 @if($uniqueid) data-unique-id="{{ $uniqueid }}" @endif
                 @if($inputformat) data-input-format="{{ $inputformat }}" @endif
-                rows="4"></textarea>
+                rows="5">{{ old($name, $value) }}</textarea>
         </div>
     @endif
 
