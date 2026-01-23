@@ -63,11 +63,6 @@ class LetterTypeSeeder extends Seeder
                 'name'          => 'Raised Lead',
                 'created_by'    => '1'
 
-            ],
-            [
-                'name'          => 'Others',
-                'created_by'    => '1'
-
             ]
 
         ];
