@@ -13,6 +13,7 @@ use App\Http\Controllers\LetterTypeController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AccessoryController;
 use App\Http\Controllers\BasedLedgerController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderTypeController;
 use App\Http\Controllers\QuoteController;
 
@@ -49,8 +50,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('order_type', OrderTypeController::class);
 
     // Module
+    Route::resource('customer', CustomerController::class);
     Route::resource('quote', QuoteController::class);
 
+    // GROUPING A ROUTE
+    // Route::group(['prefix'=> 'customer', 'as' => 'customer.'], function(){
+    // });
 
 
 });
