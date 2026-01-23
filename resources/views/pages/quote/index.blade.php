@@ -112,7 +112,34 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  
+                                    @foreach ($quotes as $quote )
+                                        <tr>
+                                            <th>{{$quote->created_at->format('F d, Y')}}</th>
+                                            <td>{{$quote->customer?->firstname ?? "" }} {{$quote->customer->lastname}}</td>
+                                            <td>{{$quote->deceased_name}}</td>
+                                            <td class="text-center">
+                                                {{date('F d, Y', strtotime($quote->consecration_date)) ?? "" }}
+                                            </td>
+                                            <td class="text-center">{{$quote?->cemetery->name ?? ""}}</td>
+                                            <td class="text-center">{{$quote?->grave_number ?? ""}}</td>
+                                            <td class="text-center">{{$quote?->invoice_no ?? ""}}</td>
+                                            <td class="text-center">
+                                                @if ($quote?->order_note->is_order_complete)
+                                                    <span class="badge badge-primary">Completed</span>
+                                                @else
+                                                    <span class="badge badge-danger">Incomplete</span>
+                                                @endif
+                                                {{-- <span class="badge badge-warning">Warning</span>
+                                                <span class="badge badge-info">Info</span> --}}
+                                            </td>
+                                            <td>{{$quote->user->firstname }} {{$quote->user->lastname }}</td>
+                                            <td>
+                                                <a href="{{route('quote.edit', $quote->id)}}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                                                    <i class="icon-eye"></i>&nbsp;View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
