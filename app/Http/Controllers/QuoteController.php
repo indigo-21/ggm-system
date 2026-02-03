@@ -18,8 +18,9 @@ use App\Models\Material;
 use App\Models\Colour;
 use App\Models\Customer;
 use App\Models\CustomerContact;
-use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderCost;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -70,6 +71,7 @@ class QuoteController extends Controller
                             ->toArray();
                 $data += [
                             "quote" => $quote,
+                            "order_cost" => OrderCost::find($id),
                             "customer_email" => $emails ? implode(";", $emails): "",
                             "customer_mobile_no" => $mobile_nos ? implode(";", $mobile_nos) : "",
                             "customer_tel_no" => $tel_nos ? implode(";", $tel_nos) : "",
@@ -82,7 +84,7 @@ class QuoteController extends Controller
                         "quotes" => Order::all()
                     ];
         }
-
+        
         return $data;
     }
 
@@ -115,7 +117,12 @@ class QuoteController extends Controller
             return redirect()->back()->with('error', $result["message"]);
         }else{
             $data = self::default_required_data();
-            return view("pages.quote.index", $data)->with("success", $result["message"]);
+            // return view("pages.quote.index", $data)->with("success", $result["message"]);
+            //  return redirect()->route("quote.edit", $result["order_id"])->with("success", $result["message"], $data);
+             return redirect()
+                ->route('quote.edit', $result['order_id'])
+                ->with('success', $result['message'])
+                ->with('data', $data);
         }
     }
 
@@ -149,7 +156,8 @@ class QuoteController extends Controller
         }else{
             $data = self::default_required_data();
             session()->flash('success', $result['message']);
-            return view("pages.quote.index", $data);
+            // return view("pages.quote.index", $data);
+            return redirect()->route("quote.edit", $id);
         }
     }
 

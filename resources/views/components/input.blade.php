@@ -26,6 +26,7 @@
                 @if($readonly) readonly @endif
                 @if($uniqueid) data-unique-id="{{ $uniqueid }}" @endif
                 @if($inputformat) data-input-format="{{ $inputformat }}" @endif
+                autocomplete="off"
             >
         
             <label id="{{ $name }}-error" class="error">{{$error}}</label>

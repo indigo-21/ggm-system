@@ -14,16 +14,11 @@ return new class extends Migration
         Schema::create('order_costs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained();
-            $table->string('price_description')->nullable();
-            $table->float('price_description_amount', 2)->nullable();
+            $table->string('description')->nullable();
+            $table->float('amount', 2)->nullable();
             $table->integer('letter_count')->nullable();
             $table->float('letter_amount',2)->nullable();
-            $table->string('price_description_1')->nullable();
-            $table->float('price_description_amount_1', 2)->nullable();
-            $table->string('price_description_2')->nullable();
-            $table->float('price_description_amount_2', 2)->nullable();
-            $table->string('price_description_3')->nullable();
-            $table->float('price_description_amount_3', 2)->nullable();
+            $table->float('letter_total_amount',2)->nullable();
             $table->string('discount_description')->nullable();
             $table->float('discount_amount', 2)->nullable();
             $table->float('total', 2)->nullable();

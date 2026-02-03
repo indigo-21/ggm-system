@@ -458,51 +458,82 @@
                             <div class="col-6 row px-5">
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="price_description" value="" label="Price Description" />
+                                        @php
+                                            $old_cost_description = isset($order_cost) ? $order_cost?->description ?? '' : '';
+                                        @endphp
+                                        <x-input type="text" name="cost_description" value="{{ $old_cost_description }}" label="Price Description" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right price-amount amount-prices" name="price_amount" value="0.00" label="Price Amount" />
+                                        @php
+                                            $old_cost_amount = isset($order_cost) ? $order_cost?->amount ?? '0.00' : '0.00';
+                                        @endphp
+                                        <x-input type="text" class="text-right price-amount amount-prices" name="cost_amount" value="{{ $old_cost_amount }}" label="Price Amount" />
                                     </div>
                                 </div>
                                 <div class="col-12 row">
                                     <div class="col-2">
-                                        <x-input type="text" class="amount-prices" name="letters_no" value="0" :label="false"/>
+                                        @php
+                                            $old_letters_no = isset($order_cost) ? $order_cost?->letter_count ?? '0' : '0';
+                                        @endphp
+                                        <x-input type="text" class="amount-prices" name="letters_no" value="{{$old_letters_no}}" :label="false"/>
                                     </div>
                                     <div class="col-2">
                                         <span class="fw-bold">Letters @</span>
                                     </div>
                                     <div class="col-3">
-                                        <x-input type="text" class="text-right amount-prices" name="letters_amount" value="0.00" :label="false"/>
+                                        @php
+                                            $old_letters_amount = isset($order_cost) ? $order_cost?->letter_amount ?? '0.00' : '0.00';
+                                        @endphp
+                                        <x-input type="text" class="text-right amount-prices" name="letters_amount" value="{{$old_letters_amount}}" :label="false"/>
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right price-amount" name="letters_total_amount" readonly="true" value="0.00" :label="false" />
+                                        @php
+                                            $old_letters_total_amount = isset($order_cost) ? $order_cost?->old_letters_total_amount ?? '0.00' : '0.00';
+                                        @endphp
+                                        <x-input type="text" class="text-right price-amount" name="letters_total_amount" readonly="true" value="{{$old_letters_total_amount}}" :label="false" />
                                     </div>
                                 </div>
-                                <div class="col-12 row">
-                                    <div class="col-7">
-                                        <x-input type="textarea" name="price_description_1" value="" :label="false"/>
+
+                                <div class="additional-cost-container">
+                                    @foreach ( $order_cost->additionals as $index => $additional )
+                                        <div class="col-12 row">
+                                            <div class="col-2">
+                                                <button type="button" class="btn btn-danger btn-simple waves-effect mr-5 remove-additional-cost"> - </button>
+                                            </div>
+                                            <div class="col-5">
+                                                <x-input type="textarea" name="price_description[{{ $index }}]" value="{{ $additional?->description ?? '' }}" :label="false"/>
+                                            </div>
+                                            <div class="col-5 d-flex align-items-center">
+                                                <x-input type="text" class="text-right price-amount amount-prices" name="price_amount[{{ $index }}]" value="{{ $additional?->amount ?? '0.00' }}" :label="false" />
+                                            </div>
+                                        </div>
+                                    @endforeach
+
+                                </div>
+                                
+
+                                @for ($index = 0; $index < 3 ; $index++)
+                                    <div class="col-12 row">
+                                        <div class="col-1 d-flex align-items-center">
+                                            <button type="button" class="btn btn-danger btn-simple waves-effect remove-additional-cost d-flex justify-content-center align-items-center"> <i class="zmdi zmdi-minus-circle"></i> </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type="textarea" name="price_description[{{ $index }}]" value="" :label="false"/>
+                                        </div>
+                                        <div class="col-5 d-flex align-items-center">
+                                            <x-input type="text" class="text-right price-amount amount-prices" name="price_amount[{{ $index }}]" value="0.00" :label="false" />
+                                        </div>
                                     </div>
-                                    <div class="col-5 d-flex align-items-center">
-                                        <x-input type="text" class="text-right price-amount amount-prices" name="price_amount_1" value="0.00" :label="false" />
+                                @endfor
+
+                                
+                                <div class="col-12 row mt-5">
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-danger btn-simple waves-effect w-100 remove-additional-cost"> Add Cost </button>
                                     </div>
                                 </div>
-                                <div class="col-12 row">
-                                    <div class="col-7">
-                                        <x-input type="textarea" name="price_description_2" value="" :label="false"/>
-                                    </div>
-                                    <div class="col-5 d-flex align-items-center">
-                                        <x-input type="text" class="text-right price-amount amount-prices" name="price_amount_2" value="0.00" :label="false"/>
-                                    </div>
-                                </div>
-                                <div class="col-12 row">
-                                    <div class="col-7">
-                                        <x-input type="textarea" name="price_description_3" value="" :label="false"/>
-                                    </div>
-                                    <div class="col-5 d-flex align-items-center">
-                                        <x-input type="text" class="text-right price-amount amount-prices" name="price_amount_3" value="0.00" :label="false"/>
-                                    </div>
-                                </div>
-                                <div class="col-12 row">
+                                    
+                                <div class="col-12 row mt-5">
                                     <div class="col-7">
                                         <x-input type="text" name="discount_description" value="" label="Discount" />
                                     </div>

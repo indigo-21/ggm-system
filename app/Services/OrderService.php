@@ -106,25 +106,23 @@ class OrderService
         // return $result ? $result->id() : dd("Error on: Order Related");
         return [
                 "success" => $result ? true : false,
-                "message" => $message
+                "message" => $message,
+                "order_id" => $order_id
         ];
     }
     
     public function order_cost_upsert($request, $id = false){
+        $cost_additional_description = $request->price_description;
+        $cost_additional_amount = $request->price_amount;
 
         $data = !$id ? new OrderCost() : OrderCost::findOrFail($id);
 
         $data->order_id = $request->order_id;
-        $data->price_description = $request->price_description;
-        $data->price_description_amount = $request->price_description_amount;
+        $data->description = $request->cost_description;
+        $data->amount = $request->cost_amount;
         $data->letter_count = $request->letter_count;
         $data->letter_amount = $request->letter_amount;
-        $data->price_description_1 = $request->price_description_1;
-        $data->price_description_amount_1 = $request->price_description_amount_1;
-        $data->price_description_2 = $request->price_description_2;
-        $data->price_description_amount_2 = $request->price_description_amount_2;
-        $data->price_description_3 = $request->price_description_3;
-        $data->price_description_amount_3 = $request->price_description_amount_3;
+        $data->letter_total_amount = $request->letters_total_amount;
         $data->discount_description = $request->discount_description;
         $data->discount_amount = $request->discount_amount;
         $data->total = $request->total;
@@ -147,6 +145,26 @@ class OrderService
         $data->is_cost_analysis_trade = $request->is_cost_analysis_trade;
 
         $result = $data->save();
+
+        if($result && count($cost_additional_description)){
+            $order_cost_id = $data->id;
+            $cost_additional_description_length = count($cost_additional_description);
+            $cost_additional_data = [];
+            for ($i=0; $i < $cost_additional_description_length ; $i++) { 
+                if($cost_additional_description[$i]){
+                   array_push($cost_additional_data, [
+                        "order_cost_id" => $order_cost_id,
+                        "description" => $cost_additional_description[$i],
+                        "amount" => $cost_additional_amount[$i],
+                    ]); 
+                }
+            }
+
+            if(count($cost_additional_data) > 0){
+                $result = DB::table("order_cost_additionals")->insert($cost_additional_data);
+            }
+
+        }
 
         return $result ? $data->id : false;
     }
