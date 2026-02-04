@@ -53,9 +53,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('customer', CustomerController::class);
     Route::resource('quote', QuoteController::class);
 
-    // GROUPING A ROUTE
-    // Route::group(['prefix'=> 'customer', 'as' => 'customer.'], function(){
-    // });
+    // GROUPING QUOTE
+    Route::group(['prefix'=> 'quote', 'as' => 'quote.'], function(){
+        Route::post('/upsert_order_instruction_note', [QuoteController::class, 'upsertOrderInstructionNote'])
+            ->name('upsert_order_instruction_note');
+    });
 
 
 });

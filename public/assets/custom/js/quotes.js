@@ -240,9 +240,170 @@ $(function () {
 
     });
 
-     $(document).on("keyup", ".amount-prices", function(){
+    $(document).on("keyup", ".amount-prices", function(){
         costCalculation();
     });
+
+    $(document).on("click",".remove-additional-cost", function(){
+        let cost_additional_section = $(this).closest(".cost-additional-section");
+        cost_additional_section.remove();
+    }); 
+
+    $(document).on("click", ".add-additional-cost", function(){
+        let last_section = $(".cost-additional-section").length;
+        let section_element = last_section  == 0 ? ".letters-section" : ".cost-additional-section";
+        let html = `<div class="col-12 row cost-additional-section mt-4">
+                        <div class="col-1 d-flex align-items-center">
+                            <button type="button" class="btn btn-danger btn-simple waves-effect remove-additional-cost d-flex justify-content-center align-items-center"> <i class="zmdi zmdi-minus-circle"></i> </button>
+                        </div>
+                        <div class="col-6">
+                            <textarea name="price_description[${last_section}]" id="price_description[${last_section}]" class="form-control no-resize " data-input-format="[a-zA-Z\s]" rows="5"></textarea>
+                        </div>
+                        <div class="col-5 d-flex align-items-center">
+                            <input type="text" name="price_amount[${last_section}]" id="price_amount[${last_section}]" value="0.00" class="form-control text-right price-amount amount-prices" data-input-format="[a-zA-Z\s]" autocomplete="off" aria-invalid="false">
+                        </div>
+                    </div>`;
+        $(section_element).last().after(html);
+    });
+
+    $(document).on("click", "#note_btn", function(){
+         $('#notesTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+
+        CKEDITOR.replace('order_notes',{
+            height: 300,
+            toolbar:[
+                ["Bold","TextColor"]
+            ]
+        });
+
+        $("#notesModal").modal("show");
+    }); 
+    
+    $(document).on("click", "#save_order_note_btn", function(){
+        let order_id = $(this).attr("order_id");
+        CKEDITOR.instances.order_notes.updateElement();
+        let data = {
+            order_id: order_id,
+            order_instruction_note_id: $("[name=order_instruction_note_id]").val(),
+            method: "note",
+            notes: $("#order_notes").val()
+        }
+        upsertOrderInstructionNote(data);
+    });
+
+
+    $(document).on("click", ".edit-additional-cost", function(){
+        let this_parent = $(this).closest(".modal-body");
+        let isNote = $(this).attr("type_of_note") == "note";
+        let order_instruction_note_id = $(this).attr("order_instruction_note_id");
+        let order_instruction_note = $(this).closest(".order_instruction").find(".order_instruction_note").html();
+        if(isNote){
+            $("[name=order_instruction_note_id]").val(order_instruction_note_id);
+            CKEDITOR.instances.order_notes.setData(order_instruction_note);
+        }else{
+            $("[name=order_instruction_factory_note_id]").val(order_instruction_note_id);
+            CKEDITOR.instances.order_factory_notes.setData(order_instruction_note);
+        }
+        
+    });
+
+    $(document).on("click", "#factory_note_btn", function(){
+        
+        $('#factoryNotesTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+
+        CKEDITOR.replace('order_factory_notes',{
+            height: 300,
+            toolbar:[
+                ["Bold","TextColor"]
+            ]
+        });
+
+        $("#factoryNotesModal").modal("show");
+    });
+
+    $(document).on("click", "#save_factory_note_btn", function(){
+        let order_id = $(this).attr("order_id");
+        CKEDITOR.instances.order_factory_notes.updateElement();
+        let data = {
+            order_id: order_id,
+            order_instruction_note_id: $("[name=order_instruction_factory_note_id]").val(),
+            method: "factory_note",
+            notes: $("#order_factory_notes").val()
+        }
+        upsertOrderInstructionNote(data);
+    });
+
+    
+
+    function upsertOrderInstructionNote(data){
+        let isNote = data.method == "note";
+        $.ajax({
+            url: `${BASE_URL}/quote/upsert_order_instruction_note`, 
+            type: 'POST', 
+            data, 
+            dataType: 'json', 
+            beforeSend:function(){
+                $("#notesTableBody").html(`<tr><td colspan="4" class="text-center">Loading...</td></tr>`);
+            },
+            success: function(response) {
+
+                let html = "";
+                
+                response.map((note, index) => {
+                    let notes = note.notes;
+                    let created_by = note.created_by;
+                    let updated_by = note.updated_by;
+                    let created_at = note.created_at;
+                    let updated_at = note.updated_at;
+                    let order_instruction_note_id = note.order_instruction_note_id;
+
+                    html += `<tr class="order_instruction">
+                                <td class="order_instruction_note">${notes}</td>
+                                <td>
+                                    <small>Created By: ${created_by} </small>
+                                    <br>
+                                    <small>Updated By: ${updated_by} </small>
+                                </td>
+                                <td>
+                                    <small>Created At: ${created_at} </small>
+                                    <br>
+                                    <small>Updated At: ${updated_at} </small>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" order_instruction_note_id="${order_instruction_note_id}">
+                                        <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
+                                    </button>
+                                </td>
+                            </tr>`;
+                });
+
+                if(isNote){
+                    CKEDITOR.instances.order_notes.setData('');
+                }else{
+                    CKEDITOR.instances.order_factory_notes.setData('');
+                }
+                $(isNote ? "#notesTableBody" : "#factoryNotesTableBody").html(html);
+                $(isNote ? "#order_notes" : "#order_factory_notes" ).val("");
+                
+            },
+            error: function(xhr, status, error) {
+
+                console.error(error);
+
+            }
+
+        });
+    }
 
     function costCalculation(){
         let letter_no = parseFloat($("[name=letters_no]").val() || 0);

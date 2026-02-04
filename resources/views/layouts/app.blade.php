@@ -61,7 +61,7 @@
         </style>
         
     </head>
-    <body class="font-ubuntu">
+    <body class="font-ubuntu" base_url="{{url("/")}}" >
         <div id="body" class="theme-cyan">
 
             <!-- Page Loader -->

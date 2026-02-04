@@ -470,7 +470,7 @@
                                         <x-input type="text" class="text-right price-amount amount-prices" name="cost_amount" value="{{ $old_cost_amount }}" label="Price Amount" />
                                     </div>
                                 </div>
-                                <div class="col-12 row">
+                                <div class="col-12 row letters-section">
                                     <div class="col-2">
                                         @php
                                             $old_letters_no = isset($order_cost) ? $order_cost?->letter_count ?? '0' : '0';
@@ -494,13 +494,13 @@
                                     </div>
                                 </div>
 
-                                <div class="additional-cost-container">
+                                @if (count($order_cost->additionals) > 0)
                                     @foreach ( $order_cost->additionals as $index => $additional )
                                         <div class="col-12 row">
                                             <div class="col-2">
                                                 <button type="button" class="btn btn-danger btn-simple waves-effect mr-5 remove-additional-cost"> - </button>
                                             </div>
-                                            <div class="col-5">
+                                            <div class="col-7">
                                                 <x-input type="textarea" name="price_description[{{ $index }}]" value="{{ $additional?->description ?? '' }}" :label="false"/>
                                             </div>
                                             <div class="col-5 d-flex align-items-center">
@@ -508,28 +508,26 @@
                                             </div>
                                         </div>
                                     @endforeach
-
-                                </div>
+                                @else
+                                    @for ($index = 0; $index < 4 ; $index++)
+                                        <div class="col-12 row cost-additional-section">
+                                            <div class="col-1 d-flex align-items-center">
+                                                <button type="button" class="btn btn-danger btn-simple waves-effect remove-additional-cost d-flex justify-content-center align-items-center"> <i class="zmdi zmdi-minus-circle"></i> </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <x-input type="textarea" name="price_description[{{ $index }}]" value="" :label="false"/>
+                                            </div>
+                                            <div class="col-5 d-flex align-items-center">
+                                                <x-input type="text" class="text-right price-amount amount-prices" name="price_amount[{{ $index }}]" value="0.00" :label="false" />
+                                            </div>
+                                        </div>
+                                    @endfor
+                                @endif
                                 
-
-                                @for ($index = 0; $index < 3 ; $index++)
-                                    <div class="col-12 row">
-                                        <div class="col-1 d-flex align-items-center">
-                                            <button type="button" class="btn btn-danger btn-simple waves-effect remove-additional-cost d-flex justify-content-center align-items-center"> <i class="zmdi zmdi-minus-circle"></i> </button>
-                                        </div>
-                                        <div class="col-6">
-                                            <x-input type="textarea" name="price_description[{{ $index }}]" value="" :label="false"/>
-                                        </div>
-                                        <div class="col-5 d-flex align-items-center">
-                                            <x-input type="text" class="text-right price-amount amount-prices" name="price_amount[{{ $index }}]" value="0.00" :label="false" />
-                                        </div>
-                                    </div>
-                                @endfor
-
                                 
                                 <div class="col-12 row mt-5">
                                     <div class="col-12">
-                                        <button type="button" class="btn btn-danger btn-simple waves-effect w-100 remove-additional-cost"> Add Cost </button>
+                                        <button type="button" class="btn btn-danger btn-simple waves-effect w-100 add-additional-cost"> Add Cost </button>
                                     </div>
                                 </div>
                                     
@@ -587,7 +585,7 @@
                                 </div>
                                 <div class="col-12 row">
                                     <div class="offset-7 col-5">
-                                        <x-input type="text" class="text-right" name="balance_amount" value="0.00" readonly="true" label="Balance" />
+                                        <x-input type="text" class="text-right" name="balance_amount" value="{{$order_balance ?? '0.00'}}" readonly="true" label="Balance" />
                                     </div>
                                 </div>
 
@@ -600,8 +598,8 @@
 
                                 @isset($quote)
                                     <div class="col-12 d-flex align-items-center py-5">
-                                        <button type="button" class="btn btn-danger btn-simple waves-effect mr-5">Notes</button>
-                                        <button type="button" class="btn btn-danger btn-simple waves-effect">Factory Notes</button>
+                                        <button type="button" class="btn btn-danger btn-simple waves-effect mr-5" id="note_btn">Notes</button>
+                                        <button type="button" class="btn btn-danger btn-simple waves-effect" id="factory_note_btn">Factory Notes</button>
                                     </div>
                                 @endisset
 
@@ -850,7 +848,7 @@
     </div>
 
     <x-slot name="modal">
-        <!-- Large Size -->
+        <!-- For Customer Modal -->
             <div class="modal fade" id="customerModal" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                     <div class="modal-content">
@@ -889,7 +887,8 @@
                     </div>
                 </div>
             </div>
-        <!-- Large Size -->
+        
+        <!-- For Select Others Modal -->
             <div class="modal fade" id="forOthersModal" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                     <div class="modal-content">
@@ -906,6 +905,127 @@
                     </div>
                 </div>
             </div>
+        
+        <!-- For Notes Modal -->
+        <div class="modal fade" id="notesModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="notesModalLabel">Add Notes</h4>
+                    </div>
+                    <div class="modal-body row" id="notesModalBody"> 
+                        <div class="col-12 py-1">
+                            <input type="hidden" name="order_instruction_note_id" value="">
+                            <x-input type="textarea" class="text-right" name="order_notes" value="" label="Order Notes" />
+                        </div>
+                        <div class="col-12 py-3 text-center">
+                            <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_order_note_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
+                        </div>
+                        <div class="col-12">
+                            <table class="table table-bordered table-striped table-hover dataTable" id="notesTable" style="font-size:90%">
+                                <thead>
+                                    <tr>
+                                        <th>Notes</th>
+                                        <th style="width:10%;">User</th>
+                                        <th style="width:10%;">Timestamp</th>
+                                        <th style="width:10%;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="notesTableBody" >
+                                     @foreach ($order_instruction_notes as $instruction_note )
+                                        @if ($instruction_note->type_of_note == '1')
+                                            <tr class="order_instruction">
+                                                <td class="order_instruction_note">{{$instruction_note->notes}}</td>
+                                                <td>
+                                                    <small>Created By: {{$instruction_note->created_user?->firstname ?? '' }} {{$instruction_note->created_user?->lastname ?? '' }} </small>
+                                                    <br>
+                                                    <small>Updated By: {{$instruction_note->updated_user?->firstname ?? '' }} {{$instruction_note->updated_user?->lastname ?? '' }} </small>
+                                                </td>
+                                                <td>
+                                                    <small>Created At: {{date('F d, Y', strtotime($instruction_note->created_at)) ?? "" }} </small>
+                                                    <br>
+                                                    <small>Updated At: {{date('F d, Y', strtotime($instruction_note->updated_at)) ?? "" }} </small>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" type_of_note="note" order_instruction_note_id="{{$instruction_note->id}}">
+                                                        <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                     @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">Back</button>
+                        {{-- <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button> --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- For Notes Modal -->
+        <div class="modal fade" id="factoryNotesModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="factoryNotesModalLabel">List of Factory Notes</h4>
+                    </div>
+                    <div class="modal-body row" id="factoryNotesModalBody"> 
+                        <div class="col-12 py-1">
+                            <input type="hidden" name="order_instruction_factory_note_id" value="">
+                            <x-input type="textarea" class="text-right" name="order_factory_notes" value="" label="Factory Notes" />
+                        </div>
+                        <div class="col-12 py-3 text-center">
+                            <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_factory_note_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
+                        </div>
+                        <div class="col-12">
+                            <table class="table table-bordered table-striped table-hover dataTable" id="factoryNotesTable" style="font-size:90%">
+                                <thead>
+                                    <tr>
+                                        <th>Notes</th>
+                                        <th style="width:10%;">User</th>
+                                        <th style="width:10%;">Timestamp</th>
+                                        <th style="width:10%;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="factoryNotesTableBody" >
+                                     @foreach ($order_instruction_notes as $instruction_note )
+                                        @if ($instruction_note->type_of_note == '2')
+                                            <tr class="order_instruction">
+                                                <td class="order_instruction_note">{{$instruction_note->notes}}</td>
+                                                <td>
+                                                    <small>Created By: {{$instruction_note->created_user?->firstname ?? '' }} {{$instruction_note->created_user?->lastname ?? '' }} </small>
+                                                    <br>
+                                                    <small>Updated By: {{$instruction_note->updated_user?->firstname ?? '' }} {{$instruction_note->updated_user?->lastname ?? '' }} </small>
+                                                </td>
+                                                <td>
+                                                    <small>Created At: {{date('F d, Y', strtotime($instruction_note->created_at)) ?? "" }} </small>
+                                                    <br>
+                                                    <small>Updated At: {{date('F d, Y', strtotime($instruction_note->updated_at)) ?? "" }} </small>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" type_of_note="factory_note" order_instruction_note_id="{{$instruction_note->id}}">
+                                                        <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                     @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">Back</button>
+                        {{-- <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button> --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </x-slot>
 
     <x-slot name="script">
