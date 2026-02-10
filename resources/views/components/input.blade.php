@@ -9,10 +9,10 @@
     ])
 
    
-    @if($type === "text" || $type === "password")
+    @if($type === "text" || $type === "password" || $type === "date")
         <div class="form-group form-float">
             @if ($label)
-                <label for="{{ $name }}">{{ $label }}</label>
+                <label class="{{ $class }}" for="{{ $name }}">{{ $label }}</label>
             @endif
             <input 
                 type="{{ $type }}"
@@ -28,8 +28,8 @@
                 @if($inputformat) data-input-format="{{ $inputformat }}" @endif
                 autocomplete="off"
             >
-        
-            <label id="{{ $name }}-error" class="error">{{$error}}</label>
+            {{-- <label id="{{ $name }}-error" class="error">{{$error}}</label> --}}
+            <span class="invalid-feedback">{{$error ?? $label." is required"}}</span>
         </div>
     @elseif ($type === "radio")
         <div class="radio inlineblock">
@@ -59,6 +59,7 @@
                 @if($uniqueid) data-unique-id="{{ $uniqueid }}" @endif
                 @if($inputformat) data-input-format="{{ $inputformat }}" @endif
                 rows="5">{{ old($name, $value) }}</textarea>
+                <span class="invalid-feedback">{{$error ?? $label." is required"}}</span>
         </div>
     @endif
 

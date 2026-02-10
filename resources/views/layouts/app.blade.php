@@ -42,10 +42,10 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/plugins/ckeditor/plugins/dialog/styles/dialog.css') }} ">
 
         <style>
-            .daterangepicker select.hourselect,
+            /* .daterangepicker select.hourselect,
             .daterangepicker select.minuteselect {
                 display: none !important;
-            }
+            } */
             .datalist-input[list] {
                 width: 250px;
                 padding: 10px;

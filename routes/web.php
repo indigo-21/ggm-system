@@ -14,9 +14,9 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AccessoryController;
 use App\Http\Controllers\BasedLedgerController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\OrderTypeController;
 use App\Http\Controllers\QuoteController;
-
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -59,6 +59,14 @@ Route::middleware('auth')->group(function () {
             ->name('upsert_order_instruction_note');
     });
 
+    // GROUPING ORDER PAYMENT
+    Route::group(['prefix'=> 'order_payment', 'as' => 'order_payment.'], function(){
+        Route::post('/order_payment_upsert', [OrderPaymentController::class, 'upsert'])->name('order_payment_upsert');
+        Route::post('/order_payment_destroy', [OrderPaymentController::class, 'destroy'])->name('order_payment_destroy');
+        Route::get('/order_payment_print_receipt/{id}', [OrderPaymentController::class, 'print_receipt'])->name('order_payment_print_receipt');
+    });
+
+    
 
 });
 

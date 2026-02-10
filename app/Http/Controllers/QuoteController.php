@@ -22,6 +22,7 @@ use App\Models\Order;
 use App\Models\OrderCost;
 use App\Models\OrderInstructionNote;
 use App\Models\OrderPayment;
+use App\Models\OrderNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -42,6 +43,7 @@ class QuoteController extends Controller
                     "users"       => User::all(),
                     "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
                     "years"       => ["2024","2025","2026"],
+                    "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
                 ];
         if($isFrom == "form"){
             $data += [
@@ -81,10 +83,12 @@ class QuoteController extends Controller
                 $data += [
                             "quote" => $quote,
                             "order_cost" => $order_cost,
+                            "order_note" => OrderNote::where("order_id", $id)->first(),
                             "customer_email" => $emails ? implode(";", $emails): "",
                             "customer_mobile_no" => $mobile_nos ? implode(";", $mobile_nos) : "",
                             "customer_tel_no" => $tel_nos ? implode(";", $tel_nos) : "",
                             "order_instruction_notes" => OrderInstructionNote::where("order_id", $id)->get(),
+                            "total_deposit" => $total_deposit,
                             "order_payments" => $order_payments,
                             "order_balance" => floatVal($order_cost->gross_amount) - floatVal($total_deposit),
                         ];

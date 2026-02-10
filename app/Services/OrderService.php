@@ -140,13 +140,22 @@ class OrderService
         $data->vat_amount = $request->vat_amount;
         $data->zero_rated_fee = $request->zero_rated_fee;
         $data->adjustment = $request->adjustment;
-        $data->gross_amount = $request->gross_amount;
+        $data->gross_amount = $request->grand_total_amount;
         $data->is_cost_analysis_print = $request->is_cost_analysis_print;
         $data->is_cost_analysis_trade = $request->is_cost_analysis_trade;
 
         $result = $data->save();
 
         if($result && count($cost_additional_description)){
+            $existing_additional_costs_ids = [];
+            $existing_additional_costs = DB::table("order_cost_additionals")->where("order_cost_id", $data->id)->get();
+
+            foreach ($existing_additional_costs as $key => $value) {
+                array_push($existing_additional_costs_ids, $value->id);
+            }  
+
+
+
             $order_cost_id = $data->id;
             $cost_additional_description_length = count($cost_additional_description);
             $cost_additional_data = [];
@@ -162,6 +171,9 @@ class OrderService
 
             if(count($cost_additional_data) > 0){
                 $result = DB::table("order_cost_additionals")->insert($cost_additional_data);
+                if($result && count($existing_additional_costs_ids) > 0){
+                    DB::table("order_cost_additionals")->whereIn("id", $existing_additional_costs_ids)->delete();
+                }
             }
 
         }

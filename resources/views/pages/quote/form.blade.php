@@ -496,11 +496,11 @@
 
                                 @if (count($order_cost->additionals) > 0)
                                     @foreach ( $order_cost->additionals as $index => $additional )
-                                        <div class="col-12 row">
-                                            <div class="col-2">
-                                                <button type="button" class="btn btn-danger btn-simple waves-effect mr-5 remove-additional-cost"> - </button>
+                                        <div class="col-12 row cost-additional-section">
+                                            <div class="col-1 d-flex align-items-center">
+                                                <button type="button" class="btn btn-danger btn-simple waves-effect remove-additional-cost d-flex justify-content-center align-items-center"> <i class="zmdi zmdi-minus-circle"></i> </button>
                                             </div>
-                                            <div class="col-7">
+                                            <div class="col-6">
                                                 <x-input type="textarea" name="price_description[{{ $index }}]" value="{{ $additional?->description ?? '' }}" :label="false"/>
                                             </div>
                                             <div class="col-5 d-flex align-items-center">
@@ -533,59 +533,74 @@
                                     
                                 <div class="col-12 row mt-5">
                                     <div class="col-7">
-                                        <x-input type="text" name="discount_description" value="" label="Discount" />
+                                        <x-input type="text" name="discount_description" value="{{$order_cost?->discount_description ?? '' }}" label="Discount" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right price-amount amount-prices" name="discount_amount" value="0.00" label="Amount" />
+                                        <x-input type="text" class="text-right price-amount amount-prices" name="discount_amount" value="{{$order_cost?->discount_amount ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
 
                                 <div class="col-12 row">
                                     <div class="offset-7 col-5">
-                                        <x-input type="text" class="text-right" name="total_amount" value="0.00" readonly="true" label="Total" />
+                                        <x-input type="text" class="text-right" name="total_amount" value="{{$order_cost?->total ?? '0.00' }}" readonly="true" label="Total" />
                                     </div>
                                 </div>
 
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="cemetery_fees_description_1" value="" label="Cemetery Fees 1" />
+                                        <x-input type="text" name="cemetery_fees_description_1" value="{{$order_cost?->cemetery_fee_description_1 ?? '' }}" label="Cemetery Fees 1" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right zero-rated amount-prices" name="cemetery_fees_amount_1" value="0.00" label="Amount" />
+                                        <x-input type="text" class="text-right zero-rated amount-prices" name="cemetery_fees_amount_1" value="{{$order_cost?->cemetery_fee_amount_1 ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="cemetery_fees_description_2" value="" label="Cemetery Fees 1" />
+                                        <x-input type="text" name="cemetery_fees_description_2" value="{{$order_cost?->cemetery_fee_description_2 ?? '' }}" label="Cemetery Fees 2" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right zero-rated amount-prices" name="cemetery_fees_amount_2" value="0.00" label="Amount" />
+                                        <x-input type="text" class="text-right zero-rated amount-prices" name="cemetery_fees_amount_2" value="{{$order_cost?->cemetery_fee_amount_2 ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
 
-                                <div class="col-12 row">
-                                    <div class="offset-7 col-5">
-                                        <x-input type="text" class="text-right" name="grand_total_amount" value="0.00" readonly="true" label="Grand Total" />
+                                <div class="col-12 row my-3">
+                                    @php
+                                        $is_red_label = false;
+                                        $grand_total_label = "Grand Total";
+                                        if(isset($quote)){
+                                            $grand_total_additional_label =  !$order_note->is_inscription_complete ? "Incomplete" : "Completed";
+                                            $is_red_label = !$order_note->is_inscription_complete;
+                                            if(($quote->order_type_id == 1 || $quote->order_type_id == 2) ){
+                                                $grand_total_label = "Grand Total - Inscription " .$grand_total_additional_label;
+                                            }
+
+                                        }
+                                    @endphp
+                                    <div class="col-7 col-7 d-flex align-items-center">
+                                        <label class="{{ $is_red_label ? 'text-danger' : '' }}" for="grand_total_amount">{{$grand_total_label}}</label>
+                                    </div>
+                                    <div class="col-5">
+                                        <x-input type="text" class="text-right" name="grand_total_amount" value="{{ number_format($order_cost?->gross_amount ?? 0, 2)  ?? '0.00' }}" readonly="true" :label="false"  />
                                     </div>
                                 </div>
 
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="deposit_description" value="" label="Deposit" />
+                                        <x-input type="text" name="deposit_description" value="{{$order_cost?->deposit_description ?? '' }}" label="Deposit" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right amount-prices" name="deposit_amount" value="0.00" label="Amount" />
+                                        <x-input type="text" class="text-right amount-prices" name="deposit_amount" value="{{$order_cost?->deposit_amount ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
 
                                 <div class="col-12 row">
                                     <div class="offset-7 col-5">
-                                        <x-input type="text" class="text-right" name="amount_received" value="0.00" readonly="true" label="Amount Received" />
+                                        <x-input type="text" class="text-right" name="amount_received" value="{{number_format($total_deposit, 2)  ?? '0.00'}}" readonly="true" label="Amount Received" />
                                     </div>
                                 </div>
                                 <div class="col-12 row">
                                     <div class="offset-7 col-5">
-                                        <x-input type="text" class="text-right" name="balance_amount" value="{{$order_balance ?? '0.00'}}" readonly="true" label="Balance" />
+                                        <x-input type="text" class="text-right" name="balance_amount" value="{{number_format($order_balance, 2)  ?? '0.00'}}" readonly="true" label="Balance" />
                                     </div>
                                 </div>
 
@@ -593,7 +608,7 @@
 
                             <div class="col-6">
                                 <div class="col-12 py-1">
-                                     <x-input type="textarea" class="text-right" name="special_instruction" value="{{ isset($quote) ? $quote->special_instructions : '' }}" label="Special Instruction (for Admin)" />
+                                     <x-input type="textarea" class="text-right" name="special_instruction" value="{{ isset($quote) ? $quote->special_instruction : '' }}" label="Special Instruction (for Admin)" />
                                 </div>
 
                                 @isset($quote)
@@ -844,67 +859,91 @@
                 @endisset
                     <x-buttons id="submit_form" class="btn-primary" type="button" label="{{ !isset($quote) ? 'Create' : 'Update' }}" />
             </div>
+
+            <div class="row clearfix row-deck">
+                <div class="col-12">
+                    <div class="card top_widget">
+                        <div class="header">
+                            <h2>Order Actions</h2>
+                        </div>
+                        <div class="body row d-flex justify-content-center align-items-center mt-3">
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="inscription_btn" order_id="{{ $quote?->id ?? '' }}">Inscription</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="schedule_btn" order_id="{{ $quote?->id ?? '' }}">Schedule</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="receipts_btn" order_id="{{ $quote?->id ?? '' }}">Receipts</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="email_btn" order_id="{{ $quote?->id ?? '' }}">Email</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="history_btn" order_id="{{ $quote?->id ?? '' }}">History</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="photos_btn" order_id="{{ $quote?->id ?? '' }}">Photos</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="documents_btn" order_id="{{ $quote?->id ?? '' }}">Documents</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="working_files_btn" order_id="{{ $quote?->id ?? '' }}">Working Files</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_quotation_btn" order_id="{{ $quote?->id ?? '' }}">Print Quotation</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_order_btn" order_id="{{ $quote?->id ?? '' }}">Print Order</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_no_prices_btn" order_id="{{ $quote?->id ?? '' }}">Print - No Prices</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
         </form>
     </div>
 
     <x-slot name="modal">
         <!-- For Customer Modal -->
-            <div class="modal fade" id="customerModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="title" id="customerModalLabel">List of Customers</h4>
-                        </div>
-                        <div class="modal-body" id="customerModalBody"> 
-                            <table class="table table-bordered table-striped table-hover dataTable" id="customerTable" style="font-size:90%">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Address</th>
-                                        <th>Post Code</th>
-                                        <th>Contact</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="customerTableBody" >
-                                     @foreach ($customers as $customer )
-                                        <td>{{ $loop->iteration}}</td>
-                                        <td>{{$customer->firstname }} {{$customer->lastname }}</td>
-                                        <td>{{$customer->address_one }} {{$customer->address_two }} {{$customer->firstname }} {{$customer->city_county }}</td>
-                                        <td>{{$customer->customer_contacts->first()?->contact_value ?? "" }}</td>
-                                        <td>
-                                             <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center existing-customer-btn" customer-data="{{$customer}}">
-                                                    <i class="icon-eye"></i>&nbsp;Add
-                                                </button>
-                                        </td>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger btn-simple waves-effect" id="formModalClose" data-dismiss="modal">CLOSE</button>
-                        </div>
+        <div class="modal fade" id="customerModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="customerModalLabel">List of Customers</h4>
+                    </div>
+                    <div class="modal-body" id="customerModalBody"> 
+                        <table class="table table-bordered table-striped table-hover dataTable" id="customerTable" style="font-size:90%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Address</th>
+                                    <th>Post Code</th>
+                                    <th>Contact</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerTableBody" >
+                                    @foreach ($customers as $customer )
+                                    <td>{{ $loop->iteration}}</td>
+                                    <td>{{$customer->firstname }} {{$customer->lastname }}</td>
+                                    <td>{{$customer->address_one }} {{$customer->address_two }} {{$customer->firstname }} {{$customer->city_county }}</td>
+                                    <td>{{$customer->customer_contacts->first()?->contact_value ?? "" }}</td>
+                                    <td>
+                                            <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center existing-customer-btn" customer-data="{{$customer}}">
+                                                <i class="icon-eye"></i>&nbsp;Add
+                                            </button>
+                                    </td>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" id="formModalClose" data-dismiss="modal">CLOSE</button>
                     </div>
                 </div>
             </div>
+        </div>
         
         <!-- For Select Others Modal -->
-            <div class="modal fade" id="forOthersModal" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="title" id="forOthersModalLabel">Others</h4>
-                        </div>
-                        <div class="modal-body" id="forOthersModalBody"> 
-                                <x-input type="text" name="for_others_modal" value="" label="Other" />
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
-                            <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button>
-                        </div>
+        <div class="modal fade" id="forOthersModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="forOthersModalLabel">Others</h4>
+                    </div>
+                    <div class="modal-body" id="forOthersModalBody"> 
+                            <x-input type="text" name="for_others_modal" value="" label="Other" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
+                        <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button>
                     </div>
                 </div>
             </div>
+        </div>
         
         <!-- For Notes Modal -->
         <div class="modal fade" id="notesModal" tabindex="-1" role="dialog">
@@ -966,7 +1005,7 @@
             </div>
         </div>
 
-        <!-- For Notes Modal -->
+        <!-- For Factory Notes Modal -->
         <div class="modal fade" id="factoryNotesModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -982,6 +1021,8 @@
                             <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_factory_note_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
                         </div>
                         <div class="col-12">
+
+
                             <table class="table table-bordered table-striped table-hover dataTable" id="factoryNotesTable" style="font-size:90%">
                                 <thead>
                                     <tr>
@@ -995,7 +1036,7 @@
                                      @foreach ($order_instruction_notes as $instruction_note )
                                         @if ($instruction_note->type_of_note == '2')
                                             <tr class="order_instruction">
-                                                <td class="order_instruction_note">{{$instruction_note->notes}}</td>
+                                                <td class="order_instruction_note">{!!$instruction_note->notes!!}</td>
                                                 <td>
                                                     <small>Created By: {{$instruction_note->created_user?->firstname ?? '' }} {{$instruction_note->created_user?->lastname ?? '' }} </small>
                                                     <br>
@@ -1021,6 +1062,95 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">Back</button>
                         {{-- <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button> --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- For Payments(Receipts Button) Modal -->
+        <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="paymentModalLabel">Order Payments</h4>
+                    </div>
+                    <div class="modal-body" id="paymentModalBody"> 
+                        <h3>Payment History</h3>
+                        <div class="payment-form row">
+                            <div class="col-4">
+                                <x-input type="text" name="payment_timestamp" value="" class="daterange-timestamp clear-daterange"
+                                    label="Payment Date & Time" />
+                            </div>
+                            <div class="col-4">
+                                <x-select class="z-index show-tick" name="payment_method" label="Payment Method" :required="true">
+                                    <option value="" disabled selected>-Select Payment Method-</option>
+                                    @foreach ($payment_methods as $payment_method)
+                                        <option value="{{ $payment_method["id"] }}">
+                                            {{ $payment_method["name"] }}</option>
+                                    @endforeach
+                                </x-select>
+                            </div>
+                            <div class="col-4">
+                                <x-input type="text" class="text-right price-amount amount-prices" name="payment_amount" value="" label="Price Amount" />
+                            </div>
+                            <div class="col-12">
+                                <x-input type="textarea" name="payment_comment" value="" label="Comment" />
+                            </div>
+
+                            <div class="col-12 py-3 text-center">
+                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_payment_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
+                            </div>
+                            
+                        </div>
+
+                        <table class="table table-bordered table-striped table-hover dataTable" id="paymentTable" style="font-size:90%">
+                            <thead>
+                                <tr>
+                                    <th style="width:15%;">User</th>
+                                    <th style="width:10%;">Date Time</th>
+                                    <th style="width:10%;">Method</th>
+                                    <th>Amount</th>
+                                    <th>Comment</th>
+                                    <th style="width:10%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentTableBody" >
+                                @foreach ($order_payments as $order_payment)
+                                    <tr>
+                                        <td>{{ $order_payment->created_user->firstname ?? '' }} {{ $order_payment->created_user->lastname ?? '' }}</td>
+                                        <td>{{ date('F d, Y h:i A', strtotime($order_payment->payment_datetime)) ?? "" }}</td>
+                                        <td>
+                                            @switch( $order_payment->payment_method)
+                                                @case(1)
+                                                    Cash
+                                                    @break
+                                                @case(2)
+                                                    Cheque
+                                                    @break
+                                                @case(3)
+                                                    Credit Card
+                                                    @break
+                                                @case(4)
+                                                    Bank Transfer
+                                                    @break
+                                                @default
+                                                    Debit Card
+                                            @endswitch
+                                        </td>
+                                        <td class="text-right">{{ number_format($order_payment->amount, 2) }}</td>
+                                        <td>{{ $order_payment->comment }}</td>
+                                        <td class="text-center">
+                                            <a type="button" class="btn btn-danger btn-xs" href="{{ route('order_payment.order_payment_print_receipt', $order_payment->id) }}" target="_blank">Print Receipt</a>
+                                            <button type="button" class="btn btn-danger btn-xs order_payment_destroy" order_payment_id="{{ $order_payment->id }}" >Delete</button>
+                                        </td>
+                                    </tr>   
+                                @endforeach
+                            </tbody>
+                        </table>    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
+                        <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button>
                     </div>
                 </div>
             </div>

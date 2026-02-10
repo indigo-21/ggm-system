@@ -89,6 +89,10 @@ $(function () {
         $(this).val(picker.startDate.format('MMMM YYYY'));
     });
 
+    $('.daterange-timestamp').on('apply.daterangepicker', function (ev, picker) {
+        $(this).val(picker.startDate.format('MMMM DD, YYYY h:mm A'));
+    });
+
     // Clear value
     $('.clear-daterange').on('cancel.daterangepicker', function () {
         $(this).val('');
@@ -247,6 +251,8 @@ $(function () {
     $(document).on("click",".remove-additional-cost", function(){
         let cost_additional_section = $(this).closest(".cost-additional-section");
         cost_additional_section.remove();
+        updateCostAdditionalSectionElement();
+        costCalculation();
     }); 
 
     $(document).on("click", ".add-additional-cost", function(){
@@ -257,16 +263,32 @@ $(function () {
                             <button type="button" class="btn btn-danger btn-simple waves-effect remove-additional-cost d-flex justify-content-center align-items-center"> <i class="zmdi zmdi-minus-circle"></i> </button>
                         </div>
                         <div class="col-6">
-                            <textarea name="price_description[${last_section}]" id="price_description[${last_section}]" class="form-control no-resize " data-input-format="[a-zA-Z\s]" rows="5"></textarea>
+                            <textarea name="price_description[${last_section}]" id="price_description[${last_section}]" class="form-control no-resize price-description" data-input-format="[a-zA-Z\s]" rows="5"></textarea>
                         </div>
                         <div class="col-5 d-flex align-items-center">
                             <input type="text" name="price_amount[${last_section}]" id="price_amount[${last_section}]" value="0.00" class="form-control text-right price-amount amount-prices" data-input-format="[a-zA-Z\s]" autocomplete="off" aria-invalid="false">
                         </div>
                     </div>`;
         $(section_element).last().after(html);
+        updateCostAdditionalSectionElement();
     });
 
+    function updateCostAdditionalSectionElement(){
+        $(".cost-additional-section").each((index, item) => {
+            let element = $(item);
+            element.find("textarea").attr("name", `price_description[${index}]`).attr("id", `price_description[${index}]`);
+            element.find("input").attr("name", `price_amount[${index}]`).attr("id", `price_amount[${index}]`);
+        });
+    };
+
     $(document).on("click", "#note_btn", function(){
+        if ($.fn.DataTable.isDataTable('#notesTable')) {
+            $('#notesTable').DataTable().destroy();
+        }
+        if (CKEDITOR.instances.order_notes) {
+            CKEDITOR.instances.order_notes.destroy(true);
+        }
+
          $('#notesTable').DataTable({
             dom: 'Bfrtip',
             buttons: [
@@ -296,7 +318,6 @@ $(function () {
         upsertOrderInstructionNote(data);
     });
 
-
     $(document).on("click", ".edit-additional-cost", function(){
         let this_parent = $(this).closest(".modal-body");
         let isNote = $(this).attr("type_of_note") == "note";
@@ -313,7 +334,13 @@ $(function () {
     });
 
     $(document).on("click", "#factory_note_btn", function(){
-        
+        if ($.fn.DataTable.isDataTable('#factoryNotesTable')) {
+            $('#factoryNotesTable').DataTable().destroy();
+        }
+        if (CKEDITOR.instances.order_factory_notes) {
+            CKEDITOR.instances.order_factory_notes.destroy(true);
+        }
+
         $('#factoryNotesTable').DataTable({
             dom: 'Bfrtip',
             buttons: [
@@ -341,6 +368,110 @@ $(function () {
             notes: $("#order_factory_notes").val()
         }
         upsertOrderInstructionNote(data);
+    });
+
+    $(document).on("click", "#receipts_btn", function(){
+
+        if ($.fn.DataTable.isDataTable('#paymentTable')) {
+            $('#paymentTable').DataTable().destroy();
+        }
+
+        $('#paymentTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+
+        $('.daterange-timestamp').each(function () {
+            if ($(this).data('daterangepicker')) {
+                $(this).data('daterangepicker').remove();
+                $(this).off('.daterangepicker');
+            }
+        });
+
+        $('.daterange-timestamp').daterangepicker({
+            singleDatePicker: true,
+            timePicker: true,
+            timePicker24Hour: false,
+            timePickerSeconds: false,
+            autoUpdateInput: false,
+            startDate: moment(),
+            locale: {
+                format: 'MMMM DD, YYYY h:m A',
+                cancelLabel: 'Clear'
+            }
+        });
+
+        $(".payment-form").find("input[required], select[required], textarea[required]").each(function(){
+            let element = $(this);
+            let element_name = element.attr("name");
+            let element_value = element.val("").trigger("change");
+        });
+
+        $("#paymentModal").modal("show");
+
+    }); 
+
+    $(document).on("click","#save_payment_btn",function(){
+        let has_error = false;
+        let order_id = $(this).attr("order_id");
+        let payment_datetime = $("[name=payment_timestamp]").val();
+        let payment_method = $("[name=payment_method]").val();
+        let payment_amount = $("[name=payment_amount]").val();
+        let payment_comment = $("[name=payment_comment]").val();
+
+
+        $(".payment-form").find("input[required], select[required], textarea[required]").each(function(){
+            let element = $(this);
+            let element_name = element.attr("name");
+            let element_value = element.val().trim();
+            if(element_value == ""){
+                has_error = true;
+                $(`[name=${element_name}]`).addClass("is-invalid");
+            }else{
+                $(`[name=${element_name}]`).removeClass("is-invalid");
+            }
+        });
+
+        if(!has_error){
+            let data = { order_id, payment_datetime, payment_method, payment_amount, payment_comment };
+
+            $.ajax({
+                url: `${BASE_URL}/order_payment/order_payment_upsert`,
+                type: 'POST',
+                data,
+                dataType: 'json',
+                beforeSend:function(){
+                    $("#paymentTableBody").html(`<tr><td colspan="6" class="text-center">Loading...</td></tr>`);
+                },
+                success:function(response){
+                    orderPaymentTableData(response);
+                },
+                error:function(xhr, status, error){
+                   console.error(error);   
+                }
+            })
+        }
+    });
+
+    $(document).on("click",".order_payment_destroy",function(){
+        $order_payment_id = $(this).attr("order_payment_id");
+        $.ajax({
+            url: `${BASE_URL}/order_payment/order_payment_destroy`,
+            type: 'POST',
+            data: {id: $order_payment_id},
+            dataType: 'json',
+            beforeSend:function(){
+                $("#paymentTableBody").html(`<tr><td colspan="6" class="text-center">Loading...</td></tr>`);
+            },
+            success:function(response){
+                 orderPaymentTableData(response);
+            },
+            error:function(xhr, status, error){
+                console.error(error);   
+            }
+        })
     });
 
     
@@ -405,6 +536,44 @@ $(function () {
         });
     }
 
+    function orderPaymentTableData(data = {}){
+        let html = "";
+        data.map((payment,index) => {
+            let payment_method = "Debit Card";
+
+            switch(payment.payment_method){
+                case 1:
+                    payment_method = "Cash";
+                    break;
+                case 2:
+                    payment_method = "Cheque";
+                    break;
+                case 3:
+                    payment_method = "Credit Card";
+                    break;
+                case 4:
+                    payment_method = "Bank Transfer";
+                    break;
+            }
+
+            html += `
+                <tr>
+                    <td>${payment.created_by}</td>
+                    <td>${payment.payment_datetime}</td>
+                    <td>${payment_method}</td>
+                    <td class="text-right">${payment.amount.toFixed(2)}</td>
+                    <td>${payment.comment ?? ''}</td>
+                    <td class="text-center">
+                        <a type="button" class="btn btn-danger btn-xs" href="${BASE_URL}/order_payment/order_payment_print_receipt/${payment.id}" target="_blank">Print Receipt</a>
+                        <button type="button" class="btn btn-danger btn-xs order_payment_destroy" order_payment_id="${payment.id}" >Delete</button>
+                    </td>
+                </tr>   
+            `;
+        });
+
+        $("#paymentTableBody").html(html);
+    }
+
     function costCalculation(){
         let letter_no = parseFloat($("[name=letters_no]").val() || 0);
         let letter_amt = parseFloat($("[name=letters_amount]").val() || 0);
@@ -442,5 +611,6 @@ $(function () {
         $("[name=gross_amount]").val(gross_amt.toFixed(2));
         
     }
+
 
 });
