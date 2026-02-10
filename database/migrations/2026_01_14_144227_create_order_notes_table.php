@@ -34,7 +34,7 @@ return new class extends Migration
             $table->date('sent_to_customer')->nullable();
             $table->date('back_to_design_team_for_further_alterations')->nullable();
             $table->date('masonart_printout_approved')->nullable();
-            $table->date('approved_by_burial_society')->nullable();
+            $table->boolean('approved_by_burial_society')->nullable()->default(0);
             $table->timestamps();
         });
     }

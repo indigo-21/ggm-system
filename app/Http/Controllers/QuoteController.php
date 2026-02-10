@@ -47,19 +47,19 @@ class QuoteController extends Controller
                 ];
         if($isFrom == "form"){
             $data += [
-                    "auth_session"                      => User::find(Auth::id()),
-                    "locations"                         => Location::all(),
-                    "cemeteries"                        => Cemetery::all(),
-                    "burial_society_organizations"      => BurialSocietyOrganization::all(),
-                    "grave_spaces"                      => GraveSpace::all(),
-                    "letter_types"                      => LetterType::all(),
-                    "materials"                         => Material::all(),
-                    "base_ledgers"                      => BasedLedger::all(),
-                    "accessories"                       => Accessory::all(),
-                    "colours"                           => Colour::all(),
-                    "customers"                         => Customer::all(),
-                    "titles"                            => ["None", "Mr","Mrs","Miss","Ms","Dr"],
-            ];
+                            "auth_session"                      => User::find(Auth::id()),
+                            "locations"                         => Location::all(),
+                            "cemeteries"                        => Cemetery::all(),
+                            "burial_society_organizations"      => BurialSocietyOrganization::all(),
+                            "grave_spaces"                      => GraveSpace::all(),
+                            "letter_types"                      => LetterType::all(),
+                            "materials"                         => Material::all(),
+                            "base_ledgers"                      => BasedLedger::all(),
+                            "accessories"                       => Accessory::all(),
+                            "colours"                           => Colour::all(),
+                            "customers"                         => Customer::all(),
+                            "titles"                            => ["None", "Mr","Mrs","Miss","Ms","Dr"],
+                    ];
             if($id) {
                 $quote    = Order::findOrFail($id);
                 $emails   = CustomerContact::where("customer_id", $quote->customer_id)

@@ -124,7 +124,7 @@
                                             <td class="text-center">{{$quote?->grave_number ?? ""}}</td>
                                             <td class="text-center">{{$quote?->invoice_no ?? ""}}</td>
                                             <td class="text-center">
-                                                @if ($quote?->order_note->is_order_complete)
+                                                @if (isset($quote?->order_note->is_order_complete) && $quote->order_note->is_order_complete == 1)
                                                     <span class="badge badge-primary">Completed</span>
                                                 @else
                                                     <span class="badge badge-danger">Incomplete</span>

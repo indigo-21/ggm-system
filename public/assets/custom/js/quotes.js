@@ -244,7 +244,7 @@ $(function () {
 
     });
 
-    $(document).on("keyup", ".amount-prices", function(){
+    $(document).on("keyup", ".cost-computation", function(){
         costCalculation();
     });
 
@@ -266,20 +266,12 @@ $(function () {
                             <textarea name="price_description[${last_section}]" id="price_description[${last_section}]" class="form-control no-resize price-description" data-input-format="[a-zA-Z\s]" rows="5"></textarea>
                         </div>
                         <div class="col-5 d-flex align-items-center">
-                            <input type="text" name="price_amount[${last_section}]" id="price_amount[${last_section}]" value="0.00" class="form-control text-right price-amount amount-prices" data-input-format="[a-zA-Z\s]" autocomplete="off" aria-invalid="false">
+                            <input type="text" name="price_amount[${last_section}]" id="price_amount[${last_section}]" value="0.00" class="form-control text-right price-amount for-total-amount" data-input-format="[a-zA-Z\s]" autocomplete="off" aria-invalid="false">
                         </div>
                     </div>`;
         $(section_element).last().after(html);
         updateCostAdditionalSectionElement();
     });
-
-    function updateCostAdditionalSectionElement(){
-        $(".cost-additional-section").each((index, item) => {
-            let element = $(item);
-            element.find("textarea").attr("name", `price_description[${index}]`).attr("id", `price_description[${index}]`);
-            element.find("input").attr("name", `price_amount[${index}]`).attr("id", `price_amount[${index}]`);
-        });
-    };
 
     $(document).on("click", "#note_btn", function(){
         if ($.fn.DataTable.isDataTable('#notesTable')) {
@@ -474,6 +466,16 @@ $(function () {
         })
     });
 
+    $(document).on("change",".select-timestamp", function(){
+        if($(this).val() == "1"){
+            let date_today = moment().format('MMMM DD, YYYY h:mm A');
+            let parent = $(this).closest(".form-group");
+            parent.find("input[type=hidden]").val(date_today);
+            parent.find(".span-timestamp").html(`<strong>-</strong> ${date_today}`); 
+        }
+
+    });
+
     
 
     function upsertOrderInstructionNote(data){
@@ -575,42 +577,98 @@ $(function () {
     }
 
     function costCalculation(){
+        let total_amt = 0;
+        let grand_total = 0;
+        let gross_amount = 0;
         let letter_no = parseFloat($("[name=letters_no]").val() || 0);
         let letter_amt = parseFloat($("[name=letters_amount]").val() || 0);
-        let cemetery_1 = parseFloat($("[name=cemetery_fees_amount_1]").val() || 0);
-        let cemetery_2 = parseFloat($("[name=cemetery_fees_amount_2]").val() || 0);
+        let cemetery_1 = parseFloat($("[name=cemetery_fee_amount_1]").val() || 0);
+        let cemetery_2 = parseFloat($("[name=cemetery_fee_amount_2]").val() || 0);
+        let discount_amount = parseFloat($("[name=discount_amount]").val() || 0);
+        let adjustment_amount = parseFloat($("[name=adjustment]").val() || 0);
         let letter_total_amt = letter_no * letter_amt;
-        let total_amt = 0;
         let vat_rate = parseFloat($("[name=vat_rate]").val() || 0);
         let zero_rated_fees = 0;
 
-        $(".price-amount").each((index, item)=>{
+        // Compute Number of Letters and display it into Element
+        $("[name=letters_total_amount]").val(letter_total_amt.toFixed(2));
+
+        // Get Sum of Total Amount
+        $(".for-total-amount").each((index, item)=>{
             let element = $(item);
             let temp_amt = element.val() == "" || !element.val()  ? "0" : element.val(); 
             total_amt += parseFloat(temp_amt);
         });
 
-        total_amt += cemetery_1 + cemetery_2;
+        // Deduct Discount in Total Amount
+        total_amt -= discount_amount;
 
-        $(".zero-rated").each((index, item) => {
-            let element = $(item);
-            let temp_amt = element.val() == "" || !element.val()  ? "0" : element.val(); 
-            zero_rated_fees += parseFloat(temp_amt);
-        });
+        // Display Total Amount in Element
+        $("[name=total_amount]").val(total_amt.toFixed(2));
+        
+        // Grand Total Computation and Display in Element
+        grand_total = total_amt + cemetery_1 + cemetery_2;
+        $("[name=grand_total_amount]").val(grand_total.toFixed(2));
 
-        let net_amt = (total_amt - zero_rated_fees) * 100 / (100 + vat_rate );
-        let vat_amt = net_amt * (vat_rate / 100);
-        let gross_amt = net_amt + vat_amt + zero_rated_fees;
+        // Net Amount Computation
+            // Get zero rated fees and display in Element
+            $(".zero-rated").each((index, item) => {
+                let element = $(item);
+                let temp_amt = element.val() == "" || !element.val()  ? "0" : element.val(); 
+                zero_rated_fees += parseFloat(temp_amt);
+            });
+            zero_rated_fees += adjustment_amount;
+            $("[name=zero_rated_fees]").val(zero_rated_fees.toFixed(2));
 
-        $("[name=letters_total_amount]").val(letter_total_amt.toFixed(2));
-        $("[name=total]").val(total_amt.toFixed(2));
-        $("[name=grand_total_amount]").val(total_amt.toFixed(2));
+        let net_amt = (grand_total - zero_rated_fees) * 100 / (100 + vat_rate );
         $("[name=net_amount]").val(net_amt.toFixed(2));
+
+        // VAT Amount Computation and Display in Element
+        let vat_amt = net_amt * (vat_rate / 100);
         $("[name=vat_amount]").val(vat_amt.toFixed(2));
-        $("[name=zero_rated_fees]").val(zero_rated_fees.toFixed(2));
-        $("[name=gross_amount]").val(gross_amt.toFixed(2));
+
+        // Gross Amount Computation and Display in Element
+        gross_amount = net_amt + vat_amt + zero_rated_fees + adjustment_amount;
+        $("[name=gross_amount]").val(gross_amount.toFixed(2));
+
+
+
+
+        // $(".price-amount").each((index, item)=>{
+        //     let element = $(item);
+        //     let temp_amt = element.val() == "" || !element.val()  ? "0" : element.val(); 
+        //     total_amt += parseFloat(temp_amt);
+        // });
+
+        // total_amt += cemetery_1 + cemetery_2;
+
+        // $(".zero-rated").each((index, item) => {
+        //     let element = $(item);
+        //     let temp_amt = element.val() == "" || !element.val()  ? "0" : element.val(); 
+        //     zero_rated_fees += parseFloat(temp_amt);
+        // });
+
+        // let net_amt = (total_amt - zero_rated_fees) * 100 / (100 + vat_rate );
+        // let vat_amt = net_amt * (vat_rate / 100);
+        // let gross_amt = net_amt + vat_amt + zero_rated_fees;
+
+        // $("[name=letters_total_amount]").val(letter_total_amt.toFixed(2));
+        // $("[name=total]").val(total_amt.toFixed(2));
+        // $("[name=grand_total_amount]").val(total_amt.toFixed(2));
+        // $("[name=net_amount]").val(net_amt.toFixed(2));
+        // $("[name=vat_amount]").val(vat_amt.toFixed(2));
+        // $("[name=zero_rated_fees]").val(zero_rated_fees.toFixed(2));
+        // $("[name=gross_amount]").val(gross_amt.toFixed(2));
         
     }
+
+    function updateCostAdditionalSectionElement(){
+        $(".cost-additional-section").each((index, item) => {
+            let element = $(item);
+            element.find("textarea").attr("name", `price_description[${index}]`).attr("id", `price_description[${index}]`);
+            element.find("input").attr("name", `price_amount[${index}]`).attr("id", `price_amount[${index}]`);
+        });
+    };
 
 
 });

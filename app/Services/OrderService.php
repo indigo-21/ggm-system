@@ -120,17 +120,17 @@ class OrderService
         $data->order_id = $request->order_id;
         $data->description = $request->cost_description;
         $data->amount = $request->cost_amount;
-        $data->letter_count = $request->letter_count;
-        $data->letter_amount = $request->letter_amount;
+        $data->letter_count = $request->letters_no;
+        $data->letter_amount = $request->letters_amount;
         $data->letter_total_amount = $request->letters_total_amount;
         $data->discount_description = $request->discount_description;
         $data->discount_amount = $request->discount_amount;
-        $data->total = $request->total;
+        $data->total = $request->total_amount;
         $data->cemetery_fee_description_1 = $request->cemetery_fee_description_1;
         $data->cemetery_fee_amount_1 = $request->cemetery_fee_amount_1;
         $data->cemetery_fee_description_2 = $request->cemetery_fee_description_2;
         $data->cemetery_fee_amount_2 = $request->cemetery_fee_amount_2;
-        $data->grand_total = $request->grand_total;
+        $data->grand_total = $request->grand_total_amount;
         $data->deposit_description = $request->deposit_description;
         $data->deposit_amount = $request->deposit_amount;
         $data->amount_received = $request->amount_received;
@@ -138,9 +138,9 @@ class OrderService
         $data->net_amount = $request->net_amount;
         $data->vat_rate = $request->vat_rate;
         $data->vat_amount = $request->vat_amount;
-        $data->zero_rated_fee = $request->zero_rated_fee;
+        $data->zero_rated_fee = $request->zero_rated_fees;
         $data->adjustment = $request->adjustment;
-        $data->gross_amount = $request->grand_total_amount;
+        $data->gross_amount = $request->gross_amount;
         $data->is_cost_analysis_print = $request->is_cost_analysis_print;
         $data->is_cost_analysis_trade = $request->is_cost_analysis_trade;
 
@@ -153,8 +153,6 @@ class OrderService
             foreach ($existing_additional_costs as $key => $value) {
                 array_push($existing_additional_costs_ids, $value->id);
             }  
-
-
 
             $order_cost_id = $data->id;
             $cost_additional_description_length = count($cost_additional_description);
@@ -188,24 +186,28 @@ class OrderService
         $data->free_letters = $request->free_letters;
         $data->is_burial_society_fees_included = $request->is_burial_society_fees_included;
         $data->is_inscription_complete = $request->is_inscription_complete;
-        $data->is_application_form_sent_to_bs_with_cheque = $request->is_application_form_sent_to_bs_with_cheque;
-        $data->is_application_form_sent_to_bs_without_cheque = $request->is_application_form_sent_to_bs_without_cheque;
+        $data->is_application_form_sent_to_bs_with_cheque = $request->is_sent_to_bs_with_cheque;
+        $data->is_application_form_sent_to_bs_with_cheque_timestamp = $request->is_sent_to_bs_with_cheque_timestamp ? Carbon::parse($request->is_sent_to_bs_with_cheque_timestamp)->format('Y-m-d H:i:s') : null;
+        $data->is_application_form_sent_to_bs_without_cheque = $request->is_sent_to_bs_without_cheque;
+        $data->is_application_form_sent_to_bs_without_cheque_timestamp = $request->is_sent_to_bs_without_cheque_timestamp ? Carbon::parse($request->is_sent_to_bs_without_cheque_timestamp)->format('Y-m-d H:i:s') : null;
         $data->is_permit_not_required = $request->is_permit_not_required;
         $data->is_insurance = $request->is_insurance;
         $data->is_insurance_services = $request->is_insurance_services;
         $data->is_washdown_discussed = $request->is_washdown_discussed;
         $data->is_paid_by_bacs = $request->is_paid_by_bacs;
+        $data->is_paid_by_bacs_timestamp = $request->is_paid_by_bacs_timestamp ? Carbon::parse($request->is_paid_by_bacs_timestamp)->format('Y-m-d H:i:s') : null;
         $data->is_full_inscription_received = $request->is_full_inscription_received;
         $data->is_sent_to_burial_society = $request->is_sent_to_burial_society;
         $data->is_received_from_burial_society = $request->is_received_from_burial_society;
-        $data->is_order_complete = $request->is_ordered_complete;
-        $data->inscription_sent_to_design_team_for_printout = Carbon::parse($request?->inscription_sent_to_design_team_for_printout)->format('Y-m-d') ?? null;
-        $data->inscription_sent_to_gary_for_printout = Carbon::parse($request?->inscription_sent_to_gary_for_printout)->format('Y-m-d') ?? null;
-        $data->received_back_from_design_team = Carbon::parse($request?->received_back_from_design_team)->format('Y-m-d') ?? null;
-        $data->sent_to_customer = Carbon::parse($request?->sent_to_customer)->format('Y-m-d') ?? null;
-        $data->back_to_design_team_for_further_alterations = Carbon::parse($request?->back_to_design_team_for_further_alterations)->format('Y-m-d') ?? null;
-        $data->masonart_printout_approved = Carbon::parse($request?->masonart_printout_approved)->format('Y-m-d') ?? null;
-        $data->approved_by_burial_society = Carbon::parse($request?->approved_by_burial_society)->format('Y-m-d') ?? null;
+        $data->is_order_complete = $request->is_order_complete;
+        $data->inscription_sent_to_design_team_for_printout = $request->inscription_sent_to_design_team_for_printout ? Carbon::parse($request->inscription_sent_to_design_team_for_printout)->format('Y-m-d') : null;
+        $data->inscription_sent_to_gary_for_printout = $request->inscription_sent_to_gary_for_printout ? Carbon::parse($request->inscription_sent_to_gary_for_printout)->format('Y-m-d') : null;
+        $data->received_back_from_design_team = $request->received_back_from_design_team ? Carbon::parse($request->received_back_from_design_team)->format('Y-m-d') : null;
+        $data->sent_to_customer = $request->sent_to_customer ? Carbon::parse($request->sent_to_customer)->format('Y-m-d') : null;
+        $data->back_to_design_team_for_further_alterations = $request->back_to_design_team_for_further_alterations ? Carbon::parse($request->back_to_design_team_for_further_alterations)->format('Y-m-d') : null;
+        $data->masonart_printout_approved = $request->masonart_printout_approved ? Carbon::parse($request->masonart_printout_approved)->format('Y-m-d') : null;
+        // $data->approved_by_burial_society = Carbon::parse($request?->approved_by_burial_society)->format('Y-m-d') ?? null;
+        $data->approved_by_burial_society = $request?->approved_by_burial_society;
         
         $result = $data->save();
 

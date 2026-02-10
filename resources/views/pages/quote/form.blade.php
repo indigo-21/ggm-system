@@ -467,7 +467,7 @@
                                         @php
                                             $old_cost_amount = isset($order_cost) ? $order_cost?->amount ?? '0.00' : '0.00';
                                         @endphp
-                                        <x-input type="text" class="text-right price-amount amount-prices" name="cost_amount" value="{{ $old_cost_amount }}" label="Price Amount" />
+                                        <x-input type="text" class="text-right cost-computation for-total-amount" name="cost_amount" value="{{ $old_cost_amount }}" label="Price Amount" />
                                     </div>
                                 </div>
                                 <div class="col-12 row letters-section">
@@ -475,7 +475,7 @@
                                         @php
                                             $old_letters_no = isset($order_cost) ? $order_cost?->letter_count ?? '0' : '0';
                                         @endphp
-                                        <x-input type="text" class="amount-prices" name="letters_no" value="{{$old_letters_no}}" :label="false"/>
+                                        <x-input type="text" class="cost-computation" name="letters_no" value="{{$old_letters_no}}" :label="false"/>
                                     </div>
                                     <div class="col-2">
                                         <span class="fw-bold">Letters @</span>
@@ -484,17 +484,17 @@
                                         @php
                                             $old_letters_amount = isset($order_cost) ? $order_cost?->letter_amount ?? '0.00' : '0.00';
                                         @endphp
-                                        <x-input type="text" class="text-right amount-prices" name="letters_amount" value="{{$old_letters_amount}}" :label="false"/>
+                                        <x-input type="text" class="text-right cost-computation" name="letters_amount" value="{{$old_letters_amount}}" :label="false"/>
                                     </div>
                                     <div class="col-5">
                                         @php
-                                            $old_letters_total_amount = isset($order_cost) ? $order_cost?->old_letters_total_amount ?? '0.00' : '0.00';
+                                            $old_letters_total_amount = isset($order_cost) ? $order_cost?->letter_total_amount ?? '0.00' : '0.00';
                                         @endphp
-                                        <x-input type="text" class="text-right price-amount" name="letters_total_amount" readonly="true" value="{{$old_letters_total_amount}}" :label="false" />
+                                        <x-input type="text" class="text-right cost-computation for-total-amount" name="letters_total_amount" readonly="true" value="{{$old_letters_total_amount}}" :label="false" />
                                     </div>
                                 </div>
 
-                                @if (count($order_cost->additionals) > 0)
+                                @if (isset($order_cost) && count($order_cost->additionals) > 0)
                                     @foreach ( $order_cost->additionals as $index => $additional )
                                         <div class="col-12 row cost-additional-section">
                                             <div class="col-1 d-flex align-items-center">
@@ -504,7 +504,7 @@
                                                 <x-input type="textarea" name="price_description[{{ $index }}]" value="{{ $additional?->description ?? '' }}" :label="false"/>
                                             </div>
                                             <div class="col-5 d-flex align-items-center">
-                                                <x-input type="text" class="text-right price-amount amount-prices" name="price_amount[{{ $index }}]" value="{{ $additional?->amount ?? '0.00' }}" :label="false" />
+                                                <x-input type="text" class="text-right cost-computation for-total-amount" name="price_amount[{{ $index }}]" value="{{ $additional?->amount ?? '0.00' }}" :label="false" />
                                             </div>
                                         </div>
                                     @endforeach
@@ -518,7 +518,7 @@
                                                 <x-input type="textarea" name="price_description[{{ $index }}]" value="" :label="false"/>
                                             </div>
                                             <div class="col-5 d-flex align-items-center">
-                                                <x-input type="text" class="text-right price-amount amount-prices" name="price_amount[{{ $index }}]" value="0.00" :label="false" />
+                                                <x-input type="text" class="text-right cost-computation for-total-amount" name="price_amount[{{ $index }}]" value="0.00" :label="false" />
                                             </div>
                                         </div>
                                     @endfor
@@ -536,7 +536,7 @@
                                         <x-input type="text" name="discount_description" value="{{$order_cost?->discount_description ?? '' }}" label="Discount" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right price-amount amount-prices" name="discount_amount" value="{{$order_cost?->discount_amount ?? '0.00' }}" label="Amount" />
+                                        <x-input type="text" class="text-right cost-computation" name="discount_amount" value="{{$order_cost?->discount_amount ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
 
@@ -548,18 +548,18 @@
 
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="cemetery_fees_description_1" value="{{$order_cost?->cemetery_fee_description_1 ?? '' }}" label="Cemetery Fees 1" />
+                                        <x-input type="text" name="cemetery_fee_description_1" value="{{$order_cost?->cemetery_fee_description_1 ?? '' }}" label="Cemetery Fees 1" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right zero-rated amount-prices" name="cemetery_fees_amount_1" value="{{$order_cost?->cemetery_fee_amount_1 ?? '0.00' }}" label="Amount" />
+                                        <x-input type="text" class="text-right zero-rated cost-computation" name="cemetery_fee_amount_1" value="{{$order_cost?->cemetery_fee_amount_1 ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="cemetery_fees_description_2" value="{{$order_cost?->cemetery_fee_description_2 ?? '' }}" label="Cemetery Fees 2" />
+                                        <x-input type="text" name="cemetery_fee_description_2" value="{{$order_cost?->cemetery_fee_description_2 ?? '' }}" label="Cemetery Fees 2" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right zero-rated amount-prices" name="cemetery_fees_amount_2" value="{{$order_cost?->cemetery_fee_amount_2 ?? '0.00' }}" label="Amount" />
+                                        <x-input type="text" class="text-right zero-rated cost-computation" name="cemetery_fee_amount_2" value="{{$order_cost?->cemetery_fee_amount_2 ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
 
@@ -580,7 +580,7 @@
                                         <label class="{{ $is_red_label ? 'text-danger' : '' }}" for="grand_total_amount">{{$grand_total_label}}</label>
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right" name="grand_total_amount" value="{{ number_format($order_cost?->gross_amount ?? 0, 2)  ?? '0.00' }}" readonly="true" :label="false"  />
+                                        <x-input type="text" class="text-right" name="grand_total_amount" value="{{ number_format($order_cost?->grand_total ?? 0, 2)  ?? '0.00' }}" readonly="true" :label="false"  />
                                     </div>
                                 </div>
 
@@ -589,18 +589,18 @@
                                         <x-input type="text" name="deposit_description" value="{{$order_cost?->deposit_description ?? '' }}" label="Deposit" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right amount-prices" name="deposit_amount" value="{{$order_cost?->deposit_amount ?? '0.00' }}" label="Amount" />
+                                        <x-input type="text" class="text-right cost-computation" name="deposit_amount" value="{{$order_cost?->deposit_amount ?? '0.00' }}" label="Amount" />
                                     </div>
                                 </div>
 
                                 <div class="col-12 row">
                                     <div class="offset-7 col-5">
-                                        <x-input type="text" class="text-right" name="amount_received" value="{{number_format($total_deposit, 2)  ?? '0.00'}}" readonly="true" label="Amount Received" />
+                                        <x-input type="text" class="text-right" name="amount_received" value="{{number_format($total_deposit ?? 0, 2)  ?? '0.00'}}" readonly="true" label="Amount Received" />
                                     </div>
                                 </div>
                                 <div class="col-12 row">
                                     <div class="offset-7 col-5">
-                                        <x-input type="text" class="text-right" name="balance_amount" value="{{number_format($order_balance, 2)  ?? '0.00'}}" readonly="true" label="Balance" />
+                                        <x-input type="text" class="text-right" name="balance_amount" value="{{number_format($order_balance ?? 0, 2)  ?? '0.00'}}" readonly="true" label="Balance" />
                                     </div>
                                 </div>
 
@@ -636,28 +636,36 @@
                         </div>
                         <div class="body row">
                             <div class="col-6 row px-5">
+                                @php
+                                    $net_amount = $order_cost?->net_amount ?? 0;
+                                    $vat_rate = $order_cost?->vat_rate ?? 20;
+                                    $vat_amount = $order_cost?->vat_amount ?? 0;
+                                    $zero_rated_fee = $order_cost?->zero_rated_fee ?? 0;
+                                    $adjustment = $order_cost?->adjustment ?? 0;
+                                    $gross_amount = $order_cost?->gross_amount ?? 0;
+                                @endphp
                                 <div class="col-12 row">
                                     <div class="col-12">
-                                        <x-input type="text" class="text-right" name="net_amount" value="0.00" readonly="true" label="Net Amount" />
+                                        <x-input type="text" class="text-right" name="net_amount" value="{{ number_format($net_amount, 2) }}" readonly="true" label="Net Amount" />
                                     </div>
                                     <div class="col-12">
-                                        <x-input type="text" class="text-right" name="vat_rate" value="20.0" readonly="true" label="VAT Rate (%)" />
+                                        <x-input type="text" class="text-right" name="vat_rate" value="{{ $vat_rate }}" readonly="true" label="VAT Rate (%)" />
                                     </div>
                                     
                                     <div class="col-12">
-                                        <x-input type="text" class="text-right" name="vat_amount" value="0.00" readonly="true" label="VAT Amount" />
+                                        <x-input type="text" class="text-right" name="vat_amount" value="{{ number_format($vat_amount, 2) }}" readonly="true" label="VAT Amount" />
                                     </div>
                                     
                                     <div class="col-6">
-                                        <x-input type="text" class="text-right" name="zero_rated_fees" value="" readonly="true" label="Zero Rated Fees" disabled="true"/>
+                                        <x-input type="text" class="text-right" name="zero_rated_fees" value="{{ number_format($zero_rated_fee, 2) }}" readonly="true" label="Zero Rated Fees"/>
                                     </div>
 
                                     <div class="col-6">
-                                        <x-input type="text" class="text-right" class="text-right zero-rated amount-prices" name="adjustment" value="0.00" label="Adjustment" />
+                                        <x-input type="text" class="text-right" class="text-right cost-computation" name="adjustment" value="{{ number_format($adjustment, 2) }}" label="Adjustment" />
                                     </div>
 
                                     <div class="col-12">
-                                        <x-input type="text" class="text-right" name="gross_amount" value="0.00" readonly="true" label="Gross Amount" />
+                                        <x-input type="text" class="text-right" name="gross_amount" value="{{ number_format($gross_amount, 2) }}" readonly="true" label="Gross Amount" />
                                     </div>
 
                                     <div class="col-6">
@@ -684,7 +692,8 @@
                     </div>
                 </div>
             </div>
- 
+            
+            @isset($order_note)
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
@@ -695,63 +704,63 @@
                             <div class="col-6 row px-5">
                                 <div class="col-12 row">
                                     <div class="col-12">
-                                        <x-input type="text" name="free_letters" value="" label="Free Letters" />
+                                        <x-input type="text" name="free_letters" value="{{$order_note?->free_letters ?? ''}}" label="Free Letters" />
                                     </div>
 
                                     <div class="col-12">
                                         <x-select class="z-index show-tick" name="is_burial_society_fees_included" label="Burial society fees included">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                            <option value="0" {{ $order_note?->is_burial_society_fees_included == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{ $order_note?->is_burial_society_fees_included == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
                                         <x-select class="z-index show-tick" name="is_inscription_completed" label="Inscription Complete">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                            <option value="0" {{$order_note?->is_inscription_complete == 0 ? 'selected' : ''}}>- No -</option>
+                                            <option value="1" {{$order_note?->is_inscription_complete == 1 ? 'selected' : ''}}>- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="is_sent_to_bs_with_cheque" label="Application Form Sent to B/S with Cheque ">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                        <x-select class="z-index show-tick" name="is_sent_to_bs_with_cheque" has_timestamp="true" timestamp="{{ $order_note?->is_application_form_sent_to_bs_with_cheque_timestamp ?? false }}" label="Application Form Sent to B/S with Cheque ">
+                                            <option value="0" {{$order_note?->is_application_form_sent_to_bs_with_cheque == 0 ? 'selected' : ''}}>- No -</option>
+                                            <option value="1" {{$order_note?->is_application_form_sent_to_bs_with_cheque == 1 ? 'selected' : ''}}>- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="is_sent_to_bs_without_cheque" label="Application Form Sent to B/S without Cheque">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                        <x-select class="z-index show-tick" name="is_sent_to_bs_without_cheque" has_timestamp="true" timestamp="{{ $order_note?->is_application_form_sent_to_bs_without_cheque_timestamp ?? false}}" label="Application Form Sent to B/S without Cheque">
+                                            <option value="0" {{$order_note?->is_application_form_sent_to_bs_without_cheque == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{$order_note?->is_application_form_sent_to_bs_without_cheque == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="permit_not_required" label="Permit Not Required">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                        <x-select class="z-index show-tick" name="is_permit_not_required" label="Permit Not Required">
+                                            <option value="0" {{$order_note?->is_permit_not_required == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{$order_note?->is_permit_not_required == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="insurance" label="Stoneguard">
-                                            <option value="0" >- Not Applicable -</option>
-                                            <option value="1" >- To Print -</option>
-                                            <option value="2" >- Print -</option>
+                                        <x-select class="z-index show-tick" name="is_insurance" label="Stoneguard">
+                                            <option value="0" {{$order_note?->is_insurance == 0 ? 'selected' : ''}}>- Not Applicable -</option>
+                                            <option value="1" {{$order_note?->is_insurance == 1 ? 'selected' : ''}}>- To Print -</option>
+                                            <option value="2" {{$order_note?->is_insurance == 2 ? 'selected' : ''}}>- Print -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="insurance_service" label="Stoneguard Sevices">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                        <x-select class="z-index show-tick" name="is_insurance_services" label="Stoneguard Services">
+                                            <option value="0" {{$order_note?->is_insurance_services == 0 ? 'selected' : ''}}>- No -</option>
+                                            <option value="1" {{$order_note?->is_insurance_services == 1 ? 'selected' : ''}}>- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="washdown_discussed" label="Washdown Discussed">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                        <x-select class="z-index show-tick" name="is_washdown_discussed" label="Washdown Discussed">
+                                            <option value="0" {{$order_note?->is_washdown_discussed == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{$order_note?->is_washdown_discussed == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
@@ -762,37 +771,37 @@
                                <div class="col-12 row">
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="is_paid_by_bacs" label="Paid by Bacs">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                        <x-select class="z-index show-tick" name="is_paid_by_bacs" has_timestamp="true" timestamp="{{ $order_note?->is_paid_by_bacs_timestamp ?? false}}" label="Paid by Bacs">
+                                            <option value="0" {{$order_note?->is_paid_by_bacs == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{$order_note?->is_paid_by_bacs == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
                                         <x-select class="z-index show-tick" name="is_full_inscription_received" label="Full Inscriptions received">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                            <option value="0" {{$order_note?->is_full_inscription_received == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{$order_note?->is_full_inscription_received == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
                                         <x-select class="z-index show-tick" name="is_sent_to_burial_society" label="Sent to burial society">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                            <option value="0" {{$order_note?->is_sent_to_burial_society == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{$order_note?->is_sent_to_burial_society == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
                                         <x-select class="z-index show-tick" name="is_received_from_burial_society" label="Received from burial society">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                            <option value="0" {{$order_note?->is_received_from_burial_society == 0 ? 'selected' : ''}} >- No -</option>
+                                            <option value="1" {{$order_note?->is_received_from_burial_society == 1 ? 'selected' : ''}} >- Yes -</option>
                                         </x-select>
                                     </div>
 
                                     <div class="col-12">
-                                        <x-select class="z-index show-tick" name="is_ordered_complete" label="Order complete">
-                                            <option value="0" >- No -</option>
-                                            <option value="1" >- Yes -</option>
+                                        <x-select class="z-index show-tick" name="is_order_complete" label="Order complete">
+                                            <option value="0" {{ $order_note?->is_order_complete == 0 ? 'selected' : '' }} >- No -</option>
+                                            <option value="1" {{ $order_note?->is_order_complete == 1 ? 'selected' : '' }} >- Yes -</option>
                                         </x-select>
                                     </div>
                                     
@@ -800,34 +809,42 @@
                             </div>
 
                             <div class="col-12">
+                                @php
+                                    $inscription_sent_to_design_team_for_printout =  $order_note->inscription_sent_to_design_team_for_printout ? \Carbon\Carbon::parse($order_note->inscription_sent_to_design_team_for_printout)->format('F d, Y h:i A') : "";
+                                    $inscription_sent_to_gary_for_printout =  $order_note->inscription_sent_to_gary_for_printout ? \Carbon\Carbon::parse($order_note->inscription_sent_to_gary_for_printout)->format('F d, Y h:i A') : "";
+                                    $received_back_from_design_team =  $order_note->received_back_from_design_team ? \Carbon\Carbon::parse($order_note->received_back_from_design_team)->format('F d, Y h:i A') : "";
+                                    $sent_to_customer =  $order_note->sent_to_customer ? \Carbon\Carbon::parse($order_note->sent_to_customer)->format('F d, Y h:i A') : "";
+                                    $back_to_design_team_for_further_alterations =  $order_note->back_to_design_team_for_further_alterations ? \Carbon\Carbon::parse($order_note->back_to_design_team_for_further_alterations)->format('F d, Y h:i A') : "";
+                                    $masonart_printout_approved =  $order_note->masonart_printout_approved ? \Carbon\Carbon::parse($order_note->masonart_printout_approved)->format('F d, Y h:i A') : "";
+                                @endphp
                                 <div class="col-6">
-                                    <x-input type="text" name="inscription_sent_to_design_team_for_printout" value="" class="daterange clear-daterange"
+                                    <x-input type="text" name="inscription_sent_to_design_team_for_printout" value="{{ $inscription_sent_to_design_team_for_printout }}" class="daterange clear-daterange"
                                         label="Inscription sent to Design Team for Printout" />
                                 </div>
                                 <div class="col-6">
-                                    <x-input type="text" name="inscription_sent_to_gary_for_printout" value="" class="daterange clear-daterange"
+                                    <x-input type="text" name="inscription_sent_to_gary_for_printout" value="{{ $inscription_sent_to_gary_for_printout }}" class="daterange clear-daterange"
                                             label="Inscription sent to Gary for Printout" />
                                 </div>
                                 <div class="col-6">
-                                    <x-input type="text" name="received_back_from_design_team" value="" class="daterange clear-daterange"
+                                    <x-input type="text" name="received_back_from_design_team" value="{{ $received_back_from_design_team }}" class="daterange clear-daterange"
                                         label="Received back from Design Team" />
                                 </div>
                                 <div class="col-6">
-                                    <x-input type="text" name="sent_to_customer" value="" class="daterange clear-daterange"
+                                    <x-input type="text" name="sent_to_customer" value="{{ $sent_to_customer }}" class="daterange clear-daterange"
                                         label="Sent to Customer" />
                                 </div>
                                 <div class="col-6">
-                                    <x-input type="text" name="back_to_design_team_for_further_alterations" value="" class="daterange clear-daterange"
+                                    <x-input type="text" name="back_to_design_team_for_further_alterations" value="{{ $back_to_design_team_for_further_alterations }}" class="daterange clear-daterange"
                                         label="Back to Design Team for further alterations" />
                                 </div>
                                 <div class="col-6">
-                                    <x-input type="text" name="masonArt_printout_approved" value="" class="daterange clear-daterange"
+                                    <x-input type="text" name="masonart_printout_approved" value="{{ $masonart_printout_approved }}" class="daterange clear-daterange"
                                         label=" MasonArt Printout Approved" />
                                 </div>
                                 <div class="col-6">
-                                     <x-select class="z-index show-tick" name="is_approved_by_burial_society" label="Approved by Burial Society">
-                                        <option value="0" >- No -</option>
-                                        <option value="1" >- Yes -</option>
+                                     <x-select class="z-index show-tick" name="approved_by_burial_society" label="Approved by Burial Society">
+                                        <option value="0" {{ $order_note?->approved_by_burial_society == 0 ? 'selected' : '' }} >- No -</option>
+                                        <option value="1" {{ $order_note?->approved_by_burial_society == 1 ? 'selected' : '' }} >- Yes -</option>
                                     </x-select>
                                 </div>
                             </div>
@@ -836,6 +853,7 @@
                     </div>
                 </div>
             </div>
+            @endisset
 
             <div class="row clearfix row-deck">
                 <div class="col-12">
@@ -860,6 +878,7 @@
                     <x-buttons id="submit_form" class="btn-primary" type="button" label="{{ !isset($quote) ? 'Create' : 'Update' }}" />
             </div>
 
+            @isset($quote)
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
@@ -883,6 +902,9 @@
                     
                 </div>
             </div>
+            @endisset
+
+
         </form>
     </div>
 
@@ -945,6 +967,13 @@
             </div>
         </div>
         
+        {{-- 
+            For Notes Modal and Factory Notes Modal, we are using the same table to display the notes, just changing the content based on the type of note (1 for order instruction notes and 2 for factory notes). We also have a hidden input to store the id of the note being edited, if any. When the save button is clicked, we check if there is an id in the hidden input, if yes then we update the existing note, if not then we create a new note. After saving, we refresh the notes table to reflect the changes.
+        --}}
+        @php
+            $order_instruction_notes = $quote->order_instruction_notes ?? []; 
+            $order_payments  = $order_payments ?? []; 
+        @endphp
         <!-- For Notes Modal -->
         <div class="modal fade" id="notesModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
@@ -970,29 +999,29 @@
                                         <th style="width:10%;">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="notesTableBody" >
-                                     @foreach ($order_instruction_notes as $instruction_note )
-                                        @if ($instruction_note->type_of_note == '1')
-                                            <tr class="order_instruction">
-                                                <td class="order_instruction_note">{{$instruction_note->notes}}</td>
-                                                <td>
-                                                    <small>Created By: {{$instruction_note->created_user?->firstname ?? '' }} {{$instruction_note->created_user?->lastname ?? '' }} </small>
-                                                    <br>
-                                                    <small>Updated By: {{$instruction_note->updated_user?->firstname ?? '' }} {{$instruction_note->updated_user?->lastname ?? '' }} </small>
-                                                </td>
-                                                <td>
-                                                    <small>Created At: {{date('F d, Y', strtotime($instruction_note->created_at)) ?? "" }} </small>
-                                                    <br>
-                                                    <small>Updated At: {{date('F d, Y', strtotime($instruction_note->updated_at)) ?? "" }} </small>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" type_of_note="note" order_instruction_note_id="{{$instruction_note->id}}">
-                                                        <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                     @endforeach
+                                <tbody id="notesTableBody">
+                                        @foreach ($order_instruction_notes as $instruction_note )
+                                            @if ($instruction_note->type_of_note == '1')
+                                                <tr class="order_instruction">
+                                                    <td class="order_instruction_note">{{$instruction_note->notes}}</td>
+                                                    <td>
+                                                        <small>Created By: {{$instruction_note->created_user?->firstname ?? '' }} {{$instruction_note->created_user?->lastname ?? '' }} </small>
+                                                        <br>
+                                                        <small>Updated By: {{$instruction_note->updated_user?->firstname ?? '' }} {{$instruction_note->updated_user?->lastname ?? '' }} </small>
+                                                    </td>
+                                                    <td>
+                                                        <small>Created At: {{date('F d, Y', strtotime($instruction_note->created_at)) ?? "" }} </small>
+                                                        <br>
+                                                        <small>Updated At: {{date('F d, Y', strtotime($instruction_note->updated_at)) ?? "" }} </small>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" type_of_note="note" order_instruction_note_id="{{$instruction_note->id}}">
+                                                            <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -1091,7 +1120,7 @@
                                 </x-select>
                             </div>
                             <div class="col-4">
-                                <x-input type="text" class="text-right price-amount amount-prices" name="payment_amount" value="" label="Price Amount" />
+                                <x-input type="text" class="text-right cost-computation" name="payment_amount" value="" label="Price Amount" />
                             </div>
                             <div class="col-12">
                                 <x-input type="textarea" name="payment_comment" value="" label="Comment" />
