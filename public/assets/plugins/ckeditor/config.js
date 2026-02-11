@@ -36,6 +36,7 @@ CKEDITOR.editorConfig = function( config ) {
 	config.scayt_autoStartup = true;
 
 	// config.extraPlugins = 'font';
+	config.extraPlugins = 'pastefromword,font';
 
 
 

@@ -174,6 +174,7 @@
             <script src="{{asset('assets/plugins/ckeditor/editors.js')}}"></script> <!-- Ckeditor -->                  --}}
             {{-- CKEDITOR --}}
             <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/ckeditor.js') }}"></script>
+            {{-- <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script> --}}
             <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/config.js?t=L7C8') }}"></script>
             <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/lang/en.js?t=L7C8') }}"></script>
             <script type="text/javascript" src="{{asset('assets/plugins/ckeditor/styles.js?t=L7C8') }}"></script>

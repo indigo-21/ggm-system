@@ -90,7 +90,7 @@ class QuoteController extends Controller
                             "order_instruction_notes" => OrderInstructionNote::where("order_id", $id)->get(),
                             "total_deposit" => $total_deposit,
                             "order_payments" => $order_payments,
-                            "order_balance" => floatVal($order_cost->gross_amount) - floatVal($total_deposit),
+                            "order_balance" => floatVal($order_cost->gross_amount ?? 0) - floatVal($total_deposit),
                         ];
             }
         }else{

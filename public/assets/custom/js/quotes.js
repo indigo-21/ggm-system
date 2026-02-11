@@ -475,8 +475,44 @@ $(function () {
         }
 
     });
-
     
+    $(document).on("click","#inscription_btn", function(){
+        if (CKEDITOR.instances.order_inscription) {
+            CKEDITOR.instances.order_inscription.destroy(true);
+        }       
+        CKEDITOR.replace('order_inscription',{
+            height: 300,
+            toolbar: [['Bold', 'Italic', 'Underline', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'Font', 'FontSize', 'Table', 'Source', 'TextColor']]
+            // toolbar:[
+            //     ["Bold","TextColor"]
+            // ]
+        });
+        $("#inscriptionModal").modal("show");
+    });
+
+    $(document).on("click","#email_btn", function(){
+        if ($.fn.DataTable.isDataTable('#emailTable')) {
+            $('#emailTable').DataTable().destroy();
+        }       
+        $('#emailTable').DataTable();
+        $("#orderEmailModal").modal("show");       
+    });
+
+    $(document).on("click","#history_btn", function(){
+        $("#printingHistoryModal").modal("show");
+    });
+
+    $(document).on("click","#photos_btn", function(){
+        $("#orderPhotosModal").modal("show");
+    });
+
+    $(document).on("click","#documents_btn", function(){
+        $("#orderDocumentsModal").modal("show");
+    });
+
+    $(document).on("click","#working_files_btn", function(){
+        $("#orderWorkingFilesModal").modal("show");
+    });
 
     function upsertOrderInstructionNote(data){
         let isNote = data.method == "note";

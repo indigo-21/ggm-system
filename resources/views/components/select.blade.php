@@ -23,7 +23,7 @@
         }
     @endphp
 
-    <span class="span-timestamp text-muted small"> <strong>-</strong> {{ $timestamp ? $datetime : '' }}</span>
+    <span class="span-timestamp text-muted small"> {{ $timestamp ? $datetime : '' }}</span>
     <input type="hidden" name="{{ $name }}_timestamp" value="{{ $timestamp ? $datetime : '' }}">    
 
     @if (!$hasinput)

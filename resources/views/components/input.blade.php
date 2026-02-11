@@ -6,10 +6,11 @@
         'required'      => false, 
         'error'         => null,
         'checked'       => false,
+        'multiple'      => false,
     ])
 
    
-    @if($type === "text" || $type === "password" || $type === "date")
+    @if($type === "text" || $type === "password" || $type === "date" || $type === "file")
         <div class="form-group form-float">
             @if ($label)
                 <label class="{{ $class }}" for="{{ $name }}">{{ $label }}</label>
@@ -26,6 +27,7 @@
                 @if($readonly) readonly @endif
                 @if($uniqueid) data-unique-id="{{ $uniqueid }}" @endif
                 @if($inputformat) data-input-format="{{ $inputformat }}" @endif
+                @if($multiple) multiple="multiple" @endif
                 autocomplete="off"
             >
             {{-- <label id="{{ $name }}-error" class="error">{{$error}}</label> --}}
@@ -60,6 +62,13 @@
                 @if($inputformat) data-input-format="{{ $inputformat }}" @endif
                 rows="5">{{ old($name, $value) }}</textarea>
                 <span class="invalid-feedback">{{$error ?? $label." is required"}}</span>
+        </div>
+    @elseif($type === "checkbox")
+        <div class="checkbox w-25">
+            <input id="{{ $name }}"  name="{{ $name }}" type="checkbox">
+            <label for="{{ $name }}" class="ml-2">
+                    {{ $label }}
+            </label>
         </div>
     @endif
 

@@ -568,8 +568,8 @@
                                         $is_red_label = false;
                                         $grand_total_label = "Grand Total";
                                         if(isset($quote)){
-                                            $grand_total_additional_label =  !$order_note->is_inscription_complete ? "Incomplete" : "Completed";
-                                            $is_red_label = !$order_note->is_inscription_complete;
+                                            $grand_total_additional_label =  !$order_note?->is_inscription_complete ? "Incomplete" : "Completed";
+                                            $is_red_label = !$order_note?->is_inscription_complete;
                                             if(($quote->order_type_id == 1 || $quote->order_type_id == 2) ){
                                                 $grand_total_label = "Grand Total - Inscription " .$grand_total_additional_label;
                                             }
@@ -867,17 +867,6 @@
                 </div>
             </div>
 
-            <div class="mb-3 d-flex justify-content-center align-items-center">
-                    <x-buttons class="btn-secondary" type="button" label="Back"/>
-
-                @isset($quote)
-                    <button class="btn btn-danger hidden-xs w-25 ml-2" id="soft-delete" type="button"
-                        label="{{ $quote->name }}" route="{{ route('quote.destroy', $quote->id) }}"
-                        landing_page="{{ route('quote.index') }}">Delete</button>
-                @endisset
-                    <x-buttons id="submit_form" class="btn-primary" type="button" label="{{ !isset($quote) ? 'Create' : 'Update' }}" />
-            </div>
-
             @isset($quote)
             <div class="row clearfix row-deck">
                 <div class="col-12">
@@ -903,6 +892,17 @@
                 </div>
             </div>
             @endisset
+
+            <div class="mb-3 d-flex justify-content-center align-items-center">
+                    <x-buttons class="btn-secondary" type="button" label="Back"/>
+
+                @isset($quote)
+                    <button class="btn btn-danger hidden-xs w-25 ml-2" id="soft-delete" type="button"
+                        label="{{ $quote->name }}" route="{{ route('quote.destroy', $quote->id) }}"
+                        landing_page="{{ route('quote.index') }}">Delete</button>
+                @endisset
+                    <x-buttons id="submit_form" class="btn-primary" type="button" label="{{ !isset($quote) ? 'Create' : 'Update' }}" />
+            </div>
 
 
         </form>
@@ -1180,6 +1180,271 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
                         <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+         <!-- For Inscription Modal -->
+        <div class="modal fade" id="inscriptionModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="inscriptionModalLabel">Order Inscription</h4>
+                    </div>
+                    <div class="modal-body" id="inscriptionModalBody"> 
+                        <div class="inscription-form row">
+                            <div class="col-12 py-1">
+                                <input type="hidden" name="order_inscription_id" value="">
+                                <x-input type="textarea" class="text-right" name="order_inscription" value="" label="Inscription" />
+                            </div>
+                            <div class="col-12 py-3 text-center">
+                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="print_inscription_btn" order_id="{{ $quote?->id ?? '' }}">Print Inscription</button>
+                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_inscription_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
+                            </div>
+                            
+                        </div>
+
+                        <div class="approval-form row mt-4 border-top pt-2">
+                            <div class="col-12">
+                                <strong>Approved / Rejected By: </strong> <span>Tetse</span> <br>
+                                <strong>Date of Approval: </strong> <span>2026-12-10 12:21:21</span>
+                            </div>
+                            <div class="col-12">
+                                <x-select class="z-index show-tick" name="order_inscription_status" label="Order Inscription Status" :required="true">
+                                    <option value="" disabled selected>-Select Status-</option>
+                                    <option value="0" selected>-Reject-</option>
+                                    <option value="1" selected>-Approved-</option>
+                                </x-select>
+                            </div>
+                            <div class="col-12">
+                                <x-input type="textarea" name="additional_note" value="{{ isset($quote) ? $quote->additional_notes : '' }}" label="Remarks" />    
+                            </div> 
+                            <div class="col-12 py-3 text-center">
+                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_approval_btn" order_id="{{ $quote?->id ?? '' }}">Submit</button>
+                            </div>   
+                        </div>    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- For Email Modal -->
+        <div class="modal fade" id="orderEmailModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="orderEmailModalLabel">Order Emails</h4>
+                    </div>
+                    <div class="modal-body" id="orderEmailModalBody"> 
+                        <div class="payment-form row">
+                            <div class="col-12">
+                                <x-input type="text" name="order_email_to" inputformat="specialcharacter" value="" label="Email Address"/>
+                            </div>
+                            
+                            <div class="col-12">
+                                <x-input type="textarea" name="order_email_body" value="" label="Email Details" />  
+                            </div>
+
+                            <div class="col-12 mt-4 border-top pt-2">
+                                <h5>Attachments</h5>
+                                <div class="attachtment-container d-flex align-items-center justify-content-start flex-wrap">
+                                     <x-input type="checkbox" name="is_info_timescale_checked" value="" label="Info and Timescale" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Quotation" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Order" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Terms and Conditions" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Document template Stoneguard" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Insurance" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Inscription" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Receipts" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Statement" />  
+                                     <x-input type="checkbox" name="is_test_checked" value="" label="Documents" />  
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <h5>Email Template</h5>
+                                <div class="email-template-container d-flex align-items-center justify-content-start flex-wrap">
+                                    <x-input type="checkbox" name="is_test_checked" value="" label="Stoneguard" />  
+                                    <x-input type="checkbox" name="is_test_checked" value="" label="Washdown" />  
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <h5>Review Template</h5>
+                                <div class="review-template d-flex align-items-center justify-content-start flex-wrap">
+                                    <x-input type="checkbox" name="is_test_checked" value="" label="Review – New memorial" />  
+                                    <x-input type="checkbox" name="is_test_checked" value="" label="Review – Renovation" />  
+                                    <x-input type="checkbox" name="is_test_checked" value="" label="Review – Added inscription" /> 
+                                </div>
+                            </div>
+
+                            <div class="col-12 py-3 text-center">
+                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_order_email_btn" order_id="{{ $quote?->id ?? '' }}">Send</button>
+                            </div>
+                            
+                        </div>
+
+                        <table class="table table-bordered table-striped table-hover dataTable" id="emailTable" style="font-size:90%">
+                            <thead>
+                                <tr>
+                                    <th style="width:10%;">Date Time</th>
+                                    <th style="width:15%;">User</th>
+                                    <th>Email To</th>
+                                    <th style="width:10%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emailTableBody" >
+                            </tbody>
+                        </table>    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- For Photos Modal -->
+        <div class="modal fade" id="orderPhotosModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="orderPhotosModalLabel">Order Photos</h4>
+                    </div>
+                    <div class="modal-body" id="orderPhotosModalBody"> 
+                        <div class="row">
+                            <div class="col-12">
+                                <x-input type="file" name="order_photos[]" value="" label="Upload Photos" multiple="multiple" />
+                            </div>
+                            <div class="col-12 text-center">
+                                 <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="upload_photos_btn" order_id="{{ $quote?->id ?? '' }}">Upload</button>
+                            </div>
+                            <div class="col-12 mt-4 border-top">
+                                <h5 class="title py-3">List of Photos</h5>
+                                <div class="photo-gallery row">
+                                     <div class="col-4">
+                                        <div class="card">
+                                            <img src="" class="card-img-top" alt="Order Photo">
+                                            <div class="card-body text-center d-flex align-items-center justify-content-center flex-wrap">
+                                                <button type="button" class="btn btn-danger btn-xs delete-order-photo-btn" order_photo_id="">Delete</button>
+                                                <x-input type="checkbox" class="mx-3 w-50" name="is_no_email_checked" value="" label="No Email" /> 
+                                                <button type="button" class="btn btn-danger btn-xs rotate-photo-btn" order_photo_id="">Rotate</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- For Photos Modal -->
+        <div class="modal fade" id="orderDocumentsModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="orderDocumentsModalLabel">Order Documents</h4>
+                    </div>
+                    <div class="modal-body" id="orderDocumentsModalBody"> 
+                        <div class="order-document-form row">
+                            <div class="col-12">
+                                <x-input type="file" name="document_file" value="" label="Browse File" />
+                            </div>
+                            <div class="col-12">
+                                <x-input type="text" name="document_filename" value="" label="File Name" />
+                            </div>
+                            <div class="col-12">
+                                <x-input type="textarea" name="document_description" value="" label="Description" />
+                            </div>
+                            <div class="col-12 text-center py-4">
+                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="upload_documents_btn"
+                                    order_id="{{ $quote?->id ?? '' }}">Upload</button>
+                            </div>
+                        </div>
+                        <div class="order-docuent-table row">
+                            <div class="col-12 mt-4 border-top">
+                                <h5 class="title py-3">List of Documents</h5>
+                                <table class="table table-bordered table-striped table-hover dataTable" id="orderDocumentsTable"
+                                    style="font-size:90%">
+                                    <thead>
+                                        <tr>
+                                            <th>File</th>
+                                            <th>Description</th>
+                                            <th>Email</th>
+                                            <th style="width:10%;">Timestamp</th>
+                                            <th style="width:10%;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orderDocumentsTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- For Working Files Modal -->
+        <div class="modal fade" id="orderWorkingFilesModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="title" id="orderWorkingFilesModalLabel">Order Working Files</h4>
+                    </div>
+                    <div class="modal-body" id="orderWorkingFilesModalBody"> 
+                        <div class="order-working-files-form row">
+                            <div class="col-4">
+                                <x-input type="text" name="workingfiles_date" value="" label="Date" />
+                            </div>
+                            <div class="col-4">
+                                <x-input type="file" name="workingfiles_file" value="" label="Browse File" />
+                            </div>
+                            <div class="col-4">
+                                <x-input type="text" name="workingfiles_filename" value="" label="File Name" />
+                            </div>
+                            <div class="col-12">
+                                <x-input type="textarea" name="workingfiles_description" value="" label="Description" />
+                            </div>
+                            <div class="col-12 text-center py-4">
+                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="upload_workingfiles_btn"
+                                    order_id="{{ $quote?->id ?? '' }}">Upload</button>
+                            </div>
+                        </div>
+                        <div class="order-docuent-table row">
+                            <div class="col-12 mt-4 border-top">
+                                <h5 class="title py-3">List of Working Files</h5>
+                                <div class="working-files-gallery row">
+                                     <div class="col-4">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5 class="card-title">2026-02-20 12:12:12</h5>
+                                            </div>
+                                            <img src="https://imgv3.fotor.com/images/videoImage/wonderland-girl-generated-by-Fotor-ai-art-generator.jpg" class="card-img-top" alt="Order Working File">
+                                            <div class="card-body text-center d-flex align-items-center justify-content-center flex-wrap">
+                                                <button type="button" class="btn btn-danger btn-xs delete-order-working-file-btn" order_working_file_id="">Delete</button>
+                                                <x-input type="checkbox" class="mx-3 w-50" name="is_no_email_checked" value="" label="No Email" /> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
                     </div>
                 </div>
             </div>
