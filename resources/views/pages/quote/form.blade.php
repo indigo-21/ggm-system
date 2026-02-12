@@ -10,7 +10,7 @@
                             <li class="breadcrumb-item"><a href="{{ route('quote.index') }}">Quotation</a></li>
                             <li class="breadcrumb-item active">{{ !isset($quote) ? 'Creating' : 'Updating' }} Form</li>
                         </ul>
-                        <h1 class="mb-1 mt-1">{{ !isset($quote) ? 'Create New Quotation' : 'Update Quotation' . $quote->id }}
+                        <h1 class="mb-1 mt-1">{{ !isset($quote) ? 'Create New Quotation' : 'Update Quotation #' . $quote->id }}
                         </h1>
                         <span>Lorem ipsum dolor sit amet consectetur adipisicing elit.</span>
                     </div>
@@ -398,7 +398,7 @@
                                     search="true">
                                     <option value="" disabled {{$old_accessory == "" ? "selected" : ""}}>-Select Accessories Type-</option>
                                     @if ($old_accessory != "" && !in_array($old_accessory, $accessory_data))
-                                        <option value="{{$old_accessory}}" selected isother="true">{{$accessory_data}}</option>
+                                        <option value="{{$old_accessory}}" selected isother="true">{{$old_accessory}}</option>
                                     @endif
                                     @foreach ($accessories as $accessory)
                                         <option 
@@ -586,10 +586,13 @@
 
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="deposit_description" value="{{$order_cost?->deposit_description ?? '' }}" label="Deposit" />
+                                        <x-input type="text" name="deposit_description" value="{{$order_payments->first()?->comment ?? '' }}" label="Deposit" />
                                     </div>
                                     <div class="col-5">
-                                        <x-input type="text" class="text-right cost-computation" name="deposit_amount" value="{{$order_cost?->deposit_amount ?? '0.00' }}" label="Amount" />
+                                        @php
+                                            $deposit_amount = $order_payments->first()->amount ? number_format($order_payments->first()->amount ?? 0, 2) : '0.00';
+                                        @endphp
+                                        <x-input type="text" class="text-right cost-computation" name="deposit_amount" value="{{ $deposit_amount }}" label="Amount" />
                                     </div>
                                 </div>
 
@@ -693,7 +696,7 @@
                 </div>
             </div>
             
-            @isset($order_note)
+            @isset($quote)
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
@@ -810,12 +813,12 @@
 
                             <div class="col-12">
                                 @php
-                                    $inscription_sent_to_design_team_for_printout =  $order_note->inscription_sent_to_design_team_for_printout ? \Carbon\Carbon::parse($order_note->inscription_sent_to_design_team_for_printout)->format('F d, Y h:i A') : "";
-                                    $inscription_sent_to_gary_for_printout =  $order_note->inscription_sent_to_gary_for_printout ? \Carbon\Carbon::parse($order_note->inscription_sent_to_gary_for_printout)->format('F d, Y h:i A') : "";
-                                    $received_back_from_design_team =  $order_note->received_back_from_design_team ? \Carbon\Carbon::parse($order_note->received_back_from_design_team)->format('F d, Y h:i A') : "";
-                                    $sent_to_customer =  $order_note->sent_to_customer ? \Carbon\Carbon::parse($order_note->sent_to_customer)->format('F d, Y h:i A') : "";
-                                    $back_to_design_team_for_further_alterations =  $order_note->back_to_design_team_for_further_alterations ? \Carbon\Carbon::parse($order_note->back_to_design_team_for_further_alterations)->format('F d, Y h:i A') : "";
-                                    $masonart_printout_approved =  $order_note->masonart_printout_approved ? \Carbon\Carbon::parse($order_note->masonart_printout_approved)->format('F d, Y h:i A') : "";
+                                    $inscription_sent_to_design_team_for_printout =  isset($order_note->inscription_sent_to_design_team_for_printout) ? \Carbon\Carbon::parse($order_note->inscription_sent_to_design_team_for_printout)->format('F d, Y h:i A') : "";
+                                    $inscription_sent_to_gary_for_printout =  isset($order_note->inscription_sent_to_gary_for_printout) ? \Carbon\Carbon::parse($order_note->inscription_sent_to_gary_for_printout)->format('F d, Y h:i A') : "";
+                                    $received_back_from_design_team =  isset($order_note->received_back_from_design_team) ? \Carbon\Carbon::parse($order_note->received_back_from_design_team)->format('F d, Y h:i A') : "";
+                                    $sent_to_customer =  isset($order_note->sent_to_customer) ? \Carbon\Carbon::parse($order_note->sent_to_customer)->format('F d, Y h:i A') : "";
+                                    $back_to_design_team_for_further_alterations =  isset($order_note->back_to_design_team_for_further_alterations) ? \Carbon\Carbon::parse($order_note->back_to_design_team_for_further_alterations)->format('F d, Y h:i A') : "";
+                                    $masonart_printout_approved =  isset($order_note->masonart_printout_approved) ? \Carbon\Carbon::parse($order_note->masonart_printout_approved)->format('F d, Y h:i A') : "";
                                 @endphp
                                 <div class="col-6">
                                     <x-input type="text" name="inscription_sent_to_design_team_for_printout" value="{{ $inscription_sent_to_design_team_for_printout }}" class="daterange clear-daterange"
@@ -874,7 +877,7 @@
                         <div class="header">
                             <h2>Order Actions</h2>
                         </div>
-                        <div class="body row d-flex justify-content-center align-items-center mt-3">
+                        <div class="body row d-flex justify-content-center align-items-center flex-wrap mt-3">
                             <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="inscription_btn" order_id="{{ $quote?->id ?? '' }}">Inscription</button>
                             <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="schedule_btn" order_id="{{ $quote?->id ?? '' }}">Schedule</button>
                             <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="receipts_btn" order_id="{{ $quote?->id ?? '' }}">Receipts</button>
@@ -1179,7 +1182,6 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
-                        <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button>
                     </div>
                 </div>
             </div>

@@ -64,7 +64,7 @@
                             </x-slot>
                             <ul class="ml-menu">
                                 <li><a class="text-left" href="{{route('quote.index')}}" class="{{request()->routeIs('quote') ? 'active' : ''}}">Quotes</a></li>
-                                <li><a class="text-left" href="#">Orders</a></li>
+                                <li><a class="text-left" href="{{route('order.index')}}">Orders</a></li>
                                 <li><a class="text-left" href="#">Completed</a></li>
                                 <li><a class="text-left" href="#">All Orders</a></li>
                             </ul>

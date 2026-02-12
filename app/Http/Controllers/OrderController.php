@@ -7,15 +7,30 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\OrderType;
+use App\Models\Location;
+use App\Models\User;
 
 class OrderController extends Controller
 {   
-    /**
-     * Display a listing of the resource.
-     */
+    
+    public function default_required_data($isFrom = "index", $id = false){
+        $data = [
+                    "order_types" => OrderType::all(),
+                    "users"       => User::all(),
+                    "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
+                    "years"       => ["2024","2025","2026"],
+                    "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
+                    "orders" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
+                ];
+        
+        return $data;
+    }
+
     public function index()
     {
-        //
+        $data = self::default_required_data();
+        return view("pages.order.index", $data);
     }
 
     /**

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId("order_id")->constrained();
             $table->longText("inscription");
-            $table->boolean("status")->default(false);
+            $table->boolean("status")->nullable();
             $table->longText("remarks")->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

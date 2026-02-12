@@ -6,14 +6,13 @@
                     <div class="col-lg-6 col-md-12">
                         <ul class="breadcrumb pl-0 pb-0 ">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="#">Masterfile</a></li>
-                            <li class="breadcrumb-item active">Quotation</li>
+                            <li class="breadcrumb-item active">Orders</li>
                         </ul>
-                        <h1 class="mb-1 mt-1">Quotation</h1>
+                        <h1 class="mb-1 mt-1">Orders</h1>
                         <span>Lorem ipsum dolor sit amet consectetur adipisicing elit.</span>
                     </div>            
                     <div class="col-lg-6 col-md-12 text-md-right">
-                        <a href="{{route('quote.create')}}" class="btn btn-default hidden-xs ml-2">Create Quotation</a>
+                        {{-- <a href="{{route('quote.create')}}" class="btn btn-default hidden-xs ml-2">Create Orders</a> --}}
                         {{-- <button class="btn btn-secondary hidden-xs ml-2">New Report</button> --}}
                     </div>
                 </div>
@@ -92,7 +91,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="header">
-                        <h2>List of <strong>Quotes</strong></h2>   
+                        <h2>List of <strong>Orders</strong></h2>   
                     </div>
                     <div class="body">
                         <div class="table-responsive">
@@ -112,20 +111,20 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ( $quotes as $quote )
-                                        @if($quote->order_cost->deposit_description == "" || $quote->order_cost->deposit_amount < 1)
+                                    @foreach ( $orders as $order )
+                                        @if(trim($order->order_cost->deposit_description) != "" && $order->order_cost->deposit_amount > 0)
                                         <tr>
-                                            <th>{{$quote->created_at->format('F d, Y')}}</th>
-                                            <td>{{$quote->customer?->firstname ?? "" }} {{$quote->customer->lastname}}</td>
-                                            <td>{{$quote->deceased_name}}</td>
+                                            <th>{{$order->created_at->format('F d, Y')}}</th>
+                                            <td>{{$order->customer?->firstname ?? "" }} {{$order->customer->lastname}}</td>
+                                            <td>{{$order->deceased_name}}</td>
                                             <td class="text-center">
-                                                {{$quote->consecration_date ? date('F d, Y', strtotime($quote->consecration_date)) :  "" }}
+                                                {{$order->consecration_date ? date('F d, Y', strtotime($order->consecration_date)) :  "" }}
                                             </td>
-                                            <td class="text-center">{{$quote?->cemetery->name ?? ""}}</td>
-                                            <td class="text-center">{{$quote?->grave_number ?? ""}}</td>
-                                            <td class="text-center">{{$quote?->invoice_no ?? ""}}</td>
+                                            <td class="text-center">{{$order?->cemetery->name ?? ""}}</td>
+                                            <td class="text-center">{{$order?->grave_number ?? ""}}</td>
+                                            <td class="text-center">{{$order?->invoice_no ?? ""}}</td>
                                             <td class="text-center">
-                                                @if (isset($quote?->order_note->is_order_complete) && $quote->order_note->is_order_complete == 1)
+                                                @if (isset($order?->order_note->is_order_complete) && $order->order_note->is_order_complete == 1)
                                                     <span class="badge badge-primary">Completed</span>
                                                 @else
                                                     <span class="badge badge-danger">Incomplete</span>
@@ -133,9 +132,9 @@
                                                 {{-- <span class="badge badge-warning">Warning</span>
                                                 <span class="badge badge-info">Info</span> --}}
                                             </td>
-                                            <td>{{$quote->user->firstname }} {{$quote->user->lastname }}</td>
+                                            <td>{{$order->user->firstname }} {{$order->user->lastname }}</td>
                                             <td>
-                                                <a href="{{route('quote.edit', $quote->id)}}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                                                <a href="{{route('quote.edit', $order->id)}}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
                                                     <i class="icon-eye"></i>&nbsp;View
                                                 </a>
                                             </td>
@@ -152,7 +151,7 @@
     </div>
 
     <x-slot name="script">
-        <script src="{{asset('assets/custom/js/quotes.js')}}"></script>
+        <script src="{{asset('assets/custom/js/order.js')}}"></script>
     </x-slot>
    
 </x-app-layout>

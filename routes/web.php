@@ -16,7 +16,9 @@ use App\Http\Controllers\BasedLedgerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\OrderTypeController;
+use App\Http\Controllers\OrderInscriptionController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\OrderController;   
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -52,6 +54,7 @@ Route::middleware('auth')->group(function () {
     // Module
     Route::resource('customer', CustomerController::class);
     Route::resource('quote', QuoteController::class);
+    Route::resource('order', OrderController::class);
 
     // GROUPING QUOTE
     Route::group(['prefix'=> 'quote', 'as' => 'quote.'], function(){
@@ -65,6 +68,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/order_payment_destroy', [OrderPaymentController::class, 'destroy'])->name('order_payment_destroy');
         Route::get('/order_payment_print_receipt/{id}', [OrderPaymentController::class, 'print_receipt'])->name('order_payment_print_receipt');
     });
+
+    Route::post("/order_inscription/upsert", [OrderInscriptionController::class, 'upsert'])->name('order_inscription_upsert');
 
     
 

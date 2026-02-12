@@ -476,19 +476,55 @@ $(function () {
 
     });
     
-    $(document).on("click","#inscription_btn", function(){
-        if (CKEDITOR.instances.order_inscription) {
-            CKEDITOR.instances.order_inscription.destroy(true);
-        }       
-        CKEDITOR.replace('order_inscription',{
-            height: 300,
-            toolbar: [['Bold', 'Italic', 'Underline', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'Font', 'FontSize', 'Table', 'Source', 'TextColor']]
-            // toolbar:[
-            //     ["Bold","TextColor"]
-            // ]
+    // Inscription Related Events
+        $(document).on("click","#inscription_btn", function(){
+            if (CKEDITOR.instances.order_inscription) {
+                CKEDITOR.instances.order_inscription.destroy(true);
+            }       
+            CKEDITOR.replace('order_inscription',{
+                height: 300,
+                toolbar: [['Bold', 'Italic', 'Underline', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'Font', 'FontSize', 'Table', 'Source', 'TextColor']]
+                // toolbar:[
+                //     ["Bold","TextColor"]
+                // ]
+            });
+            $("#inscriptionModal").modal("show");
         });
-        $("#inscriptionModal").modal("show");
-    });
+        
+        $(document).on("click","#save_inscription_btn",function(){
+            CKEDITOR.instances.order_inscription.updateElement();
+
+            let order_id = $(this).attr("order_id");
+            let order_inscription_id = $("[name=order_inscription_id]").val();
+            let order_inscription = $("#order_inscription").val();
+            let data = {
+                        order_inscription_id, 
+                        order_id,
+                        order_inscription    
+                        }
+            $.ajax({
+                url: `${BASE_URL}/order_inscription/upsert`, 
+                type: 'POST',
+                data,
+                dataType: 'json',
+                beforeSend:function(){},
+                success:function(response){
+                    if(response.status == "success"){
+                        let inscription = response.data.inscription;
+                        $("[name=order_inscription_id]").val(response.data.order_inscription_id);
+                        $("#order_inscription").val(inscription);
+                        CKEDITOR.instances.order_inscription.updateElement();
+                    }
+                },
+                error:function(xhr, status, error){
+                    console.error(error);   
+                }
+            })   
+        });
+    
+    // End Inscripion Related Events
+
+
 
     $(document).on("click","#email_btn", function(){
         if ($.fn.DataTable.isDataTable('#emailTable')) {
@@ -664,37 +700,9 @@ $(function () {
         $("[name=vat_amount]").val(vat_amt.toFixed(2));
 
         // Gross Amount Computation and Display in Element
-        gross_amount = net_amt + vat_amt + zero_rated_fees + adjustment_amount;
+        // gross_amount = net_amt + vat_amt + zero_rated_fees + adjustment_amount;
+        gross_amount = net_amt + vat_amt + zero_rated_fees;
         $("[name=gross_amount]").val(gross_amount.toFixed(2));
-
-
-
-
-        // $(".price-amount").each((index, item)=>{
-        //     let element = $(item);
-        //     let temp_amt = element.val() == "" || !element.val()  ? "0" : element.val(); 
-        //     total_amt += parseFloat(temp_amt);
-        // });
-
-        // total_amt += cemetery_1 + cemetery_2;
-
-        // $(".zero-rated").each((index, item) => {
-        //     let element = $(item);
-        //     let temp_amt = element.val() == "" || !element.val()  ? "0" : element.val(); 
-        //     zero_rated_fees += parseFloat(temp_amt);
-        // });
-
-        // let net_amt = (total_amt - zero_rated_fees) * 100 / (100 + vat_rate );
-        // let vat_amt = net_amt * (vat_rate / 100);
-        // let gross_amt = net_amt + vat_amt + zero_rated_fees;
-
-        // $("[name=letters_total_amount]").val(letter_total_amt.toFixed(2));
-        // $("[name=total]").val(total_amt.toFixed(2));
-        // $("[name=grand_total_amount]").val(total_amt.toFixed(2));
-        // $("[name=net_amount]").val(net_amt.toFixed(2));
-        // $("[name=vat_amount]").val(vat_amt.toFixed(2));
-        // $("[name=zero_rated_fees]").val(zero_rated_fees.toFixed(2));
-        // $("[name=gross_amount]").val(gross_amt.toFixed(2));
         
     }
 

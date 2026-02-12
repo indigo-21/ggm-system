@@ -97,7 +97,7 @@ class QuoteController extends Controller
             // $data["qoutes"] = Order::all();
         
             $data += [
-                        "quotes" => Order::all()
+                        "quotes" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
                     ];
         }
         
