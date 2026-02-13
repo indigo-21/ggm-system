@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderInstructionNote extends Model
 {
+    public function order(): BelongsTo{
+        return $this->belongsTo(Order::class);
+    }
+    
     public function created_user(): BelongsTo{
         return $this->belongsTo(User::class, "created_by");
     }

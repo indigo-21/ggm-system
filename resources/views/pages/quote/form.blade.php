@@ -586,11 +586,14 @@
 
                                 <div class="col-12 row">
                                     <div class="col-7">
-                                        <x-input type="text" name="deposit_description" value="{{$order_payments->first()?->comment ?? '' }}" label="Deposit" />
+                                        @php
+                                            $deposit_description = isset($order_payments) ? $order_payments->first()?->comment : "";
+                                        @endphp
+                                        <x-input type="text" name="deposit_description" value="{{ $deposit_description ?? '' }}" label="Deposit" />
                                     </div>
                                     <div class="col-5">
                                         @php
-                                            $deposit_amount = $order_payments->first()->amount ? number_format($order_payments->first()->amount ?? 0, 2) : '0.00';
+                                            $deposit_amount = isset($order_payments) ? number_format($order_payments->first()->amount ?? 0, 2) : '0.00';
                                         @endphp
                                         <x-input type="text" class="text-right cost-computation" name="deposit_amount" value="{{ $deposit_amount }}" label="Amount" />
                                     </div>
@@ -616,8 +619,8 @@
 
                                 @isset($quote)
                                     <div class="col-12 d-flex align-items-center py-5">
-                                        <button type="button" class="btn btn-danger btn-simple waves-effect mr-5" id="note_btn">Notes</button>
-                                        <button type="button" class="btn btn-danger btn-simple waves-effect" id="factory_note_btn">Factory Notes</button>
+                                        <button type="button" class="btn btn-danger btn-simple waves-effect mr-5" order_id="{{ $quote->id }}" id="note_btn">Notes</button>
+                                        <button type="button" class="btn btn-danger btn-simple waves-effect" order_id="{{ $quote->id }}" id="factory_note_btn">Factory Notes</button>
                                     </div>
                                 @endisset
 
@@ -914,36 +917,40 @@
     <x-slot name="modal">
         <!-- For Customer Modal -->
         <div class="modal fade" id="customerModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="title" id="customerModalLabel">List of Customers</h4>
                     </div>
                     <div class="modal-body" id="customerModalBody"> 
-                        <table class="table table-bordered table-striped table-hover dataTable" id="customerTable" style="font-size:90%">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Address</th>
-                                    <th>Post Code</th>
-                                    <th>Contact</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="customerTableBody" >
+                        <div class="w-100">
+                            <table class="table table-bordered table-striped table-hover dataTable" id="customerTable" style="font-size:90%">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Address</th>
+                                        <th>Post Code</th>
+                                        <th>Contact</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customerTableBody" >
                                     @foreach ($customers as $customer )
-                                    <td>{{ $loop->iteration}}</td>
-                                    <td>{{$customer->firstname }} {{$customer->lastname }}</td>
-                                    <td>{{$customer->address_one }} {{$customer->address_two }} {{$customer->firstname }} {{$customer->city_county }}</td>
-                                    <td>{{$customer->customer_contacts->first()?->contact_value ?? "" }}</td>
-                                    <td>
-                                            <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center existing-customer-btn" customer-data="{{$customer}}">
-                                                <i class="icon-eye"></i>&nbsp;Add
-                                            </button>
-                                    </td>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                        <tr>
+                                            <td>{{ $loop->iteration}}</td>
+                                            <td>{{$customer->firstname }} {{$customer->lastname }}</td>
+                                            <td>{{$customer->address_one }} {{$customer->address_two }} {{$customer->firstname }} {{$customer->city_county }}</td>
+                                            <td>{{$customer->customer_contacts->first()?->contact_value ?? "" }}</td>
+                                            <td>
+                                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center existing-customer-btn" customer-data="{{$customer}}">
+                                                        <i class="icon-eye"></i>&nbsp;Add
+                                                    </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger btn-simple waves-effect" id="formModalClose" data-dismiss="modal">CLOSE</button>
@@ -990,7 +997,8 @@
                             <x-input type="textarea" class="text-right" name="order_notes" value="" label="Order Notes" />
                         </div>
                         <div class="col-12 py-3 text-center">
-                            <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_order_note_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect w-25 d-none" id="cancel_order_note_btn" order_id="{{ $quote?->id ?? '' }}">Cancel</button>
+                            <button type="button" class="btn btn-primary btn-simple waves-effect w-25" id="save_order_note_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
                         </div>
                         <div class="col-12">
                             <table class="table table-bordered table-striped table-hover dataTable" id="notesTable" style="font-size:90%">
@@ -1018,7 +1026,7 @@
                                                         <small>Updated At: {{date('F d, Y', strtotime($instruction_note->updated_at)) ?? "" }} </small>
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" type_of_note="note" order_instruction_note_id="{{$instruction_note->id}}">
+                                                        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-order-instruction-note" type_of_note="note" order_instruction_note_id="{{$instruction_note->id}}">
                                                             <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
                                                         </button>
                                                     </td>
@@ -1030,8 +1038,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">Back</button>
-                        {{-- <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button> --}}
+                        <button type="button" class="btn btn-danger btn-simple waves-effect px-5" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -1050,7 +1057,8 @@
                             <x-input type="textarea" class="text-right" name="order_factory_notes" value="" label="Factory Notes" />
                         </div>
                         <div class="col-12 py-3 text-center">
-                            <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_factory_note_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
+                            <button type="button" class="btn btn-danger btn-simple waves-effect w-25 d-none" id="cancel_factory_note_btn" order_id="{{ $quote?->id ?? '' }}">Cancel</button>
+                            <button type="button" class="btn btn-primary btn-simple waves-effect w-25" id="save_factory_note_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
                         </div>
                         <div class="col-12">
 
@@ -1080,7 +1088,7 @@
                                                     <small>Updated At: {{date('F d, Y', strtotime($instruction_note->updated_at)) ?? "" }} </small>
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" type_of_note="factory_note" order_instruction_note_id="{{$instruction_note->id}}">
+                                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-order-instruction-note" type_of_note="factory_note" order_instruction_note_id="{{$instruction_note->id}}">
                                                         <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
                                                     </button>
                                                 </td>
@@ -1092,8 +1100,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">Back</button>
-                        {{-- <button type="button" class="btn btn-primary btn-simple waves-effect" id="otherModalSave" data-dismiss="modal" selectfor="">SAVE</button> --}}
+                        <button type="button" class="btn btn-danger btn-simple waves-effect px-5" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -1215,12 +1222,12 @@
                             <div class="col-12">
                                 <x-select class="z-index show-tick" name="order_inscription_status" label="Order Inscription Status" :required="true">
                                     <option value="" disabled selected>-Select Status-</option>
-                                    <option value="0" selected>-Reject-</option>
-                                    <option value="1" selected>-Approved-</option>
+                                    <option value="0">-Reject-</option>
+                                    <option value="1">-Approved-</option>
                                 </x-select>
                             </div>
                             <div class="col-12">
-                                <x-input type="textarea" name="additional_note" value="{{ isset($quote) ? $quote->additional_notes : '' }}" label="Remarks" />    
+                                <x-input type="textarea" name="inscription_remarks" value="{{ isset($quote) ? $quote->additional_notes : '' }}" label="Remarks" />    
                             </div> 
                             <div class="col-12 py-3 text-center">
                                 <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_approval_btn" order_id="{{ $quote?->id ?? '' }}">Submit</button>
@@ -1255,32 +1262,32 @@
                                 <h5>Attachments</h5>
                                 <div class="attachtment-container d-flex align-items-center justify-content-start flex-wrap">
                                      <x-input type="checkbox" name="is_info_timescale_checked" value="" label="Info and Timescale" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Quotation" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Order" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Terms and Conditions" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Document template Stoneguard" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Insurance" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Inscription" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Receipts" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Statement" />  
-                                     <x-input type="checkbox" name="is_test_checked" value="" label="Documents" />  
+                                     <x-input type="checkbox" name="is_quotation_checked" value="" label="Quotation" />  
+                                     <x-input type="checkbox" name="is_order_checked" value="" label="Order" />  
+                                     <x-input type="checkbox" name="is_terms_and_conditions_checked" value="" label="Terms and Conditions" />  
+                                     <x-input type="checkbox" name="is_document_insurance_checked" value="" label="Document template Stoneguard" />  
+                                     <x-input type="checkbox" name="is_insurance_checked" value="" label="Insurance" />  
+                                     <x-input type="checkbox" name="is_inscription_checked" value="" label="Inscription" />  
+                                     <x-input type="checkbox" name="is_receipts_checked" value="" label="Receipts" />  
+                                     <x-input type="checkbox" name="is_statement_checked" value="" label="Statement" />  
+                                     <x-input type="checkbox" name="is_documents_checked" value="" label="Documents" />  
                                 </div>
                             </div>
 
                             <div class="col-12">
                                 <h5>Email Template</h5>
                                 <div class="email-template-container d-flex align-items-center justify-content-start flex-wrap">
-                                    <x-input type="checkbox" name="is_test_checked" value="" label="Stoneguard" />  
-                                    <x-input type="checkbox" name="is_test_checked" value="" label="Washdown" />  
+                                    <x-input type="checkbox" name="is_stoneguard_checked" value="" label="Stoneguard" />  
+                                    <x-input type="checkbox" name="is_washdown_checked" value="" label="Washdown" />  
                                 </div>
                             </div>
 
                             <div class="col-12">
                                 <h5>Review Template</h5>
                                 <div class="review-template d-flex align-items-center justify-content-start flex-wrap">
-                                    <x-input type="checkbox" name="is_test_checked" value="" label="Review – New memorial" />  
-                                    <x-input type="checkbox" name="is_test_checked" value="" label="Review – Renovation" />  
-                                    <x-input type="checkbox" name="is_test_checked" value="" label="Review – Added inscription" /> 
+                                    <x-input type="checkbox" name="is_new_memorial_checked" value="" label="Review – New memorial" />  
+                                    <x-input type="checkbox" name="is_renovation_checked" value="" label="Review – Renovation" />  
+                                    <x-input type="checkbox" name="is_added_inscription_checked" value="" label="Review – Added inscription" /> 
                                 </div>
                             </div>
 
@@ -1330,7 +1337,7 @@
                                 <div class="photo-gallery row">
                                      <div class="col-4">
                                         <div class="card">
-                                            <img src="" class="card-img-top" alt="Order Photo">
+                                            <img src="https://imgv3.fotor.com/images/videoImage/wonderland-girl-generated-by-Fotor-ai-art-generator.jpg" class="card-img-top" alt="Order Photo">
                                             <div class="card-body text-center d-flex align-items-center justify-content-center flex-wrap">
                                                 <button type="button" class="btn btn-danger btn-xs delete-order-photo-btn" order_photo_id="">Delete</button>
                                                 <x-input type="checkbox" class="mx-3 w-50" name="is_no_email_checked" value="" label="No Email" /> 

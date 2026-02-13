@@ -274,19 +274,13 @@ $(function () {
     });
 
     $(document).on("click", "#note_btn", function(){
-        if ($.fn.DataTable.isDataTable('#notesTable')) {
-            $('#notesTable').DataTable().destroy();
-        }
+        let order_id = $(this).attr("order_id");
+        
+        getOrderInstructionNote(order_id, "note");
+
         if (CKEDITOR.instances.order_notes) {
             CKEDITOR.instances.order_notes.destroy(true);
         }
-
-         $('#notesTable').DataTable({
-            dom: 'Bfrtip',
-            buttons: [
-                'copy', 'csv', 'excel', 'pdf', 'print'
-            ]
-        });
 
         CKEDITOR.replace('order_notes',{
             height: 300,
@@ -295,7 +289,14 @@ $(function () {
             ]
         });
 
-        $("#notesModal").modal("show");
+        //  $('#notesTable').DataTable({
+        //     dom: 'Bfrtip',
+        //     buttons: [
+        //         'copy', 'csv', 'excel', 'pdf', 'print'
+        //     ]
+        // });
+
+        $("#notesModal").modal("show"); 
     }); 
     
     $(document).on("click", "#save_order_note_btn", function(){
@@ -310,7 +311,21 @@ $(function () {
         upsertOrderInstructionNote(data);
     });
 
-    $(document).on("click", ".edit-additional-cost", function(){
+    $(document).on("click","#cancel_order_note_btn", function(){
+        $("[name=order_instruction_note_id]").val("");
+        $("[name=order_notes]").val("");
+        CKEDITOR.instances.order_notes.setData('');
+        $(this).addClass("d-none");
+    });
+
+    $(document).on("click","#cancel_factory_note_btn", function(){
+        $("[name=order_instruction_factory_note_id]").val("");
+        $("[name=order_factory_notes]").val("");
+        CKEDITOR.instances.order_factory_notes.setData('');
+        $(this).addClass("d-none");
+    });
+
+    $(document).on("click", ".edit-order-instruction-note", function(){
         let this_parent = $(this).closest(".modal-body");
         let isNote = $(this).attr("type_of_note") == "note";
         let order_instruction_note_id = $(this).attr("order_instruction_note_id");
@@ -318,27 +333,21 @@ $(function () {
         if(isNote){
             $("[name=order_instruction_note_id]").val(order_instruction_note_id);
             CKEDITOR.instances.order_notes.setData(order_instruction_note);
+            $("#cancel_order_note_btn").removeClass("d-none");
         }else{
             $("[name=order_instruction_factory_note_id]").val(order_instruction_note_id);
             CKEDITOR.instances.order_factory_notes.setData(order_instruction_note);
+            $("#cancel_factory_note_btn").removeClass("d-none");
         }
         
     });
 
     $(document).on("click", "#factory_note_btn", function(){
-        if ($.fn.DataTable.isDataTable('#factoryNotesTable')) {
-            $('#factoryNotesTable').DataTable().destroy();
-        }
+        let order_id = $(this).attr("order_id");   
+        getOrderInstructionNote(order_id, "factory_note"); 
         if (CKEDITOR.instances.order_factory_notes) {
             CKEDITOR.instances.order_factory_notes.destroy(true);
         }
-
-        $('#factoryNotesTable').DataTable({
-            dom: 'Bfrtip',
-            buttons: [
-                'copy', 'csv', 'excel', 'pdf', 'print'
-            ]
-        });
 
         CKEDITOR.replace('order_factory_notes',{
             height: 300,
@@ -346,6 +355,13 @@ $(function () {
                 ["Bold","TextColor"]
             ]
         });
+
+        // $('#factoryNotesTable').DataTable({
+        //     dom: 'Bfrtip',
+        //     buttons: [
+        //         'copy', 'csv', 'excel', 'pdf', 'print'
+        //     ]
+        // });
 
         $("#factoryNotesModal").modal("show");
     });
@@ -585,7 +601,7 @@ $(function () {
                                     <small>Updated At: ${updated_at} </small>
                                 </td>
                                 <td>
-                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-additional-cost" order_instruction_note_id="${order_instruction_note_id}">
+                                    <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-order-instruction-note" order_instruction_note_id="${order_instruction_note_id}">
                                         <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
                                     </button>
                                 </td>
@@ -607,6 +623,54 @@ $(function () {
 
             }
 
+        });
+    }
+
+    function getOrderInstructionNote(order_id, type){
+        let table_element = type == "note" ? '#notesTable' : '#factoryNotesTable';
+        let type_of_note = type == "note" ? "note" : "factory_note";
+       
+        if ($.fn.DataTable.isDataTable(table_element)) {
+            $(table_element).DataTable().destroy();
+        }
+
+        $(table_element).DataTable({
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+            processing: true,
+            serverSide: false,
+            ajax: {
+                url: `${BASE_URL}/quote/order_instruction_note`,
+                type: 'POST',
+                data: function (request) {
+                    request.order_id = order_id;
+                    request.type = type_of_note;
+                }
+            },
+            columns: [
+                { data: 'notes', title: 'Notes', className: 'order_instruction_note' },
+                { data: 'created_by', title: 'User' },
+                { data: 'created_at', title: 'Timestamp' },
+                {
+                    data: 'id', // or any field you want to pass to the button
+                    title: 'Action',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        // data = row.id
+                        return `
+                            <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center edit-order-instruction-note" 
+                                type_of_note="${type_of_note}" 
+                                order_instruction_note_id="${data}">
+                                <i class="zmdi zmdi-border-color"></i>&nbsp;Edit
+                            </button>
+                        `;
+                    }
+                }
+            ],
+            createdRow: function(row, data, dataIndex) {
+                $(row).addClass('order_instruction');
+            }
         });
     }
 

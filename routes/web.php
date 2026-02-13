@@ -60,6 +60,8 @@ Route::middleware('auth')->group(function () {
     Route::group(['prefix'=> 'quote', 'as' => 'quote.'], function(){
         Route::post('/upsert_order_instruction_note', [QuoteController::class, 'upsertOrderInstructionNote'])
             ->name('upsert_order_instruction_note');
+        Route::post('/order_instruction_note', [QuoteController::class, 'getOrderInstructionNote'])
+            ->name('order_instruction_note');
     });
 
     // GROUPING ORDER PAYMENT

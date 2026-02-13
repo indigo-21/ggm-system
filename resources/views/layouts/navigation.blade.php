@@ -69,24 +69,22 @@
                                 <li><a class="text-left" href="#">All Orders</a></li>
                             </ul>
                         </x-dropdown-link>
-                        @if (Auth::id() == 1):
 
-                            <x-nav-link>
-                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Schedules</span></a>
-                            </x-nav-link>
-                            <x-nav-link>
-                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Inventory</span></a>
-                            </x-nav-link>
-                            <x-nav-link>
-                                <a href="{{route('customer.index')}}" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Customers</span></a>
-                            </x-nav-link>
-                            <x-nav-link>
-                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Archives</span></a>
-                            </x-nav-link>
-                            <x-nav-link>
-                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Rylond</span></a>
-                            </x-nav-link>
-                        @endif
+                        <x-nav-link>
+                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Schedules</span></a>
+                        </x-nav-link>
+                        <x-nav-link>
+                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Inventory</span></a>
+                        </x-nav-link>
+                        <x-nav-link>
+                            <a href="{{route('customer.index')}}" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Customers</span></a>
+                        </x-nav-link>
+                        <x-nav-link>
+                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Archives</span></a>
+                        </x-nav-link>
+                        <x-nav-link>
+                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Rylond</span></a>
+                        </x-nav-link>
 
                         @if (Auth::id() == 1):
                             <x-dropdown-link>
@@ -103,7 +101,8 @@
                                 </ul>
                             </x-dropdown-link>
                         @endif
-
+                        
+                        @if (Auth::id() == 1):
                         <x-dropdown-link>
                             <x-slot name="label_anchor">
                                 <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-folder"></i><span>Masterfiles</span></a>
@@ -119,6 +118,9 @@
                                 <li><a class="text-left" href="{{route('order_type.index')}}" class="{{request()->routeIs('order_type') ? 'active' : ''}}">Order Types</a></li>
                             </ul>
                         </x-dropdown-link>   
+                        @endif
+
+
                         @if (Auth::id() == 1): 
                             <x-dropdown-link>
                                 <x-slot name="label_anchor">

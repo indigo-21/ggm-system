@@ -219,4 +219,28 @@ class QuoteController extends Controller
         return $result ? $return_data : false;
 
     }
+
+    public function getOrderInstructionNote(Request $request){
+        $order_id = $request->order_id;
+        $is_note = $request->type === "note";
+        $data = [];
+        $order_instruction_notes = OrderInstructionNote::where("order_id", $order_id)
+                                    ->where("type_of_note", $is_note ? 1 : 2)
+                                    ->get();
+
+        foreach ($order_instruction_notes as $key => $instruction_note) {
+            array_push($data, [
+                            "id" => $instruction_note->id,
+                            "notes" => $instruction_note->notes,
+                            "created_by" => $instruction_note->created_user->firstname." ". $instruction_note->created_user->lastname,
+                            "created_at" => Carbon::parse($instruction_note->created_at)->format('F d, Y H:i:s'),
+                            "updated_by" => $instruction_note->updated_user?->firstname ?? ''." ".$instruction_note->updated_user?->lastname ?? '',
+                            "updated_at" => Carbon::parse($instruction_note->updated_at)->format('F d, Y H:i:s')
+                        ]
+            );
+        }
+        // dd($order_instruction_notes->get());
+        
+        return response()->json([ "data" => $data ]);
+    }   
 }

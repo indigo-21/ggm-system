@@ -32,6 +32,16 @@ class UserSeeder extends Seeder
                 'username'          => 'jessica',
                 'password'          => Hash::make("jessica"),
                 'email_verified_at' => date('Y-m-d H:i:s'),
+            ],
+            [   
+                'account_level_id'  => "2",
+                'location_id'       => "2",
+                'firstname'         => 'Paul',
+                'lastname'          => 'Gayer',
+                'email'             => 'paul@garygreenmemorials.co.uk',
+                'username'          => 'paul',
+                'password'          => Hash::make("paul"),
+                'email_verified_at' => date('Y-m-d H:i:s'),
             ]
         ];
        
