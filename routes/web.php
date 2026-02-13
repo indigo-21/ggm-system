@@ -19,7 +19,7 @@ use App\Http\Controllers\OrderTypeController;
 use App\Http\Controllers\OrderInscriptionController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\OrderController;   
-use Illuminate\Support\Facades\Artisan;
+// use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
