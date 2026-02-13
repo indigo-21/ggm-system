@@ -19,6 +19,7 @@ use App\Http\Controllers\OrderTypeController;
 use App\Http\Controllers\OrderInscriptionController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\OrderController;   
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -72,8 +73,19 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post("/order_inscription/upsert", [OrderInscriptionController::class, 'upsert'])->name('order_inscription_upsert');
-
     
+    Route::get('/run-fresh-seed', function () {
+        Artisan::call('migrate:fresh', [
+            '--seed' => true,
+        ]);
+        // return 'Fresh migration with seed completed';
+        return view('auth/login');
+    });
+
+    Route::get('/run-fresh-seed', function () {
+        Artisan::call('migrate');
+        return 'Data migrated';
+    });
 
 });
 
