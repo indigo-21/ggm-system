@@ -27,12 +27,18 @@ Route::get('/', function () {
     return view('auth/login');
 });
 
-Route::get('/migrateDB', function (){
+Route::get('/migrate-fresh', function (){
+	Artisan::call('migrate:fresh');
+    Artisan::call('db:seed');
+	dd("Migrated Fresh Buddy");
+ }); 
+
+Route::get('/migrate', function (){
 	Artisan::call('migrate');
 	dd("Migrated Buddy");
  }); 
  
- Route::get('/seedDB', function (){
+ Route::get('/seed-seeders', function (){
 	 Artisan::call('db:seed');
 	 dd("Seed na Buddy");
   }); 
