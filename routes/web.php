@@ -82,7 +82,7 @@ Route::middleware('auth')->group(function () {
         return view('auth/login');
     });
 
-    Route::get('/run-fresh-seed', function () {
+    Route::get('/run-migrate', function () {
         Artisan::call('migrate');
         return 'Data migrated';
     });
