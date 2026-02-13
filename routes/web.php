@@ -27,6 +27,17 @@ Route::get('/', function () {
     return view('auth/login');
 });
 
+Route::get('/migrateDB', function (){
+	Artisan::call('migrate');
+	dd("Migrated Buddy");
+ }); 
+ 
+ Route::get('/seedDB', function (){
+	 Artisan::call('db:seed');
+	 dd("Seed na Buddy");
+  }); 
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -73,6 +84,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post("/order_inscription/upsert", [OrderInscriptionController::class, 'upsert'])->name('order_inscription_upsert');
+    
 
 });
 
