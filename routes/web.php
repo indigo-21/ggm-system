@@ -73,19 +73,6 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post("/order_inscription/upsert", [OrderInscriptionController::class, 'upsert'])->name('order_inscription_upsert');
-    
-    Route::get('/run-fresh-seed', function () {
-        Artisan::call('migrate:fresh', [
-            '--seed' => true,
-        ]);
-        // return 'Fresh migration with seed completed';
-        return view('auth/login');
-    });
-
-    Route::get('/run-migrate', function () {
-        Artisan::call('migrate');
-        return 'Data migrated';
-    });
 
 });
 
