@@ -20,6 +20,7 @@ use App\Models\Customer;
 use App\Models\CustomerContact;
 use App\Models\Order;
 use App\Models\OrderCost;
+use App\Models\OrderInscription;
 use App\Models\OrderInstructionNote;
 use App\Models\OrderPayment;
 use App\Models\OrderNote;
@@ -77,6 +78,7 @@ class QuoteController extends Controller
                 $order_cost     = OrderCost::find($id);
                 $order_payments = OrderPayment::where("order_id", $id)->get();
                 $total_deposit = $order_payments->sum('amount');
+                $order_inscription = OrderInscription::where("order_id", $id)->first();
                 // $order_payments = OrderPayment::where('order_id', $id)->get();
                 // $total_deposit  = $order_payments->sum(fn ($p) => (float) $p->amount);
 
@@ -92,6 +94,9 @@ class QuoteController extends Controller
                             "order_payments" => $order_payments,
                             "order_balance" => floatVal($order_cost->gross_amount ?? 0) - floatVal($total_deposit),
                         ];
+                if($order_inscription){
+                    $data["order_inscription"] = $order_inscription;
+                }
             }
         }else{
             // $data["qoutes"] = Order::all();

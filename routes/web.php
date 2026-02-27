@@ -27,21 +27,21 @@ Route::get('/', function () {
     return view('auth/login');
 });
 
-Route::get('/migrate-fresh', function (){
-	Artisan::call('migrate:fresh');
-    Artisan::call('db:seed');
-	dd("Migrated Fresh Buddy");
- }); 
+// Route::get('/migrate-fresh', function (){
+// 	Artisan::call('migrate:fresh');
+//     Artisan::call('db:seed');
+// 	dd("Migrated Fresh Buddy");
+//  }); 
 
-Route::get('/migrate', function (){
-	Artisan::call('migrate');
-	dd("Migrated Buddy");
- }); 
+// Route::get('/migrate', function (){
+// 	Artisan::call('migrate');
+// 	dd("Migrated Buddy");
+//  }); 
  
- Route::get('/seed-seeders', function (){
-	 Artisan::call('db:seed');
-	 dd("Seed na Buddy");
-  }); 
+//  Route::get('/seed-seeders', function (){
+// 	 Artisan::call('db:seed');
+// 	 dd("Seed na Buddy");
+//   }); 
 
 
 Route::get('/dashboard', function () {
@@ -90,6 +90,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post("/order_inscription/upsert", [OrderInscriptionController::class, 'upsert'])->name('order_inscription_upsert');
+    Route::post("/order_inscription/approval", [OrderInscriptionController::class, 'approval'])->name('order_inscription_approval');
     
 
 });

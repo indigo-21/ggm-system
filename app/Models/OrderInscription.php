@@ -14,4 +14,8 @@ class OrderInscription extends Model
     public function updated_user(): BelongsTo{
         return $this->belongsTo(User::class, "updated_by");
     }
+
+    public function reviewed_user(): BelongsTo{
+        return $this->belongsTo(User::class, "reviewed_by");
+    }
 }

@@ -478,7 +478,7 @@
                                         <x-input type="text" class="cost-computation" name="letters_no" value="{{$old_letters_no}}" :label="false"/>
                                     </div>
                                     <div class="col-2">
-                                        <span class="fw-bold">Letters @</span>
+                                        <small class="fw-bold">Letters @</small>
                                     </div>
                                     <div class="col-3">
                                         @php
@@ -492,6 +492,10 @@
                                         @endphp
                                         <x-input type="text" class="text-right cost-computation for-total-amount" name="letters_total_amount" readonly="true" value="{{$old_letters_total_amount}}" :label="false" />
                                     </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="">Inscripion letter count: <strong class="fw-bold">36</strong> </div>
                                 </div>
 
                                 @if (isset($order_cost) && count($order_cost->additionals) > 0)
@@ -1204,30 +1208,38 @@
                     <div class="modal-body" id="inscriptionModalBody"> 
                         <div class="inscription-form row">
                             <div class="col-12 py-1">
-                                <input type="hidden" name="order_inscription_id" value="">
-                                <x-input type="textarea" class="text-right" name="order_inscription" value="" label="Inscription" />
+                                <input type="hidden" name="order_inscription_id" value="{{ isset($order_inscription) ? $order_inscription->id : '' }}">
+                                <x-input type="textarea" class="text-right" name="order_inscription" value="" label="Inscription" value="{{ isset($order_inscription) ? $order_inscription->inscription : '' }}" />
                             </div>
                             <div class="col-12 py-3 text-center">
                                 <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="print_inscription_btn" order_id="{{ $quote?->id ?? '' }}">Print Inscription</button>
                                 <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_inscription_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
                             </div>
+                            <div class="col-12 text-center" id="inscription_message"></div>
                             
                         </div>
 
                         <div class="approval-form row mt-4 border-top pt-2">
                             <div class="col-12">
-                                <strong>Approved / Rejected By: </strong> <span>Tetse</span> <br>
-                                <strong>Date of Approval: </strong> <span>2026-12-10 12:21:21</span>
+                                @php
+                                    $old_reviewed_by = isset($order_inscription->reviewed_by) ?  $order_inscription->reviewed_user->firstname.' '.$order_inscription->reviewed_user->lastname  : '-';
+                                    $old_reviewed_timestamp =  isset($order_inscription->reviewed_by) ? date('F d, Y h:i A', strtotime($order_inscription->updated_at)) : '-';
+                                @endphp
+                                <strong>Approved / Rejected By: </strong> <span id="reviewed_by">{{$old_reviewed_by}}</span> <br>
+                                <strong>Date of Approval: </strong> <span id="reviewed_timestamp">{{$old_reviewed_timestamp}}</span>
                             </div>
-                            <div class="col-12">
+                            <div class="col-12 pt-2 mt-2">
+                                @php
+                                    $old_order_inscription_status = isset($order_inscription) ? $order_inscription->status : '' 
+                                @endphp
                                 <x-select class="z-index show-tick" name="order_inscription_status" label="Order Inscription Status" :required="true">
                                     <option value="" disabled selected>-Select Status-</option>
-                                    <option value="0">-Reject-</option>
-                                    <option value="1">-Approved-</option>
+                                    <option value="0" {{$old_order_inscription_status == "0" ? 'selected' : ''}}>-Reject-</option>
+                                    <option value="1" {{$old_order_inscription_status == "1" ? 'selected' : ''}}>-Approved-</option>
                                 </x-select>
                             </div>
                             <div class="col-12">
-                                <x-input type="textarea" name="inscription_remarks" value="{{ isset($quote) ? $quote->additional_notes : '' }}" label="Remarks" />    
+                                <x-input type="textarea" name="inscription_remarks" value="{{ isset($order_inscription) ? $order_inscription->remarks : '' }}" label="Remarks" />    
                             </div> 
                             <div class="col-12 py-3 text-center">
                                 <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_approval_btn" order_id="{{ $quote?->id ?? '' }}">Submit</button>
