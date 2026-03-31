@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\OrderInscription;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class OrderInscriptionController extends Controller
 {
@@ -48,5 +51,55 @@ class OrderInscriptionController extends Controller
             'message' => "Order Inscription $is_approved successfully",
             'order_inscription' => $order_inscription
         ]);
+    }
+
+    public function printPdf($orderId){
+        $order = Order::find($orderId);
+        
+        $data = [
+                    "title" => "Inscription-".$orderId,
+                    "orderDate" => Carbon::parse($order->created_at)->format('F d, Y H:i:s'),
+                    "lastAmended" => Carbon::parse($order->order_inscription->updated_at)->format('F d, Y H:i:s'),
+                    "customerName" => $order->customer->title." ".$order->customer->firstname." ".$order->customer->lastname,
+                    "deceasedName" => $order->deceased_name,
+                    "reference" => $this->getReferenceCode($order->order_type_id)."-".$orderId,
+                    "consecrationDate" => Carbon::parse($order->consecration_date)->format('F d, Y'),
+                    "cemetery" => $order->cemetery->name,
+                    "graveNumber" => $order->grave_number,
+                    "inscription" => $order->order_inscription->inscription
+
+
+                ];
+        $pdf = Pdf::loadView('pdf.inscription', $data);
+        
+        // Save to storage folder
+        Storage::put("pdfs/Inscription-{$orderId}.pdf", $pdf->output());
+
+        // Return PDF to browser
+        return $pdf->download("Inscription-{$orderId}.pdf");
+
+        // return $pdf->stream('Inscription-'.$orderId.'.pdf');
+        // return view("pdf.inscription" , $data);
+    }
+
+    public function getReferenceCode($orderTypeId){
+        switch ($orderTypeId) {
+            case '1':
+                return "NM/";
+                break;
+            case '2':
+                return "AI/";
+                break;
+            case '3':
+                return "REN";
+                break;
+            case '4':
+                return "WD/";
+                break;
+            
+            default:
+                return "OT/";
+                break;
+        }
     }
 }

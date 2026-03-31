@@ -46,7 +46,7 @@
                                     :required="true" search="true">
                                     <option value="" disabled selected>-Select Order Type-</option>
                                     @php
-                                        $old_order_type = $quote?->order_type_id ?? old('order_type');
+                                        $old_order_type = $quote?->order_type_id ?? old('order_type_id');
                                     @endphp
                                     @foreach ($order_types as $order_type)
                                         <option value="{{ $order_type->id }}"
@@ -102,6 +102,8 @@
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Customer Details</h2>
                             <input type="hidden" name="customer_id" value="{{ isset($quote) ? $quote->customer_id : '' }} ">
+                            
+                            {{$errors->any()}}
                     
                             @if (!isset($quote))
                                 <button type="button" class="btn btn-default btn-simple waves-effect" id="searchCustomer" data-dismiss="modal">Search Exisiting Customer</button>
@@ -493,10 +495,12 @@
                                         <x-input type="text" class="text-right cost-computation for-total-amount" name="letters_total_amount" readonly="true" value="{{$old_letters_total_amount}}" :label="false" />
                                     </div>
                                 </div>
-
-                                <div class="col-12">
-                                    <div class="">Inscripion letter count: <strong class="fw-bold">36</strong> </div>
-                                </div>
+                                
+                                @isset($order_inscription_count)
+                                    <div class="col-12">
+                                        <div class="">Inscription letter count: <strong class="fw-bold">{{$order_inscription_count}}</strong> </div>
+                                    </div>
+                                @endisset
 
                                 @if (isset($order_cost) && count($order_cost->additionals) > 0)
                                     @foreach ( $order_cost->additionals as $index => $additional )
@@ -1212,39 +1216,41 @@
                                 <x-input type="textarea" class="text-right" name="order_inscription" value="" label="Inscription" value="{{ isset($order_inscription) ? $order_inscription->inscription : '' }}" />
                             </div>
                             <div class="col-12 py-3 text-center">
-                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="print_inscription_btn" order_id="{{ $quote?->id ?? '' }}">Print Inscription</button>
+                                <a type="button" class="btn btn-danger btn-simple waves-effect w-25" id="print_inscription_btn" target="_blank" href="{{ url("pdf/inscription/".$quote?->id) }}" order_id="{{ $quote?->id ?? '' }}">Print Inscription</a>
                                 <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_inscription_btn" order_id="{{ $quote?->id ?? '' }}">Save</button>
                             </div>
                             <div class="col-12 text-center" id="inscription_message"></div>
                             
                         </div>
-
-                        <div class="approval-form row mt-4 border-top pt-2">
-                            <div class="col-12">
-                                @php
-                                    $old_reviewed_by = isset($order_inscription->reviewed_by) ?  $order_inscription->reviewed_user->firstname.' '.$order_inscription->reviewed_user->lastname  : '-';
-                                    $old_reviewed_timestamp =  isset($order_inscription->reviewed_by) ? date('F d, Y h:i A', strtotime($order_inscription->updated_at)) : '-';
-                                @endphp
-                                <strong>Approved / Rejected By: </strong> <span id="reviewed_by">{{$old_reviewed_by}}</span> <br>
-                                <strong>Date of Approval: </strong> <span id="reviewed_timestamp">{{$old_reviewed_timestamp}}</span>
+                        
+                        @isset($order_inscription)
+                            <div class="approval-form row mt-4 border-top pt-2">
+                                <div class="col-12">
+                                    @php
+                                        $old_reviewed_by = isset($order_inscription->reviewed_by) ?  $order_inscription->reviewed_user->firstname.' '.$order_inscription->reviewed_user->lastname  : '-';
+                                        $old_reviewed_timestamp =  isset($order_inscription->reviewed_by) ? date('F d, Y h:i A', strtotime($order_inscription->updated_at)) : '-';
+                                    @endphp
+                                    <strong>Approved / Rejected By: </strong> <span id="reviewed_by">{{$old_reviewed_by}}</span> <br>
+                                    <strong>Date of Approval: </strong> <span id="reviewed_timestamp">{{$old_reviewed_timestamp}}</span>
+                                </div>
+                                <div class="col-12 pt-2 mt-2">
+                                    @php
+                                        $old_order_inscription_status = isset($order_inscription) ? $order_inscription->status : '' 
+                                    @endphp
+                                    <x-select class="z-index show-tick" name="order_inscription_status" label="Order Inscription Status" :required="true">
+                                        <option value="" disabled selected>-Select Status-</option>
+                                        <option value="0" {{$old_order_inscription_status == "0" ? 'selected' : ''}}>-Reject-</option>
+                                        <option value="1" {{$old_order_inscription_status == "1" ? 'selected' : ''}}>-Approved-</option>
+                                    </x-select>
+                                </div>
+                                <div class="col-12">
+                                    <x-input type="textarea" name="inscription_remarks" value="{{ isset($order_inscription) ? $order_inscription->remarks : '' }}" label="Remarks" />    
+                                </div> 
+                                <div class="col-12 py-3 text-center">
+                                    <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_approval_btn" order_id="{{ $quote?->id ?? '' }}">Submit</button>
+                                </div>   
                             </div>
-                            <div class="col-12 pt-2 mt-2">
-                                @php
-                                    $old_order_inscription_status = isset($order_inscription) ? $order_inscription->status : '' 
-                                @endphp
-                                <x-select class="z-index show-tick" name="order_inscription_status" label="Order Inscription Status" :required="true">
-                                    <option value="" disabled selected>-Select Status-</option>
-                                    <option value="0" {{$old_order_inscription_status == "0" ? 'selected' : ''}}>-Reject-</option>
-                                    <option value="1" {{$old_order_inscription_status == "1" ? 'selected' : ''}}>-Approved-</option>
-                                </x-select>
-                            </div>
-                            <div class="col-12">
-                                <x-input type="textarea" name="inscription_remarks" value="{{ isset($order_inscription) ? $order_inscription->remarks : '' }}" label="Remarks" />    
-                            </div> 
-                            <div class="col-12 py-3 text-center">
-                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="save_approval_btn" order_id="{{ $quote?->id ?? '' }}">Submit</button>
-                            </div>   
-                        </div>    
+                        @endisset
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>

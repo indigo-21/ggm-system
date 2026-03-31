@@ -22,6 +22,7 @@ use App\Http\Controllers\OrderController;
 // use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
+
 Route::get('/', function () {
     // return view('welcome');
     return view('auth/login');
@@ -42,7 +43,6 @@ Route::get('/', function () {
 // 	 Artisan::call('db:seed');
 // 	 dd("Seed na Buddy");
 //   }); 
-
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -91,6 +91,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post("/order_inscription/upsert", [OrderInscriptionController::class, 'upsert'])->name('order_inscription_upsert');
     Route::post("/order_inscription/approval", [OrderInscriptionController::class, 'approval'])->name('order_inscription_approval');
+
+
+    // GROUPING ORDER PAYMENT
+    Route::group(['prefix'=> 'pdf', 'as' => 'pdf.'], function(){
+        Route::get('/inscription/{id}', [OrderInscriptionController::class, 'printPdf'])->name('inscription');
+    });
     
 
 });

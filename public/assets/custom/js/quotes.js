@@ -511,7 +511,7 @@ $(function () {
         
         $(document).on("click","#save_inscription_btn", async ()=>{
             CKEDITOR.instances.order_inscription.updateElement();
-            let order_id = $(this).attr("order_id");
+            let order_id = $("#save_inscription_btn").attr("order_id");
             let order_inscription_id = $("[name=order_inscription_id]").val();
             let order_inscription = $("#order_inscription").val();
 
@@ -816,6 +816,5 @@ $(function () {
             element.find("input").attr("name", `price_amount[${index}]`).attr("id", `price_amount[${index}]`);
         });
     };
-
 
 });

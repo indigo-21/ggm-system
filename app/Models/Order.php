@@ -32,4 +32,8 @@ class Order extends Model
     public function order_instruction_notes(): HasMany{
         return $this->hasMany(OrderInstructionNote::class);
     }
+
+    public function order_inscription(): HasOne{
+        return $this->hasOne(OrderInscription::class);
+    }
 }

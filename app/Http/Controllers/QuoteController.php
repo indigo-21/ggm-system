@@ -96,6 +96,7 @@ class QuoteController extends Controller
                         ];
                 if($order_inscription){
                     $data["order_inscription"] = $order_inscription;
+                    $data["order_inscription_count"] = mb_strlen(trim(preg_replace('/\s+/', ' ', strip_tags($order_inscription->inscription)))); ;
                 }
             }
         }else{
