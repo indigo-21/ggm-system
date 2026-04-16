@@ -18,7 +18,8 @@ use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\OrderTypeController;
 use App\Http\Controllers\OrderInscriptionController;
 use App\Http\Controllers\QuoteController;
-use App\Http\Controllers\OrderController;   
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderFileController;
 // use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -86,7 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::group(['prefix'=> 'order_payment', 'as' => 'order_payment.'], function(){
         Route::post('/order_payment_upsert', [OrderPaymentController::class, 'upsert'])->name('order_payment_upsert');
         Route::post('/order_payment_destroy', [OrderPaymentController::class, 'destroy'])->name('order_payment_destroy');
-        Route::get('/order_payment_print_receipt/{id}', [OrderPaymentController::class, 'print_receipt'])->name('order_payment_print_receipt');
+        
     });
 
     Route::post("/order_inscription/upsert", [OrderInscriptionController::class, 'upsert'])->name('order_inscription_upsert');
@@ -96,7 +97,19 @@ Route::middleware('auth')->group(function () {
     // GROUPING ORDER PAYMENT
     Route::group(['prefix'=> 'pdf', 'as' => 'pdf.'], function(){
         Route::get('/inscription/{id}', [OrderInscriptionController::class, 'printPdf'])->name('inscription');
+        Route::get('/payment_receipt/{order_payment_id}', [OrderPaymentController::class, 'payment_receipt'])->name('payment_receipt');
+        Route::get('/payment_statement/{order_id}', [OrderPaymentController::class, 'payment_statement'])->name('payment_statement');
+        Route::get('/quotation/{order_id}', [QuoteController::class, 'print_pdf'])->name('print_pdf');
+        Route::get('/order/{order_id}', [OrderController::class, 'print_pdf'])->name('print_pdf');
+        Route::get('/order_no_price/{order_id}', [OrderController::class, 'print_pdf_no_price'])->name('print_pdf_no_price');
     });
+
+    // Route::group(['prefix' => 'files', 'as' => 'files'], function(){
+        
+    // });
+    Route::post('upload_files', [OrderFileController::class, 'store'])->name("upload_files");    
+    Route::post('delete_file', [OrderFileController::class, 'destroy'])->name("delete_file");    
+    Route::post('file_is_email', [OrderFileController::class, 'update'])->name("file_is_email");    
     
 
 });

@@ -33,6 +33,8 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Services\OrderService;
 use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class QuoteController extends Controller
 {
@@ -249,4 +251,69 @@ class QuoteController extends Controller
         
         return response()->json([ "data" => $data ]);
     }   
+
+    public function print_pdf($order_id){
+        $orderId = $order_id;
+
+        $orderData = Order::find($orderId);
+        
+        $customerData = $orderData->customer;
+        $locationData = $orderData->location;
+
+        $addressOne =  $customerData->address_one ?? "";
+        $addressTwo =  $customerData->address_two ?? "";
+        $cityCounty =  $customerData->city_county ?? "";
+        $postCode =  $customerData->postcode ?? "";
+
+        $data = [
+                    "title" => "Quotation-".$orderId,
+                    "customerName" => $customerData->firstname." ".$customerData->lastname,
+                    "printDate" => Carbon::now()->format('F d, Y H:i A'),
+                    "customerAddress" => $addressOne." ".$addressTwo." ".$cityCounty." ".$postCode,
+                    "orderReference" => self::order_type_code($orderData->order_type_id).$orderId,
+                    "customerFirstname" => $customerData->firstname,
+                    "deceasedName" => $orderData->deceased_name,
+                    "cemeteryName" => $orderData->cemetery->name,
+                    "graveNumber" => $orderData->grave_number,
+                    "headStone" => $orderData->design_headstone,
+                    "headStoneSize" => $orderData->size,
+                    "material" => $orderData->material,
+                    "orderCost" => $orderData->order_cost,
+                    "orderCostAdditionals" => $orderData->order_cost->additionals,
+                    "orderAdditionalNote" => $orderData->additional_notes,
+                    "locationName" => $orderData->location->name
+                ];
+        
+        $pdf = Pdf::loadView('pdf.quotation', $data);
+        
+        $filename = "Quotation-{$orderId}.pdf";
+        $relativePath = "pdfs/{$filename}.pdf";
+
+        Storage::put($relativePath, $pdf->output());
+        return response()->download(storage_path('app/'.$relativePath));
+
+        // return view('pdf.quotation', $data);
+    }
+
+    public function order_type_code($orderTypeId){
+        $code = "";
+        switch ($orderTypeId) {
+            case '1':
+                $code = "NM/";
+                break;
+            case '2':
+                $code = "AI";
+                break;
+            case '3':
+                $code = "RN/";
+                break;
+            case '4':
+                $code = "WD/";
+                break;
+            default:
+                $code = "OT/";
+                break;
+        }
+        return $code;
+    }
 }

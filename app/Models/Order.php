@@ -25,6 +25,14 @@ class Order extends Model
         return $this->belongsTo(Cemetery::class);
     }
 
+    public function burial_society_organization(): BelongsTo{
+        return $this->belongsTo(BurialSocietyOrganization::class);
+    }
+
+    public function grave_space(): BelongsTo{
+        return $this->belongsTo(GraveSpace::class);
+    }
+
     public function user(): BelongsTo{
         return $this->belongsTo(User::class, 'created_by');
     }
@@ -35,5 +43,17 @@ class Order extends Model
 
     public function order_inscription(): HasOne{
         return $this->hasOne(OrderInscription::class);
+    }
+
+    public function location(): BelongsTo{
+        return $this->belongsTo(Location::class, "location_id");
+    }
+
+    public function payments(): HasMany{
+        return $this->hasMany(OrderPayment::class, "order_id");
+    }
+
+    public function order_files(): HasMany{
+        return $this->hasMany(OrderFile::class, "order_id");
     }
 }

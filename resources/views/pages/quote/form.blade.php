@@ -897,9 +897,9 @@
                             <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="photos_btn" order_id="{{ $quote?->id ?? '' }}">Photos</button>
                             <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="documents_btn" order_id="{{ $quote?->id ?? '' }}">Documents</button>
                             <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="working_files_btn" order_id="{{ $quote?->id ?? '' }}">Working Files</button>
-                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_quotation_btn" order_id="{{ $quote?->id ?? '' }}">Print Quotation</button>
-                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_order_btn" order_id="{{ $quote?->id ?? '' }}">Print Order</button>
-                            <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_no_prices_btn" order_id="{{ $quote?->id ?? '' }}">Print - No Prices</button>
+                            <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_quotation_btn" href="{{ url("pdf/quotation/".$quote?->id) }}" target="_blank" order_id="{{ $quote?->id ?? '' }}">Print Quotation</a>
+                            <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_order_btn" href="{{ url("pdf/order/".$quote?->id) }}" target="_blank" order_id="{{ $quote?->id ?? '' }}">Print Order</a>
+                            <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25" id="print_no_prices_btn" href="{{ url("pdf/order_no_price/".$quote?->id) }}" target="_blank" order_id="{{ $quote?->id ?? '' }}">Print - No Prices</a>
                         </div>
                     </div>
                     
@@ -1187,7 +1187,7 @@
                                         <td class="text-right">{{ number_format($order_payment->amount, 2) }}</td>
                                         <td>{{ $order_payment->comment }}</td>
                                         <td class="text-center">
-                                            <a type="button" class="btn btn-danger btn-xs" href="{{ route('order_payment.order_payment_print_receipt', $order_payment->id) }}" target="_blank">Print Receipt</a>
+                                            <a type="button" class="btn btn-danger btn-xs" href="{{  url("pdf/payment_receipt/".$order_payment->id)  }}" target="_blank">Print Receipt</a>
                                             <button type="button" class="btn btn-danger btn-xs order_payment_destroy" order_payment_id="{{ $order_payment->id }}" >Delete</button>
                                         </td>
                                     </tr>   
@@ -1335,147 +1335,11 @@
             </div>
         </div>
 
-        <!-- For Photos Modal -->
-        <div class="modal fade" id="orderPhotosModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="title" id="orderPhotosModalLabel">Order Photos</h4>
-                    </div>
-                    <div class="modal-body" id="orderPhotosModalBody"> 
-                        <div class="row">
-                            <div class="col-12">
-                                <x-input type="file" name="order_photos[]" value="" label="Upload Photos" multiple="multiple" />
-                            </div>
-                            <div class="col-12 text-center">
-                                 <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="upload_photos_btn" order_id="{{ $quote?->id ?? '' }}">Upload</button>
-                            </div>
-                            <div class="col-12 mt-4 border-top">
-                                <h5 class="title py-3">List of Photos</h5>
-                                <div class="photo-gallery row">
-                                     <div class="col-4">
-                                        <div class="card">
-                                            <img src="https://imgv3.fotor.com/images/videoImage/wonderland-girl-generated-by-Fotor-ai-art-generator.jpg" class="card-img-top" alt="Order Photo">
-                                            <div class="card-body text-center d-flex align-items-center justify-content-center flex-wrap">
-                                                <button type="button" class="btn btn-danger btn-xs delete-order-photo-btn" order_photo_id="">Delete</button>
-                                                <x-input type="checkbox" class="mx-3 w-50" name="is_no_email_checked" value="" label="No Email" /> 
-                                                <button type="button" class="btn btn-danger btn-xs rotate-photo-btn" order_photo_id="">Rotate</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @include("pages.quote.modals.photos");
 
-        <!-- For Photos Modal -->
-        <div class="modal fade" id="orderDocumentsModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="title" id="orderDocumentsModalLabel">Order Documents</h4>
-                    </div>
-                    <div class="modal-body" id="orderDocumentsModalBody"> 
-                        <div class="order-document-form row">
-                            <div class="col-12">
-                                <x-input type="file" name="document_file" value="" label="Browse File" />
-                            </div>
-                            <div class="col-12">
-                                <x-input type="text" name="document_filename" value="" label="File Name" />
-                            </div>
-                            <div class="col-12">
-                                <x-input type="textarea" name="document_description" value="" label="Description" />
-                            </div>
-                            <div class="col-12 text-center py-4">
-                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="upload_documents_btn"
-                                    order_id="{{ $quote?->id ?? '' }}">Upload</button>
-                            </div>
-                        </div>
-                        <div class="order-docuent-table row">
-                            <div class="col-12 mt-4 border-top">
-                                <h5 class="title py-3">List of Documents</h5>
-                                <table class="table table-bordered table-striped table-hover dataTable" id="orderDocumentsTable"
-                                    style="font-size:90%">
-                                    <thead>
-                                        <tr>
-                                            <th>File</th>
-                                            <th>Description</th>
-                                            <th>Email</th>
-                                            <th style="width:10%;">Timestamp</th>
-                                            <th style="width:10%;">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="orderDocumentsTableBody">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @include("pages.quote.modals.documents");
 
-        <!-- For Working Files Modal -->
-        <div class="modal fade" id="orderWorkingFilesModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="title" id="orderWorkingFilesModalLabel">Order Working Files</h4>
-                    </div>
-                    <div class="modal-body" id="orderWorkingFilesModalBody"> 
-                        <div class="order-working-files-form row">
-                            <div class="col-4">
-                                <x-input type="text" name="workingfiles_date" value="" label="Date" />
-                            </div>
-                            <div class="col-4">
-                                <x-input type="file" name="workingfiles_file" value="" label="Browse File" />
-                            </div>
-                            <div class="col-4">
-                                <x-input type="text" name="workingfiles_filename" value="" label="File Name" />
-                            </div>
-                            <div class="col-12">
-                                <x-input type="textarea" name="workingfiles_description" value="" label="Description" />
-                            </div>
-                            <div class="col-12 text-center py-4">
-                                <button type="button" class="btn btn-danger btn-simple waves-effect w-25" id="upload_workingfiles_btn"
-                                    order_id="{{ $quote?->id ?? '' }}">Upload</button>
-                            </div>
-                        </div>
-                        <div class="order-docuent-table row">
-                            <div class="col-12 mt-4 border-top">
-                                <h5 class="title py-3">List of Working Files</h5>
-                                <div class="working-files-gallery row">
-                                     <div class="col-4">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h5 class="card-title">2026-02-20 12:12:12</h5>
-                                            </div>
-                                            <img src="https://imgv3.fotor.com/images/videoImage/wonderland-girl-generated-by-Fotor-ai-art-generator.jpg" class="card-img-top" alt="Order Working File">
-                                            <div class="card-body text-center d-flex align-items-center justify-content-center flex-wrap">
-                                                <button type="button" class="btn btn-danger btn-xs delete-order-working-file-btn" order_working_file_id="">Delete</button>
-                                                <x-input type="checkbox" class="mx-3 w-50" name="is_no_email_checked" value="" label="No Email" /> 
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-simple waves-effect" data-dismiss="modal">CLOSE</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @include("pages.quote.modals.working-files")
 
     </x-slot>
 

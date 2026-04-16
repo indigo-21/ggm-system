@@ -24,8 +24,16 @@
 
     <div class="divider"></div>
 
-    <div class="center-text" style="margin-top:30px;">
+    <div class="center-text" style="margin-top:30px;margin-bottom:30px;">
         {!! $inscription !!}
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="margin-top:30px;">
+       The layout of the inscription will be left to the discretion of the letter cutter unless otherwise stated.
+        <br><br>
+       Please examine the above inscription carefully. The artwork will be sent to you in due course to sign.
     </div>
 
 @endsection

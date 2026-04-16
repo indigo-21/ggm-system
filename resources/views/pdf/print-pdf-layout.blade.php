@@ -41,6 +41,22 @@
         .divider{
             border:2px solid black;
         }
+        .table-bordered{
+            /* border: 1px solid black; */
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .table-bordered td{
+            border: 2px solid black;
+            padding: 10px 10px;
+            margin:0px;
+        }
+
+        .table-bordered .no-border{
+            border: 0px;
+            padding: 10px 10px;
+            margin:0px;
+        }
     </style>
 </head>
 
@@ -54,13 +70,13 @@
     <table class="contact-table">
         <tr>
             <td>
-                <span>41 Manor Park Crescent Edgware, Middlesex. HA8 7LY</span><br>
+                <span>41 Manor Park Crescent Edgware, <br> Middlesex. HA8 7LY</span><br>
                 <strong>Tel:</strong> 0208 - 381 1525<br>
                 <strong>FAX:</strong> 0208 - 381 1535
             </td>
 
             <td style="text-align:right;">
-                <span>4 Claybury Broadway Clayhall, Ilford Essex. IG5 OLQ</span><br>
+                <span>4 Claybury Broadway Clayhall, <br> Ilford Essex. IG5 OLQ</span><br>
                 <strong>Tel:</strong> 0208 - 551 6866<br>
                 <strong>FAX:</strong> 0208 - 503 9889
             </td>

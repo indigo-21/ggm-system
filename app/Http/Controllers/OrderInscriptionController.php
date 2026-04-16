@@ -67,22 +67,31 @@ class OrderInscriptionController extends Controller
                     "cemetery" => $order->cemetery->name,
                     "graveNumber" => $order->grave_number,
                     "inscription" => $order->order_inscription->inscription
-
-
                 ];
         $pdf = Pdf::loadView('pdf.inscription', $data);
+
+        $filename  = "Inscription-{$orderId}.pdf";
+        $relativePath = "pdfs/{$filename}.pdf";
+
         
-        // Save to storage folder
-        Storage::put("pdfs/Inscription-{$orderId}.pdf", $pdf->output());
+        // Save PDF to storage/app/pdfs
+        Storage::put($relativePath, $pdf->output());
+        return response()->download(storage_path('app/'.$relativePath));
+        // return response()->json([
+        //     'file_saved_to' => $relativePath,
+        //     'absolute_path' => storage_path('app/'.$relativePath)
+        // ]);
+
 
         // Return PDF to browser
-        return $pdf->download("Inscription-{$orderId}.pdf");
+        // return $pdf->download("Inscription-{$orderId}.pdf");
 
         // return $pdf->stream('Inscription-'.$orderId.'.pdf');
         // return view("pdf.inscription" , $data);
     }
 
     public function getReferenceCode($orderTypeId){
+
         switch ($orderTypeId) {
             case '1':
                 return "NM/";
@@ -101,5 +110,6 @@ class OrderInscriptionController extends Controller
                 return "OT/";
                 break;
         }
+
     }
 }
