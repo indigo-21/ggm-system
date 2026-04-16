@@ -29,11 +29,11 @@ Route::get('/', function () {
     return view('auth/login');
 });
 
-// Route::get('/migrate-fresh', function (){
-// 	Artisan::call('migrate:fresh');
-//     Artisan::call('db:seed');
-// 	dd("Migrated Fresh Buddy");
-//  }); 
+Route::get('/migrate-fresh', function (){
+	Artisan::call('migrate:fresh');
+    Artisan::call('db:seed');
+	dd("Migrated Fresh Buddy");
+ }); 
 
 // Route::get('/migrate', function (){
 // 	Artisan::call('migrate');
