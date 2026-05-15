@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderCost;
 use Illuminate\Http\Request;
 use App\Models\OrderPayment;
+use App\Services\PdfService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -12,6 +14,11 @@ use Illuminate\Support\Facades\Storage;
 
 class OrderPaymentController extends Controller
 {
+
+    public function __construct(
+        protected PdfService $pdfService
+    ) {}
+
     public function get_table_data(){
         $order_payments = OrderPayment::all();
         $data = [];
@@ -55,74 +62,22 @@ class OrderPaymentController extends Controller
 
     public function payment_receipt($order_payment_id){
 
-        $orderPayment = OrderPayment::find($order_payment_id);
-        $orderData = $orderPayment->order;
-        $customerData = $orderData->customer;
-        $locationData = $orderData->location;
-
-        $orderId = $orderPayment->order_id;
-
-        $paymentData = [
-            [
-                "amount" => number_format($orderPayment->amount, 2),
-                "method" => $this->payment_method($orderPayment->method),
-                "comment" => $orderPayment->comment
-            ]
-        ];
-
-        $addressOne =  $customerData->address_one ?? "";
-        $addressTwo =  $customerData->address_two ?? "";
-        $cityCounty =  $customerData->city_county ?? "";
-        $postCode =  $customerData->postcode ?? "";
-
-        $data = [
-                    "title" => "Payment Receipt-".$orderId,
-                    "locationName" => $locationData->name,
-                    "customerName" => $customerData->firstname." ".$customerData->lastname,
-                    "customerAddress" => $addressOne." ".$addressTwo." ".$cityCounty." ".$postCode,
-                    "deceasedName" => $orderData->deceased_name,
-                    "cemetery" => $orderData->cemetery->name,
-                    "graveNumber" => $orderData->grave_number,
-                    "paymentDate" => Carbon::parse($orderPayment->created_at)->format('F d, Y H:i A'),
-                    "paymentData" => $paymentData
-                ];
-        $pdf = Pdf::loadView('pdf.payment-receipt', $data);
+        $path = $this->pdfService->generateReceipt($order_payment_id);
         
-        $filename = "Payment Receipt-{$orderId}.pdf";
-        $relativePath = "pdfs/{$filename}.pdf";
-
-        Storage::put($relativePath, $pdf->output());
-        return response()->download(storage_path('app/'.$relativePath));
+        return response()->download(storage_path('app/'.$path));
 
         // return view("pdf.payment-receipt", $data);
 
     }
 
-    public function payment_statement($order_id){
-        dd($order_id);
+    public function payment_statement($orderId){
+        
+        $path = $this->pdfService->generateStatement($orderId);
+
+        return response()->download(storage_path('app/'.$path));
+
+        // return view("pdf.statement", $data);
     }
 
-    public function payment_method($paymentMethod = false){
-        $method = "";
-        switch ($paymentMethod) {
-            case '1':
-                $method = "Cash";
-                break;
-            case '2':
-                $method = "Cheque";
-                break;
-            case '3':
-                $method = "Credit Card";
-                break;
-            case '4':
-                $method = "Bank Transfer";
-                break;
-            default:
-                $method = "Debit Card";
-                break;
-        }
-
-        return $method;
-    }
 
 }

@@ -41,21 +41,51 @@
         .divider{
             border:2px solid black;
         }
-        .table-bordered{
-            /* border: 1px solid black; */
+
+        .table-bordered-none{
             border-collapse: collapse;
             width: 100%;
         }
+
+        .table-bordered{
+            border: 1px solid black;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
         .table-bordered td{
             border: 2px solid black;
-            padding: 10px 10px;
+            padding: 5px 5px;
             margin:0px;
+        }
+
+        .table-bordered th{
+            border: 2px solid black;
+            padding: 5px 5px;
+            margin:0px;
+            font-size: 15px;
         }
 
         .table-bordered .no-border{
             border: 0px;
             padding: 10px 10px;
             margin:0px;
+        }
+        .bordered-bottom{
+            border-bottom: 1px solid black;
+        }
+        .flex-td{
+            /* display:flex; */
+        }
+        .label-left{
+            /* width: 30%; */
+            font-weight: 900;
+        }
+        .label-right{
+            border-bottom:1px solid black;
+            padding-bottom:3px;
+            width:70%; 
+            padding-left:5px;
         }
     </style>
 </head>

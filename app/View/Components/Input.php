@@ -23,6 +23,7 @@ class Input extends Component
         public string $inputformat  = "",
         public string $message      = "",
         public bool $checked       = false,
+        public string $rows       = "5",
 
     ) {
         $this->label         = Str::headline($label); // auto-generate label if not passed (optional)

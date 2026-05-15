@@ -32,12 +32,18 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Services\OrderService;
+use App\Services\PdfService;
 use Illuminate\Support\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
 class QuoteController extends Controller
 {
+    
+ public function __construct(
+        protected PdfService $pdfService
+    ) {}
+
 
     public function default_required_data($isFrom = "index", $id = false){
         session()->forget('success');
@@ -100,6 +106,8 @@ class QuoteController extends Controller
                     $data["order_inscription"] = $order_inscription;
                     $data["order_inscription_count"] = mb_strlen(trim(preg_replace('/\s+/', ' ', strip_tags($order_inscription->inscription)))); ;
                 }
+
+                
             }
         }else{
             // $data["qoutes"] = Order::all();
@@ -119,6 +127,43 @@ class QuoteController extends Controller
     {   
         $data = self::default_required_data();
         return view("pages.quote.index", $data);
+    }
+
+    public function index_filtered(Request $request){
+        $data  = self::default_required_data();
+        
+        $orderTypeId = $request->order_type_id ?? 1;
+        $userId = $request->user_id;
+        $isInvoiced = $request->invoice_status == 1;
+        $orderMonth = $request->order_date_month;
+        $orderYear = $request->order_date_year;
+        $searchColumn = $request->search_column;
+        $searchInput = $request->search_column;
+
+        $query = Order::where("order_type_id", $orderTypeId);
+        
+        if($userId){
+            $query->where("created_by", $userId);
+        }
+
+        if($isInvoiced){
+            $query->where("invoice_no", 1);
+        }
+
+        if($orderYear && $orderYear){
+            $query->whereRaw("MONTH(created_at) = $orderMonth");
+            $query->whereRaw("YEAR(created_at) = $orderYear");
+        }
+
+        if($searchColumn && $searchInput){
+            $query->where($searchColumn, $searchInput);
+        }
+
+        $data["quotes"] = $query->get();
+
+
+        return view("pages.quote.index", $data);
+
     }
 
     /**
@@ -255,65 +300,11 @@ class QuoteController extends Controller
     public function print_pdf($order_id){
         $orderId = $order_id;
 
-        $orderData = Order::find($orderId);
+        $path = $this->pdfService->generateQuote($orderId);
         
-        $customerData = $orderData->customer;
-        $locationData = $orderData->location;
-
-        $addressOne =  $customerData->address_one ?? "";
-        $addressTwo =  $customerData->address_two ?? "";
-        $cityCounty =  $customerData->city_county ?? "";
-        $postCode =  $customerData->postcode ?? "";
-
-        $data = [
-                    "title" => "Quotation-".$orderId,
-                    "customerName" => $customerData->firstname." ".$customerData->lastname,
-                    "printDate" => Carbon::now()->format('F d, Y H:i A'),
-                    "customerAddress" => $addressOne." ".$addressTwo." ".$cityCounty." ".$postCode,
-                    "orderReference" => self::order_type_code($orderData->order_type_id).$orderId,
-                    "customerFirstname" => $customerData->firstname,
-                    "deceasedName" => $orderData->deceased_name,
-                    "cemeteryName" => $orderData->cemetery->name,
-                    "graveNumber" => $orderData->grave_number,
-                    "headStone" => $orderData->design_headstone,
-                    "headStoneSize" => $orderData->size,
-                    "material" => $orderData->material,
-                    "orderCost" => $orderData->order_cost,
-                    "orderCostAdditionals" => $orderData->order_cost->additionals,
-                    "orderAdditionalNote" => $orderData->additional_notes,
-                    "locationName" => $orderData->location->name
-                ];
-        
-        $pdf = Pdf::loadView('pdf.quotation', $data);
-        
-        $filename = "Quotation-{$orderId}.pdf";
-        $relativePath = "pdfs/{$filename}.pdf";
-
-        Storage::put($relativePath, $pdf->output());
-        return response()->download(storage_path('app/'.$relativePath));
-
+        return response()->download(storage_path("app/".$path));
         // return view('pdf.quotation', $data);
     }
 
-    public function order_type_code($orderTypeId){
-        $code = "";
-        switch ($orderTypeId) {
-            case '1':
-                $code = "NM/";
-                break;
-            case '2':
-                $code = "AI";
-                break;
-            case '3':
-                $code = "RN/";
-                break;
-            case '4':
-                $code = "WD/";
-                break;
-            default:
-                $code = "OT/";
-                break;
-        }
-        return $code;
-    }
+    
 }

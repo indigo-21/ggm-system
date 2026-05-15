@@ -107,7 +107,7 @@ class OrderFileController extends Controller
     public function update(Request $request)
     {
         $orderFileId = $request->fileId;
-        $isAttachEmail = $request->isChecked == "true" ? 1 : 0;
+        $isAttachEmail = $request->isChecked == "true" ? 1 : NULL;
 
 
         $orderFile = OrderFile::find($orderFileId);

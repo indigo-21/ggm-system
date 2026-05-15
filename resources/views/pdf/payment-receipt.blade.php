@@ -1,31 +1,37 @@
 @extends('pdf.print-pdf-layout')
 
 @section("content")
-    <div class="divider"></div>
+    {{-- <div class="divider"></div> --}}
+
         <div style="padding:10px 10px;text-align:center;"> 
             <h2>{{$locationName}} Receipt</h2>
         </div>
-    <div class="divider"></div>
+
+    {{-- <div class="divider"></div> --}}
+
         <table class="table-bordered">
             <tr>
-                <td colspan="4"><strong>Customer Name: </strong>{{ $customerName }} </td>
+                <td colspan="2"><strong>Customer Name:</strong> {{ $customerName }} </td>
+                <td colspan="2" style="text-align:right"><strong>Date:</strong> {{$paymentDate}}</td>
+
             </tr>
             <tr>
                 <td colspan="4"><strong>Address: </strong> {{ $customerAddress }} </td>
             </tr>
             <tr>
-                <td colspan="2"><strong>Date:</strong> {{$paymentDate}}</td>
                 {{-- <td><strong>Time: </strong> testings</td> --}}
-                <td><strong>Cemetery: </strong> testings</td>
-                <td><strong>Grave No.:</strong> testings</td>
+                <td colspan="2"><strong>Cemetery: </strong> testings</td>
+                <td colspan="2" style="text-align:right"><strong>Grave No.:</strong> testings</td>
             </tr>
             <tr>
-                <td colspan="4">
+                <td colspan="4" style="padding:20px">
                     <center>The Memorial of the late {{$deceasedName}} </center>
                 </td>
             </tr>
         </table>
-    <div class="divider"></div>
+
+    {{-- <div class="divider"></div> --}}
+
         <table class="table-bordered">
             @foreach ($paymentData as $payment)
                 <tr>

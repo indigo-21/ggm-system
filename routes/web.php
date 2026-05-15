@@ -20,6 +20,7 @@ use App\Http\Controllers\OrderInscriptionController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderFileController;
+use App\Http\Controllers\OrderMailController;
 // use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -81,6 +82,8 @@ Route::middleware('auth')->group(function () {
             ->name('upsert_order_instruction_note');
         Route::post('/order_instruction_note', [QuoteController::class, 'getOrderInstructionNote'])
             ->name('order_instruction_note');
+        Route::post('/index_filtered', [QuoteController::class, 'index_filtered'])
+            ->name('index_filtered');
     });
 
     // GROUPING ORDER PAYMENT
@@ -94,7 +97,7 @@ Route::middleware('auth')->group(function () {
     Route::post("/order_inscription/approval", [OrderInscriptionController::class, 'approval'])->name('order_inscription_approval');
 
 
-    // GROUPING ORDER PAYMENT
+    // GROUPING PDF GENERATIONS
     Route::group(['prefix'=> 'pdf', 'as' => 'pdf.'], function(){
         Route::get('/inscription/{id}', [OrderInscriptionController::class, 'printPdf'])->name('inscription');
         Route::get('/payment_receipt/{order_payment_id}', [OrderPaymentController::class, 'payment_receipt'])->name('payment_receipt');
@@ -103,6 +106,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/order/{order_id}', [OrderController::class, 'print_pdf'])->name('print_pdf');
         Route::get('/order_no_price/{order_id}', [OrderController::class, 'print_pdf_no_price'])->name('print_pdf_no_price');
     });
+
+    // ORDER MAIL
+    Route::post("/send_email", [OrderMailController::class, 'send_email'])->name('send_email');
 
     // Route::group(['prefix' => 'files', 'as' => 'files'], function(){
         

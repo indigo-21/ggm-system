@@ -56,4 +56,8 @@ class Order extends Model
     public function order_files(): HasMany{
         return $this->hasMany(OrderFile::class, "order_id");
     }
+
+    public function order_emails(): HasMany{
+        return $this->hasMany(OrderMail::class, "order_id");
+    }
 }
