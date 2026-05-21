@@ -68,7 +68,7 @@
 
         .table-bordered .no-border{
             border: 0px;
-            padding: 10px 10px;
+            padding: 5px 10px;
             margin:0px;
         }
         .bordered-bottom{
@@ -86,6 +86,16 @@
             padding-bottom:3px;
             width:70%; 
             padding-left:5px;
+        }
+        .label-width-8 {
+            width: 8%;
+        }
+        .value-width-25 {
+            width: 25%;
+            border-bottom:1px solid #000;
+        }
+        .spacer {
+            width:2%;
         }
     </style>
 </head>

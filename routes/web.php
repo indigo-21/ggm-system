@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\AccountLevelController;
@@ -75,6 +76,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('customer', CustomerController::class);
     Route::resource('quote', QuoteController::class);
     Route::resource('order', OrderController::class);
+    Route::resource('schedule', ScheduleController::class);
+
 
     // GROUPING QUOTE
     Route::group(['prefix'=> 'quote', 'as' => 'quote.'], function(){

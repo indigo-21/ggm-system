@@ -71,7 +71,7 @@
                         </x-dropdown-link>
 
                         <x-nav-link>
-                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Schedules</span></a>
+                            <a href="{{route('schedule.index')}}" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Schedules</span></a>
                         </x-nav-link>
                         <x-nav-link>
                             <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Inventory</span></a>

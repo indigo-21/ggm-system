@@ -45,7 +45,101 @@
             </tr>
         </table>
 
-        <table class="table-bordered-none">
+        <table class="table-boredered-none" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <th colspan="2" style="font-weight:bold;text-align:left">
+                    <h2>Order Details</h2>
+                </th>
+            </tr>
+            <tr>
+                <td class="label-width-8"><strong>Deceased:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->deceased_name }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Date of Death:</strong></td>
+                <td class="value-width-25">
+                    {{ \Carbon\Carbon::parse($orderData->date_or_death)?->format('F d, Y A') }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Consecration:</strong></td>
+                <td class="value-width-25">
+                    {{ \Carbon\Carbon::parse($orderData->consecration_date)?->format('F d, Y') }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-width-8"><strong>Cemetery:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->cemetery->name ?? '' }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Grave No.:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->grave_number }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Burial Society Organization:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->burial_society_organization->name }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-width-8"><strong>Material:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->material }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Grave Space:</strong></td>
+                <td class="value-width-25">
+                     {{ $orderData->grave_space->name }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Colour:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->material_colour }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-width-8"><strong>Letter Type:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->letter_type }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Design/Headstone:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->design_headstone }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Kerbs/Risers:</strong></td>
+                <td class="value-width-25">
+                   {{ $orderData->kerb_riser }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-width-8"><strong>Size:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->size }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Accessories:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->accessories }}
+                </td>
+                <td class="spacer"></td>
+                <td class="label-width-8"><strong>Based Ledger:</strong></td>
+                <td class="value-width-25">
+                   {{ $orderData->based_ledger ?? 'N/A' }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-width-8"><strong>Colour:</strong></td>
+                <td class="value-width-25">
+                    {{ $orderData->accessory_colour }}
+                </td>
+            </tr>
+        </table>
+
+        <!-- <table class="table-bordered-none">
             <tr>
                 <th colspan="3" style="text-align:left">
                     <h2>Order Details</h2>
@@ -156,11 +250,88 @@
                     </div>
                 </td>
             </tr>
-        </table>
+        </table> -->
 
         <br><br><br>
 
         <table class="table-bordered">
+            <tr>
+                <th style="width:50%;">
+                    <strong>Cost</strong>
+                </th>
+            </tr>
+            <tr>
+                @if ($orderCost->description && $orderCost->amount)
+                    <td class="no-border"
+                        style="border-left:1px solid black;border-bottom:1px solid black;border-top:1px solid black;">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="padding:0px;border:none;">{{ $orderCost->description }}</td>
+                                <td style="padding:0px;border:none;text-align:right;">£
+                                    {{ $orderCost->amount ? number_format($orderCost->amount, 2) : '0' }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                @else
+                    <!-- <td> </td> -->
+                @endif
+            </tr>
+            @if ($orderCost->letter_count && $orderCost->letter_amount)
+                <tr>
+                    <td class="no-border" style="border:1px solid black;">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="padding:0px;border:none;">{{ $orderCost->letter_count }} Letters @ £
+                                    {{ number_format($orderCost->letter_amount, 2) }}</td>
+                                <td style="padding:0px;border:none;text-align:right;">£
+                                    {{ $orderCost->letter_total_amount ? number_format($orderCost->letter_total_amount, 2) : '0.00' }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            @endif
+
+            @foreach ($orderCost->additionals as $additional)
+                <tr>
+                    <td class="no-border" style="border:1px solid black;">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="padding:0px;border:none;">{{ $additional->description }}</td>
+                                <td style="padding:0px;border:none;text-align:right;">£
+                                    {{ $additional->amount ? number_format($additional->amount, 2) : '0' }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            @endforeach
+
+            <tr>
+                <td class="no-border" style="border:1px solid black;">
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="padding:0px;border:none;"><strong>Grand Total</strong></td>
+                            <td style="padding:0px;border:none;text-align:right;">£
+                                {{ number_format($orderCost->grand_total, 2) }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="no-border" style="border:1px solid black;">
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="padding:0px;border:none;"><strong>Deposit: </strong> {{ $orderDeposit->comment }}
+                            </td>
+                            <td style="padding:0px;border:none;text-align:right;">- £
+                                {{ $orderDeposit ? number_format($orderDeposit->amount, 2) : '0' }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br><br>
+        <!-- <table class="table-bordered">
             <tr>
                 <th style="width:50%;">
                     <strong>Cost</strong>
@@ -241,8 +412,24 @@
                     </table>
                 </td>
             </tr>
+        </table> -->
+        <div style="page-break-after: always;"></div>
+        <table class="table-bordered">
+            <tr>
+                <th style="width:50%;">
+                    <strong>Customer Notes</strong>
+                </th>
+            </tr>
+            <tr>
+                @if ($orderData->customer_notes)
+                    <td rowspan="8" style="border:1px solid black">{{ $orderData->customer_notes }}</td>
+                @else
+                    <td rowspan="8" style="border:1px solid black">N/A</td>
+                @endif
+            </tr>
         </table>
-
+     
+        
 
         <br>
         <h3>NOTES</h3>
