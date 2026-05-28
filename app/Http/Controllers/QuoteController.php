@@ -130,6 +130,8 @@ class QuoteController extends Controller
     }
 
     public function index_filtered(Request $request){
+        // dd($request);
+
         $data  = self::default_required_data();
         
         $orderTypeId = $request->order_type_id ?? 1;
@@ -138,7 +140,7 @@ class QuoteController extends Controller
         $orderMonth = $request->order_date_month;
         $orderYear = $request->order_date_year;
         $searchColumn = $request->search_column;
-        $searchInput = $request->search_column;
+        $searchInput = $request->search_input;
 
         $query = Order::where("order_type_id", $orderTypeId);
         

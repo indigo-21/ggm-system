@@ -98,7 +98,7 @@
                     <div class="header">
                         <div class="row">
                             <div class="col-6">
-                                <h2>List of <strong>Orders</strong></h2>
+                                <h2>List of <strong>Schedules</strong></h2>
                             </div>
                             <div class="col-6 d-flex justify-content-end">
                                 <button class="btn btn-danger hidden-xs ml-2 px-5">Print</button>
@@ -124,7 +124,7 @@
                                         <th class="text-center">Export</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody style="font-size:70%;">
                                     <tr>
                                         <td class="text-center">03/05/2026</td>
                                         <td class="text-center">27125EN</td>

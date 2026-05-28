@@ -31,8 +31,11 @@
                     </div>
 
                     <div class="col-12 py-3 text-center">
-                        <a href="{{ url('pdf/payment_statement/' . $quote->id) }}" target="_blank" type="button" class="btn btn-outline-danger btn-simple waves-effect w-25" id="save_payment_btn"
+                        @if (count($order_payments) > 0)
+                            <a href="{{ url('pdf/payment_statement/' . $quote->id) }}" target="_blank" type="button" class="btn btn-outline-danger btn-simple waves-effect w-25" id="save_payment_btn"
                             order_id="{{ $quote?->id ?? '' }}">Statement</a>
+                        @endif
+
                         <button type="button" class="btn btn-outline-danger btn-simple waves-effect w-25" id="save_payment_btn"
                             order_id="{{ $quote?->id ?? '' }}">Save</button>
                     </div>

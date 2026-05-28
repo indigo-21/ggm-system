@@ -60,4 +60,8 @@ class Order extends Model
     public function order_emails(): HasMany{
         return $this->hasMany(OrderMail::class, "order_id");
     }
+
+    public function new_memorials(): HasMany{
+        return $this->hasMany(OrderNewMemorial::class, "order_id");
+    }
 }

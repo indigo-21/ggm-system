@@ -75,6 +75,7 @@ $(document).on("click", "#save_payment_btn", function () {
             },
             success: function (response) {
                 orderPaymentTableData(response);
+                window.location.reload();
             },
             error: function (xhr, status, error) {
                 console.error(error);
