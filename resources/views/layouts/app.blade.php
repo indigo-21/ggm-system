@@ -59,6 +59,8 @@
                 border-color: #22c55e;
             }
         </style>
+
+        {{ $customStyle ?? "" }}
         
     </head>
     <body class="font-ubuntu" base_url="{{url("/")}}" >

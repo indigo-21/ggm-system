@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId("order_id")->constrained("orders");
             $table->boolean("for_fixing")->default(0);
             $table->date("fixing_date")->nullable();
-            $table->integer("fixing_status")->nullable()->comment("1=cash|2=cheque|3=credit_card|4=bank_transfer|5=debit_card");
-            $table->integer("view_location")->nullable()->comment("1=by_photo|2=clayhall|3=edgeware");
-            $table->integer("view_status")->nullable()->comment("1=factory|2=on_route|3=showroom|4=photo_sent");
+            $table->integer("fixing_status")->default(0)->comment("0=not_fixed|1=fixed|2=part_fixed|3=fixing_this_week|4=fixing_next_week|5=fixing_week_after_next");
+            $table->integer("payment_status")->default(0)->comment("0=unpaid|1=paid|2=part_paid");
+            $table->integer("view_location")->default(1)->comment("1=by_photo|2=clayhall|3=edgeware");
+            $table->integer("view_status")->default(1)->comment("1=factory|2=on_route|3=showroom|4=photo_sent");
             $table->date("view_date")->nullable();
             $table->longText("description")->nullable();
             $table->longText("issue")->nullable();
@@ -26,10 +27,9 @@ return new class extends Migration
             $table->boolean("is_inscription_factory_approved")->default(0);
             $table->datetime("inscription_factory_approved_timestamp")->nullable();
             $table->boolean("is_burial_society_approved")->default(0);
-            $table->boolean("is_email_sent")->default(0);
-            $table->boolean("is_email_sent_post")->default(0);
-            $table->datetime("email_sent_timestamp")->nullable();
             $table->boolean("is_permit_back")->default(0);
+            $table->foreignId('created_by')->nullable()->constrained('users');
+            $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

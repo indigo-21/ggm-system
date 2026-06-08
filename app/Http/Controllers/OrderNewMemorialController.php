@@ -5,9 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\OrderNewMemorial;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Order;
+use App\Models\OrderType;
 
 class OrderNewMemorialController extends Controller
 {
+
+    public function default_required_data($isFrom = "index", $id = false){
+        $data = [
+                    "order_types" => OrderType::all(),
+                    "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
+                    "years"       => ["2024","2025","2026"],
+                    "payment_statuses" => [["id" => 0, "name" => "Unpaid"], ["id" => 1, "name" => "Paid"]],
+                    // "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
+                    // "orders" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
+                ];
+        
+        return $data;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -19,9 +35,11 @@ class OrderNewMemorialController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(string $id)
     {
-        //
+        $data = self::default_required_data();
+        $data["order"] = Order::findOrFail($id);
+        return view("pages.schedule.form", $data);
     }
 
     /**
@@ -63,4 +81,5 @@ class OrderNewMemorialController extends Controller
     {
         //
     }
+
 }

@@ -2,50 +2,100 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderNewMemorial;
 use App\Models\OrderType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Services\ScheduleService;
+
 
 class ScheduleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-
     public function default_required_data($isFrom = "index", $id = false){
         $data = [
                     "order_types" => OrderType::all(),
-                    // "users"       => User::all(),
                     "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
-                    "years"       => ["2024","2025","2026"],
+                    "years"       => ["2024","2025","2026","2027"],
                     "payment_statuses" => [["id" => 0, "name" => "Unpaid"], ["id" => 1, "name" => "Paid"]],
-                    // "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
-                    // "orders" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
                 ];
         
         return $data;
     }
 
+    public function index_default_data($orderType = 1){
+        switch ($orderType) {
+            case '1':
+                return OrderNewMemorial::all();
+                break;
+        }
+    }
+    
+
+
+
     public function index()
     {
         $data = self::default_required_data();
+        $data["schedules"] = self::index_default_data();
         return view('pages.schedule.index', $data);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(int $orderType, int $orderId)
     {
         $data = self::default_required_data();
-        return view("pages.schedule.form", $data);
+        $data["order"] = Order::findOrFail($orderId);
+
+        switch ($orderType) {
+            case '1':
+                    $scheduleData = OrderNewMemorial::where("order_id", $orderId)->first();
+                    if($scheduleData){
+                       return redirect()
+                        ->route('schedule.edit', [
+                        'orderTypeId' => $orderType,
+                        'scheduleId' => $scheduleData->id]);
+                    }else{
+                        return view("pages.schedule.new-memorial", $data);
+                    }
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+        
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, ScheduleService $scheduleService )
     {
-        //
+        $scheduleData = $scheduleService->upsertSchedule($request);
+
+        if($scheduleData["result"]){
+            return redirect()->back()->with('error', $scheduleData["message"]);
+        }else{
+            $view = $scheduleData["view"];
+            $data = self::default_required_data();
+            $orderTypeId = $scheduleData["tableData"]->order->order_type_id;
+            $scheduleId = $scheduleData["tableData"]->id;
+            $message = $scheduleData["message"];
+            $order = $scheduleData["tableData"]->order();
+
+            return redirect()
+                    ->route('schedule.edit', [
+                        'orderTypeId' => $orderTypeId,
+                        'scheduleId' => $scheduleId])
+                    ->with("message", $message );
+        }
     }
 
     /**
@@ -59,17 +109,50 @@ class ScheduleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $orderTypeId, string $scheduleId)
     {
-        //
+        $data = self::default_required_data();
+        $view = "pages.schedule.new-memorial";
+        $tableData = OrderNewMemorial::findOrFail($scheduleId);
+
+       
+        switch ($orderTypeId) {
+            case '1':
+                $tableData = OrderNewMemorial::findOrFail($scheduleId);
+                $view = "pages.schedule.new-memorial";
+                break;
+        }
+
+        $data["order"] = $tableData->order;       
+        $data["schedule"] = $tableData;  
+         
+        return view($view, $data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $scheduleId, ScheduleService $scheduleService)
     {
-        //
+
+        $scheduleData = $scheduleService->upsertSchedule($request, $scheduleId);
+
+        if($scheduleData["result"]){
+            return redirect()->back()->with('error', $scheduleData["message"]);
+        }else{
+            $view = $scheduleData["view"];
+            $data = self::default_required_data();
+            $orderTypeId = $scheduleData["tableData"]->order->order_type_id;
+            $scheduleId = $scheduleData["tableData"]->id;
+            $message = $scheduleData["message"];
+            $order = $scheduleData["tableData"]->order();
+
+            return redirect()
+                    ->route('schedule.edit', [
+                        'orderTypeId' => $orderTypeId,
+                        'scheduleId' => $scheduleId])
+                    ->with("message", $message );
+        }
     }
 
     /**
@@ -78,5 +161,57 @@ class ScheduleController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    
+    public function index_filtered( Request $request){
+       
+        $data  = self::default_required_data();
+        
+        $orderTypeId = $request->order_type_id ?? 1;
+        $fixingStatus = $request->fixing_status;
+        $paymentStatus = $request->payment_status;
+        $orderMonth = $request->order_date_month;
+        $orderYear = $request->order_date_year;
+        $searchColumn = $request->search_column;
+        $searchInput = $request->search_input;
+        $allowedColumns = ["deceased_name","grave_number","invoice_no"];
+        
+        switch ($orderTypeId) {
+            case '1':
+                $query = OrderNewMemorial::query();
+                $views = "pages.schedule.index";
+                break;
+            
+            default:
+                $query = OrderNewMemorial::query();
+                $views = "pages.schedule.index";
+                break;
+        }
+
+        if($fixingStatus != ""){
+            $query->where("fixing_status", $fixingStatus);
+        }
+        
+        if($paymentStatus != ""){
+            $query->where("payment_status", $paymentStatus);
+        }
+        
+        if($orderYear && $orderYear){
+            $query->whereMonth('created_at', $orderMonth)
+                    ->whereYear('created_at', $orderYear);
+        }
+
+        
+        if($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)){
+            $query->whereHas('order', function($q) use ($searchColumn, $searchInput){
+                $q->where($searchColumn, 'LIKE', "%{$searchInput}%");
+            });
+        }
+            
+
+        $data["schedules"] = $query->get();
+
+
+        return view($views, $data);
     }
 }

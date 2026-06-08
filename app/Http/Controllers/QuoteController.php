@@ -39,50 +39,51 @@ use Illuminate\Support\Facades\Storage;
 
 class QuoteController extends Controller
 {
-    
- public function __construct(
+
+    public function __construct(
         protected PdfService $pdfService
     ) {}
 
 
-    public function default_required_data($isFrom = "index", $id = false){
+    public function default_required_data($isFrom = "index", $id = false)
+    {
         session()->forget('success');
         $data = [
-                    "order_types" => OrderType::all(),
-                    "users"       => User::all(),
-                    "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
-                    "years"       => ["2024","2025","2026"],
-                    "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
-                ];
-        if($isFrom == "form"){
+            "order_types" => OrderType::all(),
+            "users"       => User::all(),
+            "months"      => ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            "years"       => ["2024", "2025", "2026"],
+            "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
+        ];
+        if ($isFrom == "form") {
             $data += [
-                            "auth_session"                      => User::find(Auth::id()),
-                            "locations"                         => Location::all(),
-                            "cemeteries"                        => Cemetery::all(),
-                            "burial_society_organizations"      => BurialSocietyOrganization::all(),
-                            "grave_spaces"                      => GraveSpace::all(),
-                            "letter_types"                      => LetterType::all(),
-                            "materials"                         => Material::all(),
-                            "base_ledgers"                      => BasedLedger::all(),
-                            "accessories"                       => Accessory::all(),
-                            "colours"                           => Colour::all(),
-                            "customers"                         => Customer::all(),
-                            "titles"                            => ["None", "Mr","Mrs","Miss","Ms","Dr"],
-                    ];
-            if($id) {
+                "auth_session"                      => User::find(Auth::id()),
+                "locations"                         => Location::all(),
+                "cemeteries"                        => Cemetery::all(),
+                "burial_society_organizations"      => BurialSocietyOrganization::all(),
+                "grave_spaces"                      => GraveSpace::all(),
+                "letter_types"                      => LetterType::all(),
+                "materials"                         => Material::all(),
+                "base_ledgers"                      => BasedLedger::all(),
+                "accessories"                       => Accessory::all(),
+                "colours"                           => Colour::all(),
+                "customers"                         => Customer::all(),
+                "titles"                            => ["None", "Mr", "Mrs", "Miss", "Ms", "Dr"],
+            ];
+            if ($id) {
                 $quote    = Order::findOrFail($id);
                 $emails   = CustomerContact::where("customer_id", $quote->customer_id)
-                            ->where("contact_type", 1)
-                            ->pluck('contact_value')   // extract the email values
-                            ->toArray();
+                    ->where("contact_type", 1)
+                    ->pluck('contact_value')   // extract the email values
+                    ->toArray();
                 $mobile_nos   = CustomerContact::where("customer_id", $quote->customer_id)
-                            ->where("contact_type", 2)
-                            ->pluck('contact_value')
-                            ->toArray();
+                    ->where("contact_type", 2)
+                    ->pluck('contact_value')
+                    ->toArray();
                 $tel_nos   = CustomerContact::where("customer_id", $quote->customer_id)
-                            ->where("contact_type", 3)
-                            ->pluck('contact_value')
-                            ->toArray();
+                    ->where("contact_type", 3)
+                    ->pluck('contact_value')
+                    ->toArray();
                 $order_cost     = OrderCost::find($id);
                 $order_payments = OrderPayment::where("order_id", $id)->get();
                 $total_deposit = $order_payments->sum('amount');
@@ -91,32 +92,30 @@ class QuoteController extends Controller
                 // $total_deposit  = $order_payments->sum(fn ($p) => (float) $p->amount);
 
                 $data += [
-                            "quote" => $quote,
-                            "order_cost" => $order_cost,
-                            "order_note" => OrderNote::where("order_id", $id)->first(),
-                            "customer_email" => $emails ? implode(";", $emails): "",
-                            "customer_mobile_no" => $mobile_nos ? implode(";", $mobile_nos) : "",
-                            "customer_tel_no" => $tel_nos ? implode(";", $tel_nos) : "",
-                            "order_instruction_notes" => OrderInstructionNote::where("order_id", $id)->get(),
-                            "total_deposit" => $total_deposit,
-                            "order_payments" => $order_payments,
-                            "order_balance" => floatVal($order_cost->gross_amount ?? 0) - floatVal($total_deposit),
-                        ];
-                if($order_inscription){
+                    "quote" => $quote,
+                    "order_cost" => $order_cost,
+                    "order_note" => OrderNote::where("order_id", $id)->first(),
+                    "customer_email" => $emails ? implode(";", $emails) : "",
+                    "customer_mobile_no" => $mobile_nos ? implode(";", $mobile_nos) : "",
+                    "customer_tel_no" => $tel_nos ? implode(";", $tel_nos) : "",
+                    "order_instruction_notes" => OrderInstructionNote::where("order_id", $id)->get(),
+                    "total_deposit" => $total_deposit,
+                    "order_payments" => $order_payments,
+                    "order_balance" => floatVal($order_cost->gross_amount ?? 0) - floatVal($total_deposit),
+                ];
+                if ($order_inscription) {
                     $data["order_inscription"] = $order_inscription;
-                    $data["order_inscription_count"] = mb_strlen(trim(preg_replace('/\s+/', ' ', strip_tags($order_inscription->inscription)))); ;
+                    $data["order_inscription_count"] = mb_strlen(trim(preg_replace('/\s+/', ' ', strip_tags($order_inscription->inscription))));;
                 }
-
-                
             }
-        }else{
+        } else {
             // $data["qoutes"] = Order::all();
-        
+
             $data += [
-                        "quotes" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
-                    ];
+                "quotes" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
+            ];
         }
-        
+
         return $data;
     }
 
@@ -124,16 +123,17 @@ class QuoteController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {   
+    {
         $data = self::default_required_data();
         return view("pages.quote.index", $data);
     }
 
-    public function index_filtered(Request $request){
+    public function index_filtered(Request $request)
+    {
         // dd($request);
 
         $data  = self::default_required_data();
-        
+
         $orderTypeId = $request->order_type_id ?? 1;
         $userId = $request->user_id;
         $isInvoiced = $request->invoice_status == 1;
@@ -141,38 +141,47 @@ class QuoteController extends Controller
         $orderYear = $request->order_date_year;
         $searchColumn = $request->search_column;
         $searchInput = $request->search_input;
+        $allowedColumns = ["id", "customer_name", "deceased_name", "grave_number", "invoice_no",];
 
         $query = Order::where("order_type_id", $orderTypeId);
-        
-        if($userId){
-            $query->where("created_by", $userId);
-        }
 
-        if($isInvoiced){
-            $query->where("invoice_no", 1);
-        }
+        if ($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)) {
+            if ($searchColumn == "customer_name") {
+                $query->whereHas('customer', function ($q) use ($searchInput) {
+                    $q->WhereRaw(
+                            "CONCAT(firstname, ' ', lastname) LIKE ?",
+                            ["%{$searchInput}%"]
+                        );
+                });
+            } else {
+                $query->where($searchColumn, $searchInput);
+            }
+        }else{
+            if ($userId) {
+                $query->where("created_by", $userId);
+            }
 
-        if($orderYear && $orderYear){
-            $query->whereRaw("MONTH(created_at) = $orderMonth");
-            $query->whereRaw("YEAR(created_at) = $orderYear");
-        }
+            if ($isInvoiced) {
+                $query->where("invoice_no", 1);
+            }
 
-        if($searchColumn && $searchInput){
-            $query->where($searchColumn, $searchInput);
+            if ($orderYear && $orderYear) {
+                $query->whereRaw("MONTH(created_at) = $orderMonth");
+                $query->whereRaw("YEAR(created_at) = $orderYear");
+            }
         }
 
         $data["quotes"] = $query->get();
 
 
         return view("pages.quote.index", $data);
-
     }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
-    {   
+    {
         $data = self::default_required_data("form");
         return view("pages.quote.form", $data);
     }
@@ -184,13 +193,13 @@ class QuoteController extends Controller
     {
 
         $result = $order_service->order_upsert($request);
-        if(!$result["success"]){
+        if (!$result["success"]) {
             return redirect()->back()->with('error', $result["message"]);
-        }else{
+        } else {
             $data = self::default_required_data();
             // return view("pages.quote.index", $data)->with("success", $result["message"]);
             //  return redirect()->route("quote.edit", $result["order_id"])->with("success", $result["message"], $data);
-             return redirect()
+            return redirect()
                 ->route('quote.edit', $result['order_id'])
                 ->with('success', $result['message'])
                 ->with('data', $data);
@@ -221,9 +230,9 @@ class QuoteController extends Controller
     public function update(Request $request, $id, OrderService $order_service)
     {
         $result = $order_service->order_upsert($request, $id);
-        if(!$result["success"]){
+        if (!$result["success"]) {
             return redirect()->back()->with('error', $result["message"]);
-        }else{
+        } else {
             $data = self::default_required_data();
             session()->flash('success', $result['message']);
             // return view("pages.quote.index", $data);
@@ -239,7 +248,8 @@ class QuoteController extends Controller
         //
     }
 
-    public function upsertOrderInstructionNote(Request $request){
+    public function upsertOrderInstructionNote(Request $request)
+    {
 
         $order_id = $request->order_id;
         $type_of_note = $request->method == "note" ? 1 : 2;
@@ -252,61 +262,60 @@ class QuoteController extends Controller
         $result = $data->save();
         $return_data = [];
 
-        if($result){
+        if ($result) {
             $order_instructions = OrderInstructionNote::where("order_id", $order_id)->get();
             foreach ($order_instructions as $key => $instruction) {
-                if($instruction->type_of_note == $type_of_note){
+                if ($instruction->type_of_note == $type_of_note) {
                     $instruction = [
-                                "order_instruction_note_id" => $instruction->id,
-                                "notes" => $instruction->notes,
-                                "created_by" => $instruction->created_user->firstname." ". $instruction->created_user->lastname,
-                                "created_at" => Carbon::parse($instruction->created_at)->format('F d, Y H:i:s'),
-                                "updated_by" => $instruction->updated_user?->firstname ?? ''." ".$instruction->updated_user?->lastname ?? '',
-                                "updated_at" => Carbon::parse($instruction->updated_at)->format('F d, Y H:i:s')
-                            ];
+                        "order_instruction_note_id" => $instruction->id,
+                        "notes" => $instruction->notes,
+                        "created_by" => $instruction->created_user->firstname . " " . $instruction->created_user->lastname,
+                        "created_at" => Carbon::parse($instruction->created_at)->format('F d, Y H:i:s'),
+                        "updated_by" => $instruction->updated_user?->firstname ?? '' . " " . $instruction->updated_user?->lastname ?? '',
+                        "updated_at" => Carbon::parse($instruction->updated_at)->format('F d, Y H:i:s')
+                    ];
                     array_push($return_data, $instruction);
                 }
-                
             }
-            
         }
 
         return $result ? $return_data : false;
-
     }
 
-    public function getOrderInstructionNote(Request $request){
+    public function getOrderInstructionNote(Request $request)
+    {
         $order_id = $request->order_id;
         $is_note = $request->type === "note";
         $data = [];
         $order_instruction_notes = OrderInstructionNote::where("order_id", $order_id)
-                                    ->where("type_of_note", $is_note ? 1 : 2)
-                                    ->get();
+            ->where("type_of_note", $is_note ? 1 : 2)
+            ->get();
 
         foreach ($order_instruction_notes as $key => $instruction_note) {
-            array_push($data, [
-                            "id" => $instruction_note->id,
-                            "notes" => $instruction_note->notes,
-                            "created_by" => $instruction_note->created_user->firstname." ". $instruction_note->created_user->lastname,
-                            "created_at" => Carbon::parse($instruction_note->created_at)->format('F d, Y H:i:s'),
-                            "updated_by" => $instruction_note->updated_user?->firstname ?? ''." ".$instruction_note->updated_user?->lastname ?? '',
-                            "updated_at" => Carbon::parse($instruction_note->updated_at)->format('F d, Y H:i:s')
-                        ]
+            array_push(
+                $data,
+                [
+                    "id" => $instruction_note->id,
+                    "notes" => $instruction_note->notes,
+                    "created_by" => $instruction_note->created_user->firstname . " " . $instruction_note->created_user->lastname,
+                    "created_at" => Carbon::parse($instruction_note->created_at)->format('F d, Y H:i:s'),
+                    "updated_by" => $instruction_note->updated_user?->firstname ?? '' . " " . $instruction_note->updated_user?->lastname ?? '',
+                    "updated_at" => Carbon::parse($instruction_note->updated_at)->format('F d, Y H:i:s')
+                ]
             );
         }
         // dd($order_instruction_notes->get());
-        
-        return response()->json([ "data" => $data ]);
-    }   
 
-    public function print_pdf($order_id){
+        return response()->json(["data" => $data]);
+    }
+
+    public function print_pdf($order_id)
+    {
         $orderId = $order_id;
 
         $path = $this->pdfService->generateQuote($orderId);
-        
-        return response()->download(storage_path("app/".$path));
+
+        return response()->download(storage_path("app/" . $path));
         // return view('pdf.quotation', $data);
     }
-
-    
 }

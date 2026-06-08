@@ -29,7 +29,7 @@ $(function () {
 
     $(".daterange-has-current").daterangepicker({
         singleDatePicker: true,
-        startDate: moment(),
+        // startDate: moment(),
         locale: {
             format: 'MMMM DD, YYYY'
         }

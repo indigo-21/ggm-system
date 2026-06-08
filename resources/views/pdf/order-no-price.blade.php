@@ -186,7 +186,7 @@
                 <td class="flex-td">
                     <div class="label-left">Based Ledger: </div>
                     <div class="label-right">
-                        {{ $orderData->based_ledger ?? 'N/A' }}
+                        {{ $orderData->base_ledger ?? 'N/A' }}
                     </div>
                 </td>
             </tr>

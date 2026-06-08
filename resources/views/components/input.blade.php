@@ -65,7 +65,9 @@
         </div>
     @elseif($type === "checkbox")
         <div class="checkbox w-25">
-            <input id="{{ $name }}"  name="{{ $name }}" type="checkbox" value="{{ $value }}" class="{{ $class }}">
+            <input id="{{ $name }}"  name="{{ $name }}" type="checkbox" value="{{ $value }}" class="input-checkbox {{ $class }}" 
+            @if($checked) checked @endif
+            >
             <label for="{{ $name }}" class="ml-2">
                     {{ $label }}
             </label>

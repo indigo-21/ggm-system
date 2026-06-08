@@ -1165,8 +1165,10 @@
                             <div class="body row d-flex justify-content-center align-items-center flex-wrap mt-3">
                                 <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="inscription_btn" order_id="{{ $quote?->id ?? '' }}">Inscription</button>
-                                <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
-                                    id="schedule_btn" order_id="{{ $quote?->id ?? '' }}">Schedule</button>
+                                <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
+                                     href="{{ url('schedule/create/'.$old_order_type.'/'. $quote?->id) }}" 
+                                     target="_blank" order_id="{{ $quote?->id ?? '' }}"
+                                    >Schedule</a>
                                 <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="receipts_btn" order_id="{{ $quote?->id ?? '' }}">Receipts</button>
                                 <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"

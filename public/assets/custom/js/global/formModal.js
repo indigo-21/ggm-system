@@ -32,6 +32,12 @@ $(function(){
         $("#formModal").modal("hide");
     });
 
+    $(document).on("click",".input-checkbox", function(){
+        const element = $(this);
+        const isChecked = element.prop("checked") === true;
+        element.val(isChecked);
+    });
+
     function formModalContent(formType = "email", values = []){
         let html, type;
         $("#formModalSave").attr("data-type", "");

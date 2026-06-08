@@ -22,6 +22,8 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderFileController;
 use App\Http\Controllers\OrderMailController;
+use App\Http\Controllers\OrderNewMemorialController;
+use App\Models\OrderNewMemorial;
 // use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -118,7 +120,16 @@ Route::middleware('auth')->group(function () {
     // });
     Route::post('upload_files', [OrderFileController::class, 'store'])->name("upload_files");    
     Route::post('delete_file', [OrderFileController::class, 'destroy'])->name("delete_file");    
-    Route::post('file_is_email', [OrderFileController::class, 'update'])->name("file_is_email");    
+    Route::post('file_is_email', [OrderFileController::class, 'update'])->name("file_is_email");
+
+    // GROUPING ORDER NEW MEMORIALS (SCHEDULES)
+    Route::group(['prefix'=> 'schedule', 'as' => 'schedule.'], function(){
+        Route::get('/create/{order_type}/{id}', [ScheduleController::class, 'create']);
+        Route::get('/store', [ScheduleController::class, 'store']);
+        Route::put('/update{scheduleId}', [ScheduleController::class, 'update']);
+        Route::get('/view/{orderTypeId}/{scheduleId}', [ScheduleController::class, 'edit'])->name('edit');
+        Route::post('/index_filtered',[ ScheduleController::class, 'index_filtered'])->name("index_filtered");
+    });
     
 
 });
