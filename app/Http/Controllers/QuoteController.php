@@ -134,6 +134,7 @@ class QuoteController extends Controller
 
         $data  = self::default_required_data();
 
+        $isOrder = $request->is_order == 1;
         $orderTypeId = $request->order_type_id ?? 1;
         $userId = $request->user_id;
         $isInvoiced = $request->invoice_status == 1;
@@ -149,14 +150,14 @@ class QuoteController extends Controller
             if ($searchColumn == "customer_name") {
                 $query->whereHas('customer', function ($q) use ($searchInput) {
                     $q->WhereRaw(
-                            "CONCAT(firstname, ' ', lastname) LIKE ?",
-                            ["%{$searchInput}%"]
-                        );
+                        "CONCAT(firstname, ' ', lastname) LIKE ?",
+                        ["%{$searchInput}%"]
+                    );
                 });
             } else {
                 $query->where($searchColumn, $searchInput);
             }
-        }else{
+        } else {
             if ($userId) {
                 $query->where("created_by", $userId);
             }
@@ -171,10 +172,19 @@ class QuoteController extends Controller
             }
         }
 
-        $data["quotes"] = $query->get();
+        
+
+        if($isOrder){
+            $data["orders"] = $query->get();
+        }else{
+            $data["quotes"] = $query->get();
+        }
 
 
-        return view("pages.quote.index", $data);
+        return view(
+            $isOrder ? "pages.order.index" : "pages.quote.index",
+            $data
+        );
     }
 
     /**

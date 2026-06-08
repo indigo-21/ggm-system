@@ -129,7 +129,16 @@
                             <h2>Payment</h2>
                         </div>
                         <div class="body row">
-                            <div class="col-lg-6 col-12">
+                            @php
+                                $totalAmount = floatVal($order->payments->sum("amount") ?? 0);
+                                $grossAmount = floatVal($order->order_cost?->gross_amount ?? 0); 
+                                $orderBalance = $grossAmount - $totalAmount;
+                            @endphp
+                            <div class="col-lg-4 col-12">
+                                <x-input type="text" name="balance" label="Balance" readonly
+                                    value="{{ number_format($orderBalance ?? 0, 2) }} " />
+                            </div>
+                            <div class="col-lg-4 col-12">
                                 {{-- @php
                                     $paymentStatus = 0;
                                     $grossAmount = floatval($order->order_cost->gross_amount);
@@ -150,8 +159,8 @@
                                     <option {{ isset($schedule) && $schedule->payment_status == 2 ? "selected" : ""}} value="2">-Part Paid-</option>
                                 </x-select>
                             </div>
-                            <div class="col-lg-6 col-12">
-                                <x-input type="text" name="invoice_no" label="Invoice No."
+                            <div class="col-lg-4 col-12">
+                                <x-input type="text" name="invoice_no" label="Invoice No." readonly
                                     value="{{ $order->invoice_no }}" />
                             </div>
                         </div>
@@ -163,7 +172,7 @@
                         </div>
                         <div class="body row">
                             <div class="col-12">
-                                <x-input type="text" name="design" label="Design"
+                                <x-input type="text" name="design" label="Design" readonly
                                     value="{!! $order->size !!} {{ $order->design_headstone }}" />
                             </div>
                         </div>

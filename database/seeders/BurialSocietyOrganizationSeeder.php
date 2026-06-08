@@ -69,6 +69,12 @@ class BurialSocietyOrganizationSeeder extends Seeder
 
             ],
             [
+                'cemetery_id'   => '4',
+                'name'          => 'Liberal Judaism',
+                'created_by'    => '1'
+
+            ],
+            [
                 'cemetery_id'   => '5',
                 'name'          => '-',
                 'created_by'    => '1'

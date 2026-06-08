@@ -17,6 +17,10 @@ class Order extends Model
         return $this->hasOne(OrderCost::class);
     }
 
+    public function payments(): HasMany{
+        return $this->hasMany(OrderPayment::class, "order_id");
+    }
+
     public function order_note(): HasOne{
         return $this->hasOne(OrderNote::class);
     }
@@ -47,10 +51,6 @@ class Order extends Model
 
     public function location(): BelongsTo{
         return $this->belongsTo(Location::class, "location_id");
-    }
-
-    public function payments(): HasMany{
-        return $this->hasMany(OrderPayment::class, "order_id");
     }
 
     public function order_files(): HasMany{
