@@ -23,7 +23,7 @@
 
     <div class="container">
         <div class="row clearfix row-deck">
-            <form action="{{ route('quote.index_filtered') }}" method="POST">
+            <form action="{{ route('order.index_filtered') }}" method="POST">
                 @csrf
                 <div class="col-12">
                     <div class="card top_widget">
@@ -34,7 +34,9 @@
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
                                     @foreach ($order_types as $order_type)
-                                        <option value="{{ $order_type->id }}">{{ $order_type->name }}</option>
+                                        <option value="{{ $order_type->id }}"
+                                            {{ isset($filterInput) ? ($filterInput['orderTypeId'] == $order_type->id ? 'selected' : '') : '' }}>
+                                            {{ $order_type->name }}</option>
                                     @endforeach
                                 </x-select>
                             </div>
@@ -42,7 +44,9 @@
                                 <x-select class="z-index show-tick" name="user_id" label="User" search="true">
                                     <option value="" disabled selected>-All-</option>
                                     @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->firstname }} {{ $user->lastname }}
+                                        <option value="{{ $user->id }}"
+                                            {{ isset($filterInput) ? ($filterInput['userId'] == $user->id ? 'selected' : '') : '' }}>
+                                            {{ $user->firstname }} {{ $user->lastname }}
                                         </option>
                                     @endforeach
                                 </x-select>
@@ -51,16 +55,25 @@
                                 <x-select class="z-index show-tick" name="invoice_status" label="Invoice Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
-                                    <option value="0">-Univoiced-</option>
-                                    <option value="1">-Invoiced-</option>
+                                    <option value="0"
+                                        {{ isset($filterInput) ? ($filterInput['invoicedStatus'] == 0 ? 'selected' : '') : '' }}>
+                                        -Univoiced-</option>
+                                    <option value="1"
+                                        {{ isset($filterInput) ? ($filterInput['invoicedStatus'] == 1 ? 'selected' : '') : '' }}>
+                                        -Invoiced-</option>
                                 </x-select>
                             </div>
+                            @php
+                                $orderDateMonth = isset($filterInput) ? $filterInput['orderMonth'] : date('n');
+                                $orderDateYear = isset($filterInput) ? $filterInput['orderYear'] : date('Y');
+                            @endphp
                             <div class="col-2">
                                 <x-select class="z-index show-tick" name="order_date_month" label="Order Date"
                                     search="true">
                                     @foreach ($months as $month)
                                         <option value="{{ $loop->iteration }}"
-                                            {{ date('n') == $loop->iteration ? 'selected' : '' }}>{{ $month }}
+                                            {{ $orderDateMonth == $loop->iteration ? 'selected' : '' }}>
+                                            {{ $month }}
                                         </option>
                                     @endforeach
                                 </x-select>
@@ -70,7 +83,8 @@
                                     search="true">
                                     @foreach ($years as $year)
                                         <option value="{{ $year }}"
-                                            {{ date('Y') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                            {{ $orderDateYear == $year ? 'selected' : '' }}>{{ $year }}
+                                        </option>
                                     @endforeach
                                 </x-select>
                             </div>
@@ -79,15 +93,26 @@
                                     <div class="col-3">
                                         <x-select class="z-index show-tick" name="search_column" label="Search"
                                             search="true">
-                                            <option value="id">Order No.</option>
-                                            <option value="customer_name">Customer</option>
-                                            <option value="deceased_name">Deceased</option>
-                                            <option value="grave_number">Grave No.</option>
-                                            <option value="invoice_no">Invoice No.</option>
+                                            <option value="id"
+                                                {{ isset($filterInput) ? ($filterInput['searchColumn'] == 'id' ? 'selected' : '') : '' }}>
+                                                Order No.</option>
+                                            <option value="customer_name"
+                                                {{ isset($filterInput) ? ($filterInput['searchColumn'] == 'customer_name' ? 'selected' : '') : '' }}>
+                                                Customer</option>
+                                            <option value="deceased_name"
+                                                {{ isset($filterInput) ? ($filterInput['searchColumn'] == 'deceased_name' ? 'selected' : '') : '' }}>
+                                                Deceased</option>
+                                            <option value="grave_number"
+                                                {{ isset($filterInput) ? ($filterInput['searchColumn'] == 'grave_number' ? 'selected' : '') : '' }}>
+                                                Grave No.</option>
+                                            <option value="invoice_no"
+                                                {{ isset($filterInput) ? ($filterInput['searchColumn'] == 'invoice_no' ? 'selected' : '') : '' }}>
+                                                Invoice No.</option>
                                         </x-select>
                                     </div>
                                     <div class="col-9">
                                         <x-input type="text" name="search_input" label="Search Input"
+                                            value="{{ isset($filterInput) ? $filterInput['searchInput'] : '' }}"
                                             inputformat="alphanumeric" />
                                     </div>
                                 </div>
@@ -126,36 +151,34 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($orders as $order)
-                                        @if (trim($order->order_cost->deposit_description) != '' && $order->order_cost->deposit_amount > 0)
-                                            <tr>
-                                                <th>{{ $order->created_at->format('F d, Y') }}</th>
-                                                <td>{{ $order->customer?->firstname ?? '' }}
-                                                    {{ $order->customer->lastname }}</td>
-                                                <td>{{ $order->deceased_name }}</td>
-                                                <td class="text-center">
-                                                    {{ $order->consecration_date ? date('F d, Y', strtotime($order->consecration_date)) : '' }}
-                                                </td>
-                                                <td class="text-center">{{ $order?->cemetery->name ?? '' }}</td>
-                                                <td class="text-center">{{ $order?->grave_number ?? '' }}</td>
-                                                <td class="text-center">{{ $order?->invoice_no ?? '' }}</td>
-                                                <td class="text-center">
-                                                    @if (isset($order?->order_note->is_order_complete) && $order->order_note->is_order_complete == 1)
-                                                        <span class="badge badge-primary">Completed</span>
-                                                    @else
-                                                        <span class="badge badge-danger">Incomplete</span>
-                                                    @endif
-                                                    {{-- <span class="badge badge-warning">Warning</span>
+                                        <tr>
+                                            <th>{{ $order->created_at->format('F d, Y') }}</th>
+                                            <td>{{ $order->customer?->firstname ?? '' }}
+                                                {{ $order->customer->lastname }}</td>
+                                            <td>{{ $order->deceased_name }}</td>
+                                            <td class="text-center">
+                                                {{ $order->consecration_date ? date('F d, Y', strtotime($order->consecration_date)) : '' }}
+                                            </td>
+                                            <td class="text-center">{{ $order?->cemetery->name ?? '' }}</td>
+                                            <td class="text-center">{{ $order?->grave_number ?? '' }}</td>
+                                            <td class="text-center">{{ $order?->invoice_no ?? '' }}</td>
+                                            <td class="text-center">
+                                                @if (isset($order?->order_note->is_order_complete) && $order->order_note->is_order_complete == 1)
+                                                    <span class="badge badge-primary">Completed</span>
+                                                @else
+                                                    <span class="badge badge-danger">Incomplete</span>
+                                                @endif
+                                                {{-- <span class="badge badge-warning">Warning</span>
                                                 <span class="badge badge-info">Info</span> --}}
-                                                </td>
-                                                <td>{{ $order->user->firstname }} {{ $order->user->lastname }}</td>
-                                                <td>
-                                                    <a href="{{ route('quote.edit', $order->id) }}"
-                                                        class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
-                                                        <i class="icon-eye"></i>&nbsp;View
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @endif
+                                            </td>
+                                            <td>{{ $order->user->firstname }} {{ $order->user->lastname }}</td>
+                                            <td>
+                                                <a href="{{ route('quote.edit', $order->id) }}"
+                                                    class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                                                    <i class="icon-eye"></i>&nbsp;View
+                                                </a>
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>

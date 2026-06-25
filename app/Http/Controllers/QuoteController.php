@@ -111,9 +111,17 @@ class QuoteController extends Controller
         } else {
             // $data["qoutes"] = Order::all();
 
-            $data += [
-                "quotes" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
-            ];
+            // $data += [
+            //     "quotes" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")
+            //                     ->whereHas("payments")
+            //             ->get()
+            // ];
+            $data+=[
+                    "quotes" => Order::whereMonth('created_at', now()->month)
+                                    ->whereYear('created_at', now()->year)
+                                    ->doesntHave('payments')
+                                    ->get()
+                ];
         }
 
         return $data;
@@ -130,7 +138,6 @@ class QuoteController extends Controller
 
     public function index_filtered(Request $request)
     {
-        // dd($request);
 
         $data  = self::default_required_data();
 
@@ -144,7 +151,8 @@ class QuoteController extends Controller
         $searchInput = $request->search_input;
         $allowedColumns = ["id", "customer_name", "deceased_name", "grave_number", "invoice_no",];
 
-        $query = Order::where("order_type_id", $orderTypeId);
+        $query = Order::where("order_type_id", $orderTypeId)
+                        ->doesntHave("payments");
 
         if ($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)) {
             if ($searchColumn == "customer_name") {
@@ -158,13 +166,13 @@ class QuoteController extends Controller
                 $query->where($searchColumn, $searchInput);
             }
         } else {
-            if ($userId) {
-                $query->where("created_by", $userId);
-            }
+            // if ($userId) {
+            //     $query->where("created_by", $userId);
+            // }
 
-            if ($isInvoiced) {
-                $query->where("invoice_no", 1);
-            }
+            // if ($isInvoiced) {
+            //     $query->where("invoice_no", 1);
+            // }
 
             if ($orderYear && $orderYear) {
                 $query->whereRaw("MONTH(created_at) = $orderMonth");
@@ -174,17 +182,20 @@ class QuoteController extends Controller
 
         
 
-        if($isOrder){
-            $data["orders"] = $query->get();
-        }else{
-            $data["quotes"] = $query->get();
-        }
+       
+        $data["quotes"] = $query->get();
+        $data["filterInput"] = [
+                                 "orderTypeId" => $orderTypeId,
+                                 "userId" => $userId,
+                                 "invoicedStatus" => $request->invoice_status,
+                                 "orderMonth" => $orderMonth,
+                                 "orderYear" => $orderYear,
+                                 "searchColumn" => $searchColumn,
+                                 "searchInput" => $searchInput
+                                ];
 
 
-        return view(
-            $isOrder ? "pages.order.index" : "pages.quote.index",
-            $data
-        );
+        return view("pages.quote.index", $data);
     }
 
     /**

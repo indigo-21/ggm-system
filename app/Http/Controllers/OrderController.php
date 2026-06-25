@@ -27,7 +27,11 @@ class OrderController extends Controller
                     "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
                     "years"       => ["2024","2025","2026"],
                     "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
-                    "orders" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
+                    // "orders" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
+                    "orders" => Order::whereMonth('created_at', now()->month)
+                                    ->whereYear('created_at', now()->year)
+                                    ->whereHas('payments')
+                                    ->get()
                 ];
         
         return $data;
@@ -36,6 +40,67 @@ class OrderController extends Controller
     public function index()
     {
         $data = self::default_required_data();
+        return view("pages.order.index", $data);
+    }
+
+    public function index_filtered(Request $request)
+    {
+
+        $data  = self::default_required_data();
+
+        $isOrder = $request->is_order == 1;
+        $orderTypeId = $request->order_type_id ?? 1;
+        $userId = $request->user_id;
+        $isInvoiced = $request->invoice_status == 1;
+        $orderMonth = $request->order_date_month;
+        $orderYear = $request->order_date_year;
+        $searchColumn = $request->search_column;
+        $searchInput = $request->search_input;
+        $allowedColumns = ["id", "customer_name", "deceased_name", "grave_number", "invoice_no",];
+
+        $query = Order::where("order_type_id", $orderTypeId)
+                        ->whereHas("payments");;
+
+        if ($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)) {
+            if ($searchColumn == "customer_name") {
+                $query->whereHas('customer', function ($q) use ($searchInput) {
+                    $q->WhereRaw(
+                        "CONCAT(firstname, ' ', lastname) LIKE ?",
+                        ["%{$searchInput}%"]
+                    );
+                });
+            } else {
+                $query->where($searchColumn, $searchInput);
+            }
+        } else {
+            if ($userId) {
+                $query->where("created_by", $userId);
+            }
+
+            if ($isInvoiced) {
+                $query->where("invoice_no", 1);
+            }
+
+            if ($orderYear && $orderYear) {
+                $query->whereRaw("MONTH(created_at) = $orderMonth");
+                $query->whereRaw("YEAR(created_at) = $orderYear");
+            }
+        }
+
+        
+
+        $data["orders"] = $query->get();
+        $data["filterInput"] = [
+                                 "orderTypeId" => $orderTypeId,
+                                 "userId" => $userId,
+                                 "invoicedStatus" => $request->invoice_status,
+                                 "orderMonth" => $orderMonth,
+                                 "orderYear" => $orderYear,
+                                 "searchColumn" => $searchColumn,
+                                 "searchInput" => $searchInput
+                                ];
+
+
         return view("pages.order.index", $data);
     }
 
