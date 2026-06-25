@@ -82,6 +82,12 @@ Route::middleware('auth')->group(function () {
 
 
     // GROUPING QUOTE
+    Route::group(['prefix'=> 'order', 'as' => 'order.'], function(){
+        Route::post('/index_filtered', [OrderController::class, 'index_filtered'])
+            ->name('index_filtered');
+    });
+
+    // GROUPING QUOTE
     Route::group(['prefix'=> 'quote', 'as' => 'quote.'], function(){
         Route::post('/upsert_order_instruction_note', [QuoteController::class, 'upsertOrderInstructionNote'])
             ->name('upsert_order_instruction_note');
@@ -124,6 +130,7 @@ Route::middleware('auth')->group(function () {
 
     // GROUPING ORDER NEW MEMORIALS (SCHEDULES)
     Route::group(['prefix'=> 'schedule', 'as' => 'schedule.'], function(){
+        Route::get('/{orderTypeId}', [ScheduleController::class, 'show']);
         Route::get('/create/{order_type}/{id}', [ScheduleController::class, 'create']);
         Route::get('/store', [ScheduleController::class, 'store']);
         Route::put('/update{scheduleId}', [ScheduleController::class, 'update']);
