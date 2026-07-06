@@ -11,10 +11,11 @@
     'placeholder' => "" ,
     'timestamp' => false,
     'has_timestamp' => false,
+    'labelstyle' => "",
     'error' => null])
 
 <div class="form-group form-float">
-    <label for="{{ $name }}">{{ $label }}</label>
+    <label for="{{ $name }}" style="{{ $labelstyle  }}">{{ $label }}</label>
 
     @php
         $datetime = "";
@@ -23,8 +24,7 @@
         }
     @endphp
 
-    <span class="span-timestamp text-muted small"> {{ $timestamp ? $datetime : '' }}</span>
-    <input type="hidden" name="{{ $name }}_timestamp" value="{{ $timestamp ? $datetime : '' }}">    
+      
 
     @if (!$hasinput)
         <select class="form-control {{ $class }} {{$has_timestamp ? "select-timestamp" : ""}}"
@@ -41,4 +41,7 @@
     @endif
         
     <label id="{{ $name }}-error" class="error" for="{{ $name }}">{{$error}}</label>
+    
+    <span class="span-timestamp text-muted small"> {{ $timestamp ? $datetime : '' }}</span>
+    <input type="hidden" name="{{ $name }}_timestamp" value="{{ $timestamp ? $datetime : '' }}">  
 </div>

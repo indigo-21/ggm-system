@@ -871,24 +871,30 @@
                             <div class="body row">
                                 <div class="col-6 row px-5">
                                     <div class="col-12 row">
-                                        <div class="col-12">
+                                        <div class="col-6">
                                             <x-input type="text" name="free_letters"
                                                 value="{{ $order_note?->free_letters ?? '' }}" label="Free Letters" />
                                         </div>
 
-                                        <div class="col-12">
-                                            <x-select class="z-index show-tick" name="is_burial_society_fees_included"
+                                        <div class="col-6">
+                                            @php
+                                                $oldBurialSociety = $order_note?->is_burial_society_fees_included;
+                                            @endphp
+                                            <x-select class="z-index show-tick" name="is_burial_society_fees_included" labelstyle="font-size:95% !important"
                                                 label="Burial society fees included">
-                                                <option value="0"
-                                                    {{ $order_note?->is_burial_society_fees_included == 0 ? 'selected' : '' }}>
-                                                    - No -</option>
-                                                <option value="1"
-                                                    {{ $order_note?->is_burial_society_fees_included == 1 ? 'selected' : '' }}>
-                                                    - Yes -</option>
+                                                @if ($oldBurialSociety == "0")
+                                                    <option value="0" selected>
+                                                        - No -</option>
+                                                @else
+                                                    <option value="1" selected
+                                                        >- Yes -</option>                                                    
+                                                @endif
+
+                                                
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-6">
                                             <x-select class="z-index show-tick" name="is_inscription_completed"
                                                 label="Inscription Complete">
                                                 <option value="0"
@@ -900,8 +906,8 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
-                                            <x-select class="z-index show-tick" name="is_sent_to_bs_with_cheque"
+                                        <div class="col-6">
+                                            <x-select class="z-index show-tick size" name="is_sent_to_bs_with_cheque" labelstyle="font-size:95% !important"
                                                 has_timestamp="true"
                                                 timestamp="{{ $order_note?->is_application_form_sent_to_bs_with_cheque_timestamp ?? false }}"
                                                 label="Application Form Sent to B/S with Cheque ">
@@ -914,8 +920,8 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
-                                            <x-select class="z-index show-tick" name="is_sent_to_bs_without_cheque"
+                                        <div class="col-6">
+                                            <x-select class="z-index show-tick" name="is_sent_to_bs_without_cheque" labelstyle="font-size:88% !important"
                                                 has_timestamp="true"
                                                 timestamp="{{ $order_note?->is_application_form_sent_to_bs_without_cheque_timestamp ?? false }}"
                                                 label="Application Form Sent to B/S without Cheque">
@@ -928,7 +934,7 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-6">
                                             <x-select class="z-index show-tick" name="is_permit_not_required"
                                                 label="Permit Not Required">
                                                 <option value="0"
@@ -940,7 +946,7 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-6">
                                             <x-select class="z-index show-tick" name="is_insurance" label="Stoneguard">
                                                 <option value="0"
                                                     {{ $order_note?->is_insurance == 0 ? 'selected' : '' }}>- Not
@@ -954,7 +960,7 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-6">
                                             <x-select class="z-index show-tick" name="is_insurance_services"
                                                 label="Stoneguard Services">
                                                 <option value="0"
@@ -984,7 +990,7 @@
                                 <div class="col-6">
                                     <div class="col-12 row">
 
-                                        <div class="col-12">
+                                        <div class="col-4">
                                             <x-select class="z-index show-tick" name="is_paid_by_bacs"
                                                 has_timestamp="true"
                                                 timestamp="{{ $order_note?->is_paid_by_bacs_timestamp ?? false }}"
@@ -998,7 +1004,7 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-4">
                                             <x-select class="z-index show-tick" name="is_full_inscription_received"
                                                 label="Full Inscriptions received">
                                                 <option value="0"
@@ -1010,7 +1016,7 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-4">
                                             <x-select class="z-index show-tick" name="is_sent_to_burial_society"
                                                 label="Sent to burial society">
                                                 <option value="0"
@@ -1022,7 +1028,7 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-6">
                                             <x-select class="z-index show-tick" name="is_received_from_burial_society"
                                                 label="Received from burial society">
                                                 <option value="0"
@@ -1034,7 +1040,7 @@
                                             </x-select>
                                         </div>
 
-                                        <div class="col-12">
+                                        <div class="col-6">
                                             <x-select class="z-index show-tick" name="is_order_complete"
                                                 label="Order complete">
                                                 <option value="0"
@@ -1046,93 +1052,96 @@
                                             </x-select>
                                         </div>
 
+                                        @php
+                                            $inscription_sent_to_design_team_for_printout = isset(
+                                                $order_note->inscription_sent_to_design_team_for_printout,
+                                            )
+                                                ? \Carbon\Carbon::parse(
+                                                    $order_note->inscription_sent_to_design_team_for_printout,
+                                                )->format('F d, Y')
+                                                : '';
+                                            $inscription_sent_to_gary_for_printout = isset(
+                                                $order_note->inscription_sent_to_gary_for_printout,
+                                            )
+                                                ? \Carbon\Carbon::parse(
+                                                    $order_note->inscription_sent_to_gary_for_printout,
+                                                )->format('F d, Y')
+                                                : '';
+                                            $received_back_from_design_team = isset(
+                                                $order_note->received_back_from_design_team,
+                                            )
+                                                ? \Carbon\Carbon::parse(
+                                                    $order_note->received_back_from_design_team,
+                                                )->format('F d, Y')
+                                                : '';
+                                            $sent_to_customer = isset($order_note->sent_to_customer)
+                                                ? \Carbon\Carbon::parse($order_note->sent_to_customer)->format(
+                                                    'F d, Y',
+                                                )
+                                                : '';
+                                            $back_to_design_team_for_further_alterations = isset(
+                                                $order_note->back_to_design_team_for_further_alterations,
+                                            )
+                                                ? \Carbon\Carbon::parse(
+                                                    $order_note->back_to_design_team_for_further_alterations,
+                                                )->format('F d, Y h:i A')
+                                                : '';
+                                            $masonart_printout_approved = isset($order_note->masonart_printout_approved)
+                                                ? \Carbon\Carbon::parse($order_note->masonart_printout_approved)->format(
+                                                    'F d, Y h:i A',
+                                                )
+                                                : '';
+                                        @endphp
+
+                                        <div class="col-6">
+                                            <x-input type="text" name="inscription_sent_to_design_team_for_printout"
+                                                value="{{ $inscription_sent_to_design_team_for_printout }}"
+                                                class="daterange clear-daterange"
+                                                label="Inscription sent to Design Team for Printout" />
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type="text" name="inscription_sent_to_gary_for_printout"
+                                                value="{{ $inscription_sent_to_gary_for_printout }}"
+                                                class="daterange clear-daterange"
+                                                label="Inscription sent to Gary for Printout" />
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type="text" name="received_back_from_design_team"
+                                                value="{{ $received_back_from_design_team }}"
+                                                class="daterange clear-daterange" label="Received back from Design Team" />
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type="text" name="sent_to_customer" value="{{ $sent_to_customer }}"
+                                                class="daterange clear-daterange" label="Sent to Customer" />
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type="text" name="back_to_design_team_for_further_alterations"
+                                                value="{{ $back_to_design_team_for_further_alterations }}"
+                                                class="daterange clear-daterange"
+                                                label="Back to Design Team for further alterations" />
+                                        </div>
+                                        <div class="col-6">
+                                            <x-input type="text" name="masonart_printout_approved"
+                                                value="{{ $masonart_printout_approved }}" class="daterange clear-daterange"
+                                                label=" MasonArt Printout Approved" />
+                                        </div>
+                                        <div class="col-12">
+                                            <x-select class="z-index show-tick" name="approved_by_burial_society"
+                                                label="Approved by Burial Society">
+                                                <option value="0"
+                                                    {{ $order_note?->approved_by_burial_society == 0 ? 'selected' : '' }}>- No
+                                                    -</option>
+                                                <option value="1"
+                                                    {{ $order_note?->approved_by_burial_society == 1 ? 'selected' : '' }}>-
+                                                    Yes -</option>
+                                            </x-select>
+                                        </div>
+
                                     </div>
                                 </div>
 
                                 <div class="col-12">
-                                    @php
-                                        $inscription_sent_to_design_team_for_printout = isset(
-                                            $order_note->inscription_sent_to_design_team_for_printout,
-                                        )
-                                            ? \Carbon\Carbon::parse(
-                                                $order_note->inscription_sent_to_design_team_for_printout,
-                                            )->format('F d, Y')
-                                            : '';
-                                        $inscription_sent_to_gary_for_printout = isset(
-                                            $order_note->inscription_sent_to_gary_for_printout,
-                                        )
-                                            ? \Carbon\Carbon::parse(
-                                                $order_note->inscription_sent_to_gary_for_printout,
-                                            )->format('F d, Y')
-                                            : '';
-                                        $received_back_from_design_team = isset(
-                                            $order_note->received_back_from_design_team,
-                                        )
-                                            ? \Carbon\Carbon::parse(
-                                                $order_note->received_back_from_design_team,
-                                            )->format('F d, Y')
-                                            : '';
-                                        $sent_to_customer = isset($order_note->sent_to_customer)
-                                            ? \Carbon\Carbon::parse($order_note->sent_to_customer)->format(
-                                                'F d, Y',
-                                            )
-                                            : '';
-                                        $back_to_design_team_for_further_alterations = isset(
-                                            $order_note->back_to_design_team_for_further_alterations,
-                                        )
-                                            ? \Carbon\Carbon::parse(
-                                                $order_note->back_to_design_team_for_further_alterations,
-                                            )->format('F d, Y h:i A')
-                                            : '';
-                                        $masonart_printout_approved = isset($order_note->masonart_printout_approved)
-                                            ? \Carbon\Carbon::parse($order_note->masonart_printout_approved)->format(
-                                                'F d, Y h:i A',
-                                            )
-                                            : '';
-                                    @endphp
-                                    <div class="col-6">
-                                        <x-input type="text" name="inscription_sent_to_design_team_for_printout"
-                                            value="{{ $inscription_sent_to_design_team_for_printout }}"
-                                            class="daterange clear-daterange"
-                                            label="Inscription sent to Design Team for Printout" />
-                                    </div>
-                                    <div class="col-6">
-                                        <x-input type="text" name="inscription_sent_to_gary_for_printout"
-                                            value="{{ $inscription_sent_to_gary_for_printout }}"
-                                            class="daterange clear-daterange"
-                                            label="Inscription sent to Gary for Printout" />
-                                    </div>
-                                    <div class="col-6">
-                                        <x-input type="text" name="received_back_from_design_team"
-                                            value="{{ $received_back_from_design_team }}"
-                                            class="daterange clear-daterange" label="Received back from Design Team" />
-                                    </div>
-                                    <div class="col-6">
-                                        <x-input type="text" name="sent_to_customer" value="{{ $sent_to_customer }}"
-                                            class="daterange clear-daterange" label="Sent to Customer" />
-                                    </div>
-                                    <div class="col-6">
-                                        <x-input type="text" name="back_to_design_team_for_further_alterations"
-                                            value="{{ $back_to_design_team_for_further_alterations }}"
-                                            class="daterange clear-daterange"
-                                            label="Back to Design Team for further alterations" />
-                                    </div>
-                                    <div class="col-6">
-                                        <x-input type="text" name="masonart_printout_approved"
-                                            value="{{ $masonart_printout_approved }}" class="daterange clear-daterange"
-                                            label=" MasonArt Printout Approved" />
-                                    </div>
-                                    <div class="col-6">
-                                        <x-select class="z-index show-tick" name="approved_by_burial_society"
-                                            label="Approved by Burial Society">
-                                            <option value="0"
-                                                {{ $order_note?->approved_by_burial_society == 0 ? 'selected' : '' }}>- No
-                                                -</option>
-                                            <option value="1"
-                                                {{ $order_note?->approved_by_burial_society == 1 ? 'selected' : '' }}>-
-                                                Yes -</option>
-                                        </x-select>
-                                    </div>
+                                        
                                 </div>
 
                             </div>
@@ -1184,9 +1193,11 @@
                                 <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_quotation_btn" href="{{ url('pdf/quotation/' . $quote?->id) }}"
                                     target="_blank" order_id="{{ $quote?->id ?? '' }}">Print Quotation</a>
-                                <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
+                                @if ($deposit_description && $deposit_amount)
+                                    <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_order_btn" href="{{ url('pdf/order/' . $quote?->id) }}" target="_blank"
                                     order_id="{{ $quote?->id ?? '' }}">Print Order</a>
+                                @endif
                                 <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_no_prices_btn" href="{{ url('pdf/order_no_price/' . $quote?->id) }}"
                                     target="_blank" order_id="{{ $quote?->id ?? '' }}">Print - No Prices</a>

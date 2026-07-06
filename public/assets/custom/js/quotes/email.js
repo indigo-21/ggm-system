@@ -77,7 +77,11 @@ async function sendEmail(data = {}){
             },
             body: JSON.stringify(data)
         });
-        // const { status, message, order_inscription } = await response.json();
+        const { success } = await response.json();
+
+        if(success){
+            window.location.reload();
+        }
        
     } catch (error) {
         // Handle errors

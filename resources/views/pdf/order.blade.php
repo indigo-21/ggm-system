@@ -321,7 +321,7 @@
                 <td class="no-border" style="border:1px solid black;">
                     <table style="width:100%;">
                         <tr>
-                            <td style="padding:0px;border:none;"><strong>Deposit: </strong> {{ $orderDeposit->comment }}
+                            <td style="padding:0px;border:none;"><strong>Deposit: </strong> {{ $orderDeposit?->comment ?? '' }}
                             </td>
                             <td style="padding:0px;border:none;text-align:right;">- £
                                 {{ $orderDeposit ? number_format($orderDeposit->amount, 2) : '0' }}</td>
@@ -404,7 +404,7 @@
                 <td class="no-border" style="border:1px solid black;">
                     <table style="width:100%;">
                         <tr>
-                            <td style="padding:0px;border:none;"><strong>Deposit: </strong> {{ $orderDeposit->comment }}
+                            <td style="padding:0px;border:none;"><strong>Deposit: </strong> {{ $orderDeposit?->comment ?? '' }}
                             </td>
                             <td style="padding:0px;border:none;text-align:right;">- £
                                 {{ $orderDeposit ? number_format($orderDeposit->amount, 2) : '0' }}</td>

@@ -226,19 +226,25 @@ class OrderMailController extends Controller
         }
 
 
+        if($mailTo){
+            $orderMail = new OrderMail();
+            $orderMail->order_id = $orderId;
+            $orderMail->mail_to = $mailTo;
+            $orderMail->attachments = json_encode($attachments);
+            $orderMail->mail_body = $mailBody;
+            $orderMail->created_by = Auth::id();
+            $result = $orderMail->save();
 
-        $orderMail = new OrderMail();
-        $orderMail->order_id = $orderId;
-        $orderMail->mail_to = $mailTo;
-        $orderMail->attachments = json_encode($attachments);
-        $orderMail->mail_body = $mailBody;
-        $orderMail->created_by = Auth::id();
-        $result = $orderMail->save();
-
-        if($result){
-            Mail::to("charles.verdadero@indigo21.com")
-                ->send(new OrderConfirmation($orderId, $mailBody, $attachments));
+            if($result){
+                Mail::to($mailTo)
+                    ->cc('charles.verdadero@indigo21.com')
+                    ->send(new OrderConfirmation($orderId, $mailBody, $attachments));
+                return [
+                        "success" => $result ? true : false
+                        ]; 
+            }
         }
+        
         // try {
             // Mail::to('charles.verdadero@indigo21.com')
             //     ->send(new OrderConfirmation('Charles Verdader0', 123));
