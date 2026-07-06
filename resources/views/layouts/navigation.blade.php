@@ -70,9 +70,22 @@
                             </ul>
                         </x-dropdown-link>
 
-                        <x-nav-link>
+                        {{-- <x-nav-link>
                             <a href="{{route('schedule.index')}}" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Schedules</span></a>
-                        </x-nav-link>
+                        </x-nav-link> --}}
+
+                        <x-dropdown-link>
+                            <x-slot name="label_anchor">
+                                <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-folder"></i><span>Schedules</span></a>
+                            </x-slot>
+                            <ul class="ml-menu">
+                                <li><a class="text-left" href="{{route('schedule.show', 1) }}" class="{{request()->routeIs('schedule') ? 'active' : ''}}">New Memorials</a></li>
+                                <li><a class="text-left" href="{{route('schedule.show', 2) }}">Added Inscriptions</a></li>
+                                <li><a class="text-left" href="{{route('schedule.show', 3) }}">Renovations</a></li>
+                                <li><a class="text-left" href="{{route('schedule.show', 4) }}">Washdowns</a></li>
+                            </ul>
+                        </x-dropdown-link>
+
                         <x-nav-link>
                             <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Inventory</span></a>
                         </x-nav-link>

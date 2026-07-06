@@ -19,8 +19,8 @@ class OrderPaymentController extends Controller
         protected PdfService $pdfService
     ) {}
 
-    public function get_table_data(){
-        $order_payments = OrderPayment::all();
+    public function get_table_data($id = false){
+        $order_payments = $id ? OrderPayment::where("id", $id)->get() : OrderPayment::all();
         $data = [];
         foreach ($order_payments as $key => $value) {
             $created_by = $value->created_user->firstname.' '.$value->created_user->lastname;
@@ -39,6 +39,8 @@ class OrderPaymentController extends Controller
 
     public function upsert(Request $request){
         $id = $request->id;
+        
+
         $datetime = Carbon::parse($request?->payment_timestamp)->format('Y-m-d h:i:s') ?? null;
         $order_payment = !$id ? new OrderPayment() : OrderPayment::find($id);
         $order_payment->order_id = $request->order_id;
@@ -46,9 +48,10 @@ class OrderPaymentController extends Controller
         $order_payment->amount = $request->payment_amount;
         $order_payment->payment_datetime = $datetime;
         $order_payment->comment = $request->payment_comment;
-        $order_payment->{$id ? "updated_by" : "created_by" } = Auth::id();
+        $order_payment->{!$id ? "created_by" : "updated_by" } = Auth::id();
         $result = $order_payment->save();
-        $data = $result ? self::get_table_data() : dd("Somethings Wrong in saving order payment");
+        
+        $data = $result ? self::get_table_data($order_payment->id) : dd("Somethings Wrong in saving order payment");
         return response()->json($data);
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderNewMemorial;
+use App\Models\OrderAddedInscription;
 use App\Models\OrderType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -32,6 +33,9 @@ class ScheduleController extends Controller
             case '1':
                 return OrderNewMemorial::all();
                 break;
+            case '2':
+                return OrderAddedInscription::all();
+                break;
         }
     }
     
@@ -42,7 +46,7 @@ class ScheduleController extends Controller
     {
         $data = self::default_required_data();
         $data["schedules"] = self::index_default_data();
-        return view('pages.schedule.index', $data);
+        return view('pages.schedule.new-memorial.index', $data);
     }
 
     /**
@@ -62,7 +66,18 @@ class ScheduleController extends Controller
                         'orderTypeId' => $orderType,
                         'scheduleId' => $scheduleData->id]);
                     }else{
-                        return view("pages.schedule.new-memorial", $data);
+                        return view("pages.schedule.new-memorial.form", $data);
+                    }
+                break;
+            case '2':
+                    $scheduleData = OrderAddedInscription::where("order_id", $orderId)->first();
+                    if($scheduleData){
+                       return redirect()
+                        ->route('schedule.edit', [
+                        'orderTypeId' => $orderType,
+                        'scheduleId' => $scheduleData->id]);
+                    }else{
+                        return view("pages.schedule.added-inscription.form", $data);
                     }
                 break;
             
@@ -80,7 +95,8 @@ class ScheduleController extends Controller
     {
         $scheduleData = $scheduleService->upsertSchedule($request);
 
-        if($scheduleData["result"]){
+        if(!$scheduleData["result"]){
+            
             return redirect()->back()->with('error', $scheduleData["message"]);
         }else{
             $view = $scheduleData["view"];
@@ -89,7 +105,7 @@ class ScheduleController extends Controller
             $scheduleId = $scheduleData["tableData"]->id;
             $message = $scheduleData["message"];
             $order = $scheduleData["tableData"]->order();
-
+            
             return redirect()
                     ->route('schedule.edit', [
                         'orderTypeId' => $orderTypeId,
@@ -101,9 +117,29 @@ class ScheduleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(int $orderTypeId = 1)
     {
-        //
+        $data = self::default_required_data();
+        $data["schedules"] = self::index_default_data($orderTypeId);
+        // dd($data["schedules"]->first()->letter_type);
+        switch ($orderTypeId) {
+            case 1:
+                return view('pages.schedule.new-memorial.index', $data);
+                break;
+            case 2:
+                return view('pages.schedule.added-inscription.index', $data);
+                break;
+            case 3:
+                return view('pages.schedule.renovation.index', $data);
+                break;
+            case 4:
+                return view('pages.schedule.washdown.index', $data);
+                break;
+            default:
+                return view('pages.schedule.new-memorial.index', $data);
+                break;
+        }
+        
     }
 
     /**
@@ -112,14 +148,17 @@ class ScheduleController extends Controller
     public function edit(string $orderTypeId, string $scheduleId)
     {
         $data = self::default_required_data();
-        $view = "pages.schedule.new-memorial";
-        $tableData = OrderNewMemorial::findOrFail($scheduleId);
-
-       
+        $view = "";
+        $tableData = [];
+    
         switch ($orderTypeId) {
             case '1':
                 $tableData = OrderNewMemorial::findOrFail($scheduleId);
-                $view = "pages.schedule.new-memorial";
+                $view = "pages.schedule.new-memorial.form";
+                break;
+            case '2':
+                $tableData = OrderAddedInscription::findOrFail($scheduleId);
+                $view = "pages.schedule.added-inscription.form";
                 break;
         }
 
@@ -179,7 +218,11 @@ class ScheduleController extends Controller
         switch ($orderTypeId) {
             case '1':
                 $query = OrderNewMemorial::query();
-                $views = "pages.schedule.index";
+                $views = "pages.schedule.new-memorial.index";
+                break;
+            case '2':
+                $query = OrderNewMemorial::query();
+                $views = "pages.schedule.added-inscription.index";
                 break;
             
             default:

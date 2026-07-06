@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class LetterType extends Model
 {
@@ -16,5 +17,9 @@ class LetterType extends Model
     
     public function user(): BelongsTo{
         return $this->belongsTo(User::class, "created_by");
+    }
+
+    public function order(): HasMany{
+        return $this->hasMany(Order::class);
     }
 }

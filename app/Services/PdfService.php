@@ -30,17 +30,17 @@ class PdfService
 
         $data = [
             "title" => "Quotation-" . $orderId,
-            "customerName" => $customerData->firstname . " " . $customerData->lastname,
+            "customerName" => $customerData?->firstname ?? ''. " " . $customerData->lastname,
             "printDate" => Carbon::now()->format('F d, Y H:i A'),
             "customerAddress" => $addressOne . " " . $addressTwo . " " . $cityCounty . " " . $postCode,
             "orderReference" => self::order_type_code($orderData->order_type_id) . $orderId,
             "customerFirstname" => $customerData->firstname,
-            "deceasedName" => $orderData->deceased_name,
-            "cemeteryName" => $orderData->cemetery->name,
-            "graveNumber" => $orderData->grave_number,
-            "headStone" => $orderData->design_headstone,
-            "headStoneSize" => $orderData->size,
-            "material" => $orderData->material,
+            "deceasedName" => $orderData?->deceased_name ?? "",
+            "cemeteryName" => $orderData?->cemetery->name ?? "",
+            "graveNumber" => $orderData->grave_number ?? "",
+            "headStone" => $orderData->design_headstone ?? "",
+            "headStoneSize" => $orderData->size ?? "",
+            "material" => $orderData->material ?? "",
             "orderCost" => $orderData->order_cost,
             "orderCostAdditionals" => $orderData->order_cost->additionals,
             "orderAdditionalNote" => $orderData->additional_notes,
@@ -83,7 +83,15 @@ class PdfService
                 ];
         
         $pdf = Pdf::loadView('pdf.order', $data);
-        
+        $pdf->setPaper('A4', 'portrait');
+
+        // FORCE RENDER FIRST
+        $pdf->render();
+
+        // Add page number
+        $canvas = $pdf->getDomPDF()->getCanvas();
+        $canvas->page_text(500, 800, "Page {PAGE_NUM}", null, 10, [0,0,0]);
+
         $filename = "Order-{$orderId}.pdf";
         $relativePath = "pdfs/{$filename}";
 

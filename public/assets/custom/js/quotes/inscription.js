@@ -42,6 +42,7 @@ $(document).on("click", "#save_inscription_btn", async () => {
         $("#inscription_message").addClass("text-success");
         $("#inscription_message").html(`<strong>${message}</strong>`);
         CKEDITOR.instances.order_inscription.updateElement();
+        window.location.reload();
     } catch (error) {
         // Handle errors
         console.error("Error fetching items:", error);
@@ -76,6 +77,8 @@ $(document).on("click", "#save_approval_btn", async () => {
         $("#inscription_message").addClass("text-success");
         $("#inscription_message").html(`<strong>${message}</strong>`);
         status && this_element.attr("disabled", true);
+        
+        window.location.reload();
 
     } catch (error) {
         console.error("Error fetching:", error);

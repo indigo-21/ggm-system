@@ -40,6 +40,7 @@
             </div>
         </div>
     </x-slot>
+    
     <div class="container">
         <div class="row clearfix row-deck">
             <form action="{{route("schedule.index_filtered")}}" method="POST">
@@ -155,7 +156,7 @@
                                                 'orderTypeId' => $schedule->order->order_type_id,
                                                 'scheduleId' => $schedule->id
                                             ]) }}">
-                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">{{ $schedule->fixing_date }}</td>
+                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">{{ $schedule?->fixing_date ? \Carbon\Carbon::parse($schedule->fixing_date)->format('d/m/Y') : ''  }}</td>
                                             <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">{{ $schedule->order->invoice_no }}</td>
                                             <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">
                                                 <span
@@ -184,7 +185,7 @@
                                                 {{ $schedule->is_burial_society_approved ? 'x' : '' }}
                                             </td>
 
-                                            <td class="text-center view{{ $schedule->view_status != 0 ? '-'.$schedule->view_status : '' }}">{{ $schedule->view_date }}</td>
+                                            <td class="text-center view{{ $schedule->view_status != 0 ? '-'.$schedule->view_status : '' }}">{{ $schedule?->view_date ? \Carbon\Carbon::parse($schedule->view_date)->format('D m/d') : '' }}</td>
 
                                             <td class="text-center">
                                                 <div class="d-flex justify-content-center">

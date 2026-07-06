@@ -27,8 +27,8 @@
         <br>
         <table class="table-bordered">
             <tr>
-                <td colspan="4" style="text-align:center; font-weight:bold;">{{ $headStone }} - {{ $headStoneSize }} -
-                    {{ $material }}</td>
+                <td colspan="4" style="text-align:center; font-weight:bold;">{{ $headStone }}  {{ $headStoneSize ? " - ".$headStoneSize : "" }} 
+                    {{ $material ? " - ".$material : "" }}</td>
             </tr>
             @if ($orderCost->description && $orderCost->amount)
                 <tr>

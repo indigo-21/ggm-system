@@ -1056,25 +1056,25 @@
                                         )
                                             ? \Carbon\Carbon::parse(
                                                 $order_note->inscription_sent_to_design_team_for_printout,
-                                            )->format('F d, Y h:i A')
+                                            )->format('F d, Y')
                                             : '';
                                         $inscription_sent_to_gary_for_printout = isset(
                                             $order_note->inscription_sent_to_gary_for_printout,
                                         )
                                             ? \Carbon\Carbon::parse(
                                                 $order_note->inscription_sent_to_gary_for_printout,
-                                            )->format('F d, Y h:i A')
+                                            )->format('F d, Y')
                                             : '';
                                         $received_back_from_design_team = isset(
                                             $order_note->received_back_from_design_team,
                                         )
                                             ? \Carbon\Carbon::parse(
                                                 $order_note->received_back_from_design_team,
-                                            )->format('F d, Y h:i A')
+                                            )->format('F d, Y')
                                             : '';
                                         $sent_to_customer = isset($order_note->sent_to_customer)
                                             ? \Carbon\Carbon::parse($order_note->sent_to_customer)->format(
-                                                'F d, Y h:i A',
+                                                'F d, Y',
                                             )
                                             : '';
                                         $back_to_design_team_for_further_alterations = isset(

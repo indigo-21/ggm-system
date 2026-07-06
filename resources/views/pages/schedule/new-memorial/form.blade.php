@@ -299,7 +299,7 @@
             </div>
             <div class="mb-3 d-flex justify-content-center align-items-center">
                 {{-- <x-buttons class="btn-secondary" type="button" label="Back" href="{{ route('schedule.index') }}" /> --}}
-                <a href="{{ route('schedule.index') }}"
+                <a href="{{ route('schedule.index', ['orderTypeId'=> '1']) }}"
                     class="btn btn-secondary hidden-xs w-25 ml-2">
                     Back
                 </a>

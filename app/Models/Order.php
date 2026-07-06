@@ -37,6 +37,10 @@ class Order extends Model
         return $this->belongsTo(GraveSpace::class);
     }
 
+    public function letter_type(): BelongsTo{
+        return $this->belongsTo(LetterType::class);
+    }
+
     public function user(): BelongsTo{
         return $this->belongsTo(User::class, 'created_by');
     }

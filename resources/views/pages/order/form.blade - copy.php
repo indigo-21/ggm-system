@@ -12,7 +12,7 @@
                         </ul>
                         <h1 class="mb-1 mt-1">{{ !isset($quote) ? 'Create New Quotation' : 'Update ' . $quote->name }}
                         </h1>
-                        <span>Lorem ipsum dolor sit amet consectetur adipisicing elit.</span>
+                        <span>Lorem ipsum dolor sit amet consectetur adipisicing elit.Teset</span>
                     </div>
                     <div class="col-lg-6 col-md-12 text-md-right">
                         {{-- <button class="btn btn-default hidden-xs ml-2">Create Quotation</button> --}}
