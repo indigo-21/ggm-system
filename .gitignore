@@ -3,10 +3,9 @@
 /public/build
 /public/hot
 /public/storage
-/storage/files
-/storage/pdfs
-/storage/public
-/storage/p
+/storage/app/files
+/storage/app/pdfs
+/storage/app/public
 /vendor
 .env
 .env.backup
