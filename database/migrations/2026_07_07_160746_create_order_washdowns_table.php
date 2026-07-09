@@ -11,20 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_renovations', function (Blueprint $table) {
+        Schema::create('order_washdowns', function (Blueprint $table) {
             $table->id();
             $table->foreignId("order_id")->constrained("orders");
-            $table->date("fixing_date")->nullable();
-            $table->integer("fixing_status")->default(0)->comment("0=not_fixed|1=fixed|2=part_fixed|3=fixing_this_week|4=fixing_next_week|5=fixing_week_after_next");
+            $table->date("date")->nullable();
             $table->integer("payment_status")->default(0)->comment("0=unpaid|1=paid|2=part_paid");
-            $table->longText("description")->nullable();
-            $table->integer("view_location")->default(1)->comment("1=by_photo|2=clayhall|3=edgeware");
-            $table->integer("view_status")->default(1)->comment("1=factory|2=on_route|3=showroom|4=photo_sent");
-            $table->date("view_date")->nullable();
-            $table->longText("view_remarks")->nullable();
+            $table->boolean("is_completed")->default(0);
             $table->longText("details")->nullable();
             $table->longText("issue")->nullable();
-            $table->boolean("is_permit_back")->default(0);
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
@@ -36,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_renovations');
+        Schema::dropIfExists('order_washdowns');
     }
 };
