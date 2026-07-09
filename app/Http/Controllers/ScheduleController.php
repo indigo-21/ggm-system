@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderNewMemorial;
 use App\Models\OrderAddedInscription;
+use App\Models\OrderRenovation;
 use App\Models\OrderType;
+use App\Models\OrderWashdown;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -17,18 +19,20 @@ class ScheduleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function default_required_data($isFrom = "index", $id = false){
+    public function default_required_data($isFrom = "index", $id = false)
+    {
         $data = [
-                    "order_types" => OrderType::all(),
-                    "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
-                    "years"       => ["2024","2025","2026","2027"],
-                    "payment_statuses" => [["id" => 0, "name" => "Unpaid"], ["id" => 1, "name" => "Paid"]],
-                ];
-        
+            "order_types" => OrderType::all(),
+            "months"      => ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            "years"       => ["2024", "2025", "2026", "2027"],
+            "payment_statuses" => [["id" => 0, "name" => "Unpaid"], ["id" => 1, "name" => "Paid"]],
+        ];
+
         return $data;
     }
 
-    public function index_default_data($orderType = 1){
+    public function index_default_data($orderType = 1)
+    {
         switch ($orderType) {
             case '1':
                 return OrderNewMemorial::all();
@@ -36,9 +40,15 @@ class ScheduleController extends Controller
             case '2':
                 return OrderAddedInscription::all();
                 break;
+            case '3':
+                return OrderRenovation::all();
+                break;
+            case '4':
+                return OrderWashdown::all();
+                break;
         }
     }
-    
+
 
 
 
@@ -59,58 +69,84 @@ class ScheduleController extends Controller
 
         switch ($orderType) {
             case '1':
-                    $scheduleData = OrderNewMemorial::where("order_id", $orderId)->first();
-                    if($scheduleData){
-                       return redirect()
+                $scheduleData = OrderNewMemorial::where("order_id", $orderId)->first();
+                if ($scheduleData) {
+                    return redirect()
                         ->route('schedule.edit', [
-                        'orderTypeId' => $orderType,
-                        'scheduleId' => $scheduleData->id]);
-                    }else{
-                        return view("pages.schedule.new-memorial.form", $data);
-                    }
+                            'orderTypeId' => $orderType,
+                            'scheduleId' => $scheduleData->id
+                        ]);
+                } else {
+                    return view("pages.schedule.new-memorial.form", $data);
+                }
                 break;
             case '2':
-                    $scheduleData = OrderAddedInscription::where("order_id", $orderId)->first();
-                    if($scheduleData){
-                       return redirect()
+                $scheduleData = OrderAddedInscription::where("order_id", $orderId)->first();
+                if ($scheduleData) {
+                    return redirect()
                         ->route('schedule.edit', [
-                        'orderTypeId' => $orderType,
-                        'scheduleId' => $scheduleData->id]);
-                    }else{
-                        return view("pages.schedule.added-inscription.form", $data);
-                    }
+                            'orderTypeId' => $orderType,
+                            'scheduleId' => $scheduleData->id
+                        ]);
+                } else {
+                    return view("pages.schedule.added-inscription.form", $data);
+                }
                 break;
-            
+            case '3':
+                $scheduleData = OrderRenovation::where("order_id", $orderId)->first();
+                if ($scheduleData) {
+                    return redirect()
+                        ->route('schedule.edit', [
+                            'orderTypeId' => $orderType,
+                            'scheduleId' => $scheduleData->id
+                        ]);
+                } else {
+                    return view("pages.schedule.renovation.form", $data);
+                }
+                break;
+            case '4':
+                $scheduleData = OrderWashdown::where("order_id", $orderId)->first();
+                if ($scheduleData) {
+                    return redirect()
+                        ->route('schedule.edit', [
+                            'orderTypeId' => $orderType,
+                            'scheduleId' => $scheduleData->id
+                        ]);
+                } else {
+                    return view("pages.schedule.washdown.form", $data);
+                }
+                break;
+
             default:
                 # code...
                 break;
         }
-        
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, ScheduleService $scheduleService )
+    public function store(Request $request, ScheduleService $scheduleService)
     {
         $scheduleData = $scheduleService->upsertSchedule($request);
 
-        if(!$scheduleData["result"]){
-            
+        if (!$scheduleData["result"]) {
+
             return redirect()->back()->with('error', $scheduleData["message"]);
-        }else{
+        } else {
             $view = $scheduleData["view"];
             $data = self::default_required_data();
             $orderTypeId = $scheduleData["tableData"]->order->order_type_id;
             $scheduleId = $scheduleData["tableData"]->id;
             $message = $scheduleData["message"];
             $order = $scheduleData["tableData"]->order();
-            
+
             return redirect()
-                    ->route('schedule.edit', [
-                        'orderTypeId' => $orderTypeId,
-                        'scheduleId' => $scheduleId])
-                    ->with("message", $message );
+                ->route('schedule.edit', [
+                    'orderTypeId' => $orderTypeId,
+                    'scheduleId' => $scheduleId
+                ])
+                ->with("message", $message);
         }
     }
 
@@ -139,7 +175,6 @@ class ScheduleController extends Controller
                 return view('pages.schedule.new-memorial.index', $data);
                 break;
         }
-        
     }
 
     /**
@@ -150,7 +185,7 @@ class ScheduleController extends Controller
         $data = self::default_required_data();
         $view = "";
         $tableData = [];
-    
+
         switch ($orderTypeId) {
             case '1':
                 $tableData = OrderNewMemorial::findOrFail($scheduleId);
@@ -160,11 +195,19 @@ class ScheduleController extends Controller
                 $tableData = OrderAddedInscription::findOrFail($scheduleId);
                 $view = "pages.schedule.added-inscription.form";
                 break;
+            case '3':
+                $tableData = OrderRenovation::findOrFail($scheduleId);
+                $view = "pages.schedule.renovation.form";
+                break;
+            case '4':
+                $tableData = OrderWashdown::findOrFail($scheduleId);
+                $view = "pages.schedule.washdown.form";
+                break;
         }
 
-        $data["order"] = $tableData->order;       
-        $data["schedule"] = $tableData;  
-         
+        $data["order"] = $tableData->order;
+        $data["schedule"] = $tableData;
+
         return view($view, $data);
     }
 
@@ -176,9 +219,9 @@ class ScheduleController extends Controller
 
         $scheduleData = $scheduleService->upsertSchedule($request, $scheduleId);
 
-        if($scheduleData["result"]){
+        if ($scheduleData["result"]) {
             return redirect()->back()->with('error', $scheduleData["message"]);
-        }else{
+        } else {
             $view = $scheduleData["view"];
             $data = self::default_required_data();
             $orderTypeId = $scheduleData["tableData"]->order->order_type_id;
@@ -187,10 +230,11 @@ class ScheduleController extends Controller
             $order = $scheduleData["tableData"]->order();
 
             return redirect()
-                    ->route('schedule.edit', [
-                        'orderTypeId' => $orderTypeId,
-                        'scheduleId' => $scheduleId])
-                    ->with("message", $message );
+                ->route('schedule.edit', [
+                    'orderTypeId' => $orderTypeId,
+                    'scheduleId' => $scheduleId
+                ])
+                ->with("message", $message);
         }
     }
 
@@ -201,11 +245,12 @@ class ScheduleController extends Controller
     {
         //
     }
-    
-    public function index_filtered( Request $request){
-       
+
+    public function index_filtered(Request $request)
+    {
+
         $data  = self::default_required_data();
-        
+
         $orderTypeId = $request->order_type_id ?? 1;
         $fixingStatus = $request->fixing_status;
         $paymentStatus = $request->payment_status;
@@ -213,8 +258,8 @@ class ScheduleController extends Controller
         $orderYear = $request->order_date_year;
         $searchColumn = $request->search_column;
         $searchInput = $request->search_input;
-        $allowedColumns = ["deceased_name","grave_number","invoice_no"];
-        
+        $allowedColumns = ["deceased_name", "grave_number", "invoice_no"];
+
         switch ($orderTypeId) {
             case '1':
                 $query = OrderNewMemorial::query();
@@ -224,33 +269,41 @@ class ScheduleController extends Controller
                 $query = OrderNewMemorial::query();
                 $views = "pages.schedule.added-inscription.index";
                 break;
-            
+            case '3':
+                $query = OrderRenovation::query();
+                $views = "pages.schedule.renovation.index";
+                break;
+            case '4':
+                $query = OrderWashdown::query();
+                $views = "pages.schedule.washdown.index";
+                break;
+
             default:
                 $query = OrderNewMemorial::query();
                 $views = "pages.schedule.index";
                 break;
         }
 
-        if($fixingStatus != ""){
+        if ($fixingStatus != "") {
             $query->where("fixing_status", $fixingStatus);
         }
-        
-        if($paymentStatus != ""){
+
+        if ($paymentStatus != "") {
             $query->where("payment_status", $paymentStatus);
         }
-        
-        if($orderYear && $orderYear){
+
+        if ($orderYear && $orderYear) {
             $query->whereMonth('created_at', $orderMonth)
-                    ->whereYear('created_at', $orderYear);
+                ->whereYear('created_at', $orderYear);
         }
 
-        
-        if($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)){
-            $query->whereHas('order', function($q) use ($searchColumn, $searchInput){
+
+        if ($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)) {
+            $query->whereHas('order', function ($q) use ($searchColumn, $searchInput) {
                 $q->where($searchColumn, 'LIKE', "%{$searchInput}%");
             });
         }
-            
+
 
         $data["schedules"] = $query->get();
 

@@ -48,15 +48,15 @@
                 <div class="col-12">
                     <div class="card top_widget">
                         <div class="body row">
-                            <div class="col-4">
+                            {{-- <div class="col-4">
                                 <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
                                     :required="true" search="true">
                                     @foreach ($order_types as $order_type)
                                         <option value="{{ $order_type->id }}">{{ $order_type->name }}</option>
                                     @endforeach
                                 </x-select>
-                            </div>
-                            <div class="col-4">
+                            </div> --}}
+                            <div class="col-6">
                                 <x-select class="z-index show-tick" name="fixing_status" label="Fixing Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
@@ -64,7 +64,7 @@
                                     <option value="1">-Fixed-</option>
                                 </x-select>
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 <x-select class="z-index show-tick" name="payment_status" label="Payment Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>

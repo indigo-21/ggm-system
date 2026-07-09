@@ -42,7 +42,7 @@
                                 <div class="d-flex justify-content-between">
                                     <p><strong>Order Date:</strong></p>
                                     <p>{{ \Carbon\Carbon::parse($order->created_at)?->format('F d, Y A') }} (Ref:
-                                        NM/{{ $order->id }})</p>
+                                        R/{{ $order->id }})</p>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <p><strong>Customer:</strong></p>

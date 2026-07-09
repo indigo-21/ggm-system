@@ -1,20 +1,54 @@
 <x-app-layout>
     <x-slot name="customStyle">
         <style>
-            .fixing-1{ background-color: #EF0C16; text-color:white;}
-            .fixing-2{ background-color: #fff222; text-color:black;}
-            .fixing-3{ background-color: #f8c8ee; text-color:black;}
-            .fixing-4{ background-color: #f20dba; text-color:black;}
-            .fixing-5{ background-color: #0541da; text-color:white;}
+            .fixing-1 {
+                background-color: #EF0C16;
+                text-color: white;
+            }
 
-            .payment-1{background-color: #3aab11;}
-            .payment-2{background-color: #66d63d;}
+            .fixing-2 {
+                background-color: #fff222;
+                text-color: black;
+            }
 
-            .view-1{background-color: #2df5f3;}
-            .view-2{background-color: #2df5f35c;}
+            .fixing-3 {
+                background-color: #f8c8ee;
+                text-color: black;
+            }
 
-            .permit-back{background-color: #ff8625;}
-            .is-approved{background-color: #93ccf8;}
+            .fixing-4 {
+                background-color: #f20dba;
+                text-color: black;
+            }
+
+            .fixing-5 {
+                background-color: #0541da;
+                text-color: white;
+            }
+
+            .payment-1 {
+                background-color: #3aab11;
+            }
+
+            .payment-2 {
+                background-color: #66d63d;
+            }
+
+            .view-1 {
+                background-color: #2df5f3;
+            }
+
+            .view-2 {
+                background-color: #2df5f35c;
+            }
+
+            .permit-back {
+                background-color: #ff8625;
+            }
+
+            .is-approved {
+                background-color: #93ccf8;
+            }
         </style>
     </x-slot>
 
@@ -40,23 +74,23 @@
             </div>
         </div>
     </x-slot>
-    
+
     <div class="container">
         <div class="row clearfix row-deck">
-            <form action="{{route("schedule.index_filtered")}}" method="POST">
+            <form action="{{ route('schedule.index_filtered') }}" method="POST">
                 @csrf
                 <div class="col-12">
                     <div class="card top_widget">
                         <div class="body row">
-                            <div class="col-4">
+                            {{-- <div class="col-4">
                                 <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
                                     :required="true" search="true">
                                     @foreach ($order_types as $order_type)
                                         <option value="{{ $order_type->id }}">{{ $order_type->name }}</option>
                                     @endforeach
                                 </x-select>
-                            </div>
-                            <div class="col-4">
+                            </div> --}}
+                            <div class="col-6">
                                 <x-select class="z-index show-tick" name="fixing_status" label="Fixing Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
@@ -64,12 +98,13 @@
                                     <option value="1">-Fixed-</option>
                                 </x-select>
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 <x-select class="z-index show-tick" name="payment_status" label="Payment Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
                                     @foreach ($payment_statuses as $payment_status)
-                                        <option value="{{ $payment_status['id'] }}">{{ $payment_status['name'] }}</option>
+                                        <option value="{{ $payment_status['id'] }}">{{ $payment_status['name'] }}
+                                        </option>
                                     @endforeach
                                 </x-select>
                             </div>
@@ -154,16 +189,24 @@
                                         <tr class="schedule-table-row"
                                             href="{{ route('schedule.edit', [
                                                 'orderTypeId' => $schedule->order->order_type_id,
-                                                'scheduleId' => $schedule->id
+                                                'scheduleId' => $schedule->id,
                                             ]) }}">
-                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">{{ $schedule?->fixing_date ? \Carbon\Carbon::parse($schedule->fixing_date)->format('d/m/Y') : ''  }}</td>
-                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">{{ $schedule->order->invoice_no }}</td>
-                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">
+                                            <td
+                                                class="text-center fixing{{ $schedule->fixing_status != 0 ? '-' . $schedule->fixing_status : '' }}">
+                                                {{ $schedule?->fixing_date ? \Carbon\Carbon::parse($schedule->fixing_date)->format('d/m/Y') : '' }}
+                                            </td>
+                                            <td
+                                                class="text-center fixing{{ $schedule->fixing_status != 0 ? '-' . $schedule->fixing_status : '' }}">
+                                                {{ $schedule->order->invoice_no }}</td>
+                                            <td
+                                                class="text-center fixing{{ $schedule->fixing_status != 0 ? '-' . $schedule->fixing_status : '' }}">
                                                 <span
                                                     class="badge badge-{{ $schedule->for_fixing == 0 ? 'danger' : 'success' }}">{{ $schedule->for_fixing == 0 ? 'Incomplete' : 'For Fixing' }}</span>
                                             </td>
 
-                                            <td class="text-center payment{{$schedule->payment_status != 0 ? '-'.$schedule->payment_status : '' }}">{{ $schedule->order->deceased_name }} </td>
+                                            <td
+                                                class="text-center payment{{ $schedule->payment_status != 0 ? '-' . $schedule->payment_status : '' }}">
+                                                {{ $schedule->order->deceased_name }} </td>
 
                                             <td class="text-center">{{ $schedule->order->size }}
                                                 {{ $schedule->order->design_headstone }}</td>
@@ -173,19 +216,26 @@
                                                 <span class="text-danger">{{ $schedule->issue }}</span>
                                             </td>
 
-                                            <td class="text-center {{ $schedule->is_permit_back != 0 ? 'permit-back' : '' }}">{{ $schedule->order->grave_number }}</td>
+                                            <td
+                                                class="text-center {{ $schedule->is_permit_back != 0 ? 'permit-back' : '' }}">
+                                                {{ $schedule->order->grave_number }}</td>
 
                                             <td class="text-center">{{ $schedule->order->cemetery->name }}</td>
 
-                                            <td class="text-center {{ $schedule->is_customer_approved ? 'is-approved' : '' }}">
+                                            <td
+                                                class="text-center {{ $schedule->is_customer_approved ? 'is-approved' : '' }}">
                                                 {{ $schedule->is_customer_approved ? 'x' : '' }}
                                             </td>
 
-                                            <td class="text-center {{ $schedule->is_burial_society_approved ? 'is-approved' : '' }}">
+                                            <td
+                                                class="text-center {{ $schedule->is_burial_society_approved ? 'is-approved' : '' }}">
                                                 {{ $schedule->is_burial_society_approved ? 'x' : '' }}
                                             </td>
 
-                                            <td class="text-center view{{ $schedule->view_status != 0 ? '-'.$schedule->view_status : '' }}">{{ $schedule?->view_date ? \Carbon\Carbon::parse($schedule->view_date)->format('D m/d') : '' }}</td>
+                                            <td
+                                                class="text-center view{{ $schedule->view_status != 0 ? '-' . $schedule->view_status : '' }}">
+                                                {{ $schedule?->view_date ? \Carbon\Carbon::parse($schedule->view_date)->format('D m/d') : '' }}
+                                            </td>
 
                                             <td class="text-center">
                                                 <div class="d-flex justify-content-center">
