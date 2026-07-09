@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\OrderAddedInscription;
+use App\Models\OrderRenovation;
+use App\Models\OrderWashdown;
 use Carbon\Carbon;
 use App\Models\OrderNewMemorial;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +29,12 @@ class ScheduleService
              case '2':
                 return self::upsertAddedInscription($data, $id);
                 break;
-            
+             case '3':
+                return self::upsertRenovation($data, $id);
+                break;
+             case '4':
+                return self::upsertWashdown($data, $id);
+                break;
             
             default:
                 # code...
@@ -113,6 +120,73 @@ class ScheduleService
             "tableData" => $addedInscription,
             "message" => $message,
             "view" => "pages.schedule.added-inscription"
+        ];
+    }
+
+    public function upsertRenovation(Request $data, $id = false){
+        $message = "Detect issues in the Renovation request";
+
+        $renovation = !$id ? new OrderRenovation() : OrderRenovation::findOrFail($id);
+        
+        $renovation->order_id = $data->orderId;
+
+        $renovation->fixing_date = $data->fixing_date ? Carbon::parse($data->fixing_date)->format('Y-m-d') : null;
+        $renovation->fixing_status = $data->fixing_status;
+
+        $renovation->payment_status = $data->payment_status;
+
+        $renovation->description = $data->description;
+
+        $renovation->view_location = $data->view_location;
+        $renovation->view_status = $data->view_status;
+        $renovation->view_date = $data->view_date ? Carbon::parse($data->view_date)->format('Y-m-d') : null;
+        $renovation->view_remarks = $data->view_remarks;
+
+        $renovation->details = $data->details;
+        $renovation->issue = $data->issues;
+
+        $renovation->is_permit_back = $data->is_permit_back ? 1 : 0;
+
+        $renovation->{!$id ? "created_by" : "updated_by"} = Auth::id();
+        
+        $result = $renovation->save();
+        if($result){
+            $message = !$id ? "Succesfully Created" : "Order No. $id updated Succesfully";
+        }
+
+        return [
+            "result" => $result,
+            "tableData" => $renovation,
+            "message" => $message,
+            "view" => "pages.schedule.renovation"
+        ];
+    }
+
+    public function upsertWashdown(Request $data, $id = false){
+        $message = "Detect issues in the Washdown request";
+
+        $washdown = !$id ? new OrderWashdown() : OrderWashdown::findOrFail($id);
+        
+        $washdown->order_id = $data->orderId;
+
+        $washdown->date = $data->date ? Carbon::parse($data->date)->format('Y-m-d') : null;
+        $washdown->payment_status = $data->payment_status;
+        $washdown->is_completed = $data->is_completed ? 1 : 0;
+        $washdown->details = $data->details;
+        $washdown->issue = $data->issues;
+
+        $washdown->{!$id ? "created_by" : "updated_by"} = Auth::id();
+        
+        $result = $washdown->save();
+        if($result){
+            $message = !$id ? "Succesfully Created" : "Order No. $id updated Succesfully";
+        }
+
+        return [
+            "result" => $result,
+            "tableData" => $washdown,
+            "message" => $message,
+            "view" => "pages.schedule.washdown"
         ];
     }
 }

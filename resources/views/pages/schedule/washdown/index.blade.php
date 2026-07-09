@@ -1,20 +1,21 @@
 <x-app-layout>
     <x-slot name="customStyle">
         <style>
-            .fixing-1{ background-color: #EF0C16; text-color:white;}
-            .fixing-2{ background-color: #fff222; text-color:black;}
-            .fixing-3{ background-color: #f8c8ee; text-color:black;}
-            .fixing-4{ background-color: #f20dba; text-color:black;}
-            .fixing-5{ background-color: #0541da; text-color:white;}
+            .payment-1 {
+                background-color: #3aab11;
+            }
 
-            .payment-1{background-color: #3aab11;}
-            .payment-2{background-color: #66d63d;}
+            .payment-2 {
+                background-color: #66d63d;
+            }
 
-            .view-1{background-color: #2df5f3;}
-            .view-2{background-color: #2df5f35c;}
+            .completed {
+                background-color: #93ccf8;
+            }
 
-            .permit-back{background-color: #ff8625;}
-            .is-approved{background-color: #93ccf8;}
+            .schedule-table-row {
+                cursor: pointer;
+            }
         </style>
     </x-slot>
 
@@ -25,52 +26,43 @@
                     <div class="col-lg-6 col-md-12">
                         <ul class="breadcrumb pl-0 pb-0 ">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Schedule</li>
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Schedule</a></li>
+                            <li class="breadcrumb-item active">Washdown</li>
                         </ul>
-                        <h1 class="mb-1 mt-1">Schedule</h1>
+                        <h1 class="mb-1 mt-1">Washdown</h1>
                         <span>Lorem ipsum dolor sit amet consectetur adipisicing elit.</span>
                     </div>
-                    <div class="col-lg-6 col-md-12 text-md-right">
-                        {{-- <a href="{{route('quote.create')}}" class="btn btn-default hidden-xs ml-2">Create
-                            Orders</a> --}}
-                        {{-- <button class="btn btn-secondary hidden-xs ml-2">New Report</button> --}}
-                    </div>
+                    <div class="col-lg-6 col-md-12 text-md-right"></div>
                 </div>
                 <div class="bh_divider"></div>
             </div>
         </div>
     </x-slot>
-    
+
     <div class="container">
         <div class="row clearfix row-deck">
-            <form action="{{route("schedule.index_filtered")}}" method="POST">
+            <form action="{{ route('schedule.index_filtered') }}" method="POST">
                 @csrf
+                <input type="hidden" name="order_type_id" value="4">
                 <div class="col-12">
                     <div class="card top_widget">
                         <div class="body row">
-                            <div class="col-4">
-                                <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
-                                    :required="true" search="true">
-                                    @foreach ($order_types as $order_type)
-                                        <option value="{{ $order_type->id }}">{{ $order_type->name }}</option>
-                                    @endforeach
-                                </x-select>
-                            </div>
-                            <div class="col-4">
-                                <x-select class="z-index show-tick" name="fixing_status" label="Fixing Status"
-                                    search="true">
-                                    <option value="" disabled selected>-All-</option>
-                                    <option value="0">-Unfixed-</option>
-                                    <option value="1">-Fixed-</option>
-                                </x-select>
-                            </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 <x-select class="z-index show-tick" name="payment_status" label="Payment Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
                                     @foreach ($payment_statuses as $payment_status)
-                                        <option value="{{ $payment_status['id'] }}">{{ $payment_status['name'] }}</option>
+                                        <option value="{{ $payment_status['id'] }}">{{ $payment_status['name'] }}
+                                        </option>
                                     @endforeach
+                                </x-select>
+                            </div>
+                            <div class="col-6">
+                                <x-select class="z-index show-tick" name="is_completed" label="Completed Status"
+                                    search="true">
+                                    <option value="" disabled selected>-All-</option>
+                                    <option value="0">-Not Completed-</option>
+                                    <option value="1">-Completed-</option>
                                 </x-select>
                             </div>
                             <div class="col-2">
@@ -137,16 +129,12 @@
                             <table class="table table-bordered table-custom spacing5 mb-0">
                                 <thead>
                                     <tr>
-                                        <th colspan="3" class="text-center">Fixed</th>
-                                        <th class="text-center">Deceased</th>
-                                        <th class="text-center">Design</th>
-                                        <th class="text-center" style="width:30%;">Description</th>
-                                        <th class="text-center">Grave</th>
+                                        <th class="text-center">Date</th>
+                                        <th class="text-center">Invoice No.</th>
+                                        <th class="text-center">Deceased Name</th>
                                         <th class="text-center">Cemetery</th>
-                                        <th class="text-center">c</th>
-                                        <th class="text-center">b/s</th>
-                                        <th class="text-center">Photo Sent</th>
-                                        <th class="text-center">Export</th>
+                                        <th class="text-center">Grave No.</th>
+                                        <th class="text-center" style="width:30%;">Details</th>
                                     </tr>
                                 </thead>
                                 <tbody style="font-size:70%;">
@@ -154,44 +142,28 @@
                                         <tr class="schedule-table-row"
                                             href="{{ route('schedule.edit', [
                                                 'orderTypeId' => $schedule->order->order_type_id,
-                                                'scheduleId' => $schedule->id
+                                                'scheduleId' => $schedule->id,
                                             ]) }}">
-                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">{{ $schedule?->fixing_date ? \Carbon\Carbon::parse($schedule->fixing_date)->format('d/m/Y') : ''  }}</td>
-                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">{{ $schedule->order->invoice_no }}</td>
-                                            <td class="text-center fixing{{$schedule->fixing_status != 0 ? '-'.$schedule->fixing_status : '' }}">
-                                                <span
-                                                    class="badge badge-{{ $schedule->for_fixing == 0 ? 'danger' : 'success' }}">{{ $schedule->for_fixing == 0 ? 'Incomplete' : 'For Fixing' }}</span>
+                                            <td class="text-center {{ $schedule->is_completed ? 'completed' : '' }}">
+                                                {{ $schedule?->date ? \Carbon\Carbon::parse($schedule->date)->format('d/m/Y') : '' }}
                                             </td>
-
-                                            <td class="text-center payment{{$schedule->payment_status != 0 ? '-'.$schedule->payment_status : '' }}">{{ $schedule->order->deceased_name }} </td>
-
-                                            <td class="text-center">{{ $schedule->order->size }}
-                                                {{ $schedule->order->design_headstone }}</td>
-
-                                            <td class="text-center" style="white-space: pre-line;">
-                                                {{ $schedule->description }}
-                                                <span class="text-danger">{{ $schedule->issue }}</span>
+                                            <td class="text-center payment{{ $schedule->payment_status != 0 ? '-' . $schedule->payment_status : '' }}">
+                                                {{ $schedule->order->invoice_no }}
                                             </td>
-
-                                            <td class="text-center {{ $schedule->is_permit_back != 0 ? 'permit-back' : '' }}">{{ $schedule->order->grave_number }}</td>
-
-                                            <td class="text-center">{{ $schedule->order->cemetery->name }}</td>
-
-                                            <td class="text-center {{ $schedule->is_customer_approved ? 'is-approved' : '' }}">
-                                                {{ $schedule->is_customer_approved ? 'x' : '' }}
-                                            </td>
-
-                                            <td class="text-center {{ $schedule->is_burial_society_approved ? 'is-approved' : '' }}">
-                                                {{ $schedule->is_burial_society_approved ? 'x' : '' }}
-                                            </td>
-
-                                            <td class="text-center view{{ $schedule->view_status != 0 ? '-'.$schedule->view_status : '' }}">{{ $schedule?->view_date ? \Carbon\Carbon::parse($schedule->view_date)->format('D m/d') : '' }}</td>
-
                                             <td class="text-center">
-                                                <div class="d-flex justify-content-center">
-                                                    <x-input class="m-auto" type="checkbox" label=""
-                                                        name="export" />
-                                                </div>
+                                                {{ $schedule->order->deceased_name }}
+                                            </td>
+                                            <td class="text-center">
+                                                {{ $schedule->order->cemetery->name }}
+                                            </td>
+                                            <td class="text-center">
+                                                {{ $schedule->order->grave_number }}
+                                            </td>
+                                            <td class="text-center" style="white-space: pre-line;">
+                                                {{ $schedule->details }}
+                                                @if($schedule->issue)
+                                                    <span class="text-danger">{{ $schedule->issue }}</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

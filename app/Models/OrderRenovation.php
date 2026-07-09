@@ -10,5 +10,8 @@ class OrderRenovation extends Model
     public function order(): BelongsTo{
         return $this->belongsTo(Order::class, "order_id");
     }
-    
+
+    public function user(): BelongsTo{
+        return $this->belongsTo(User::class, "created_by");
+    }
 }

@@ -59,16 +59,13 @@
                     <div class="col-lg-6 col-md-12">
                         <ul class="breadcrumb pl-0 pb-0 ">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Schedule</li>
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Schedule</a></li>
+                            <li class="breadcrumb-item active">Renovation</li>
                         </ul>
-                        <h1 class="mb-1 mt-1">Schedule</h1>
+                        <h1 class="mb-1 mt-1">Renovation</h1>
                         <span>Lorem ipsum dolor sit amet consectetur adipisicing elit.</span>
                     </div>
-                    <div class="col-lg-6 col-md-12 text-md-right">
-                        {{-- <a href="{{route('quote.create')}}" class="btn btn-default hidden-xs ml-2">Create
-                            Orders</a> --}}
-                        {{-- <button class="btn btn-secondary hidden-xs ml-2">New Report</button> --}}
-                    </div>
+                    <div class="col-lg-6 col-md-12 text-md-right"></div>
                 </div>
                 <div class="bh_divider"></div>
             </div>
@@ -79,17 +76,10 @@
         <div class="row clearfix row-deck">
             <form action="{{ route('schedule.index_filtered') }}" method="POST">
                 @csrf
+                <input type="hidden" name="order_type_id" value="3">
                 <div class="col-12">
                     <div class="card top_widget">
                         <div class="body row">
-                            {{-- <div class="col-4">
-                                <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
-                                    :required="true" search="true">
-                                    @foreach ($order_types as $order_type)
-                                        <option value="{{ $order_type->id }}">{{ $order_type->name }}</option>
-                                    @endforeach
-                                </x-select>
-                            </div> --}}
                             <div class="col-6">
                                 <x-select class="z-index show-tick" name="fixing_status" label="Fixing Status"
                                     search="true">
@@ -172,14 +162,12 @@
                             <table class="table table-bordered table-custom spacing5 mb-0">
                                 <thead>
                                     <tr>
-                                        <th colspan="3" class="text-center">Fixed</th>
+                                        <th colspan="2" class="text-center">Fixed</th>
                                         <th class="text-center">Deceased</th>
                                         <th class="text-center">Design</th>
                                         <th class="text-center" style="width:30%;">Description</th>
                                         <th class="text-center">Grave</th>
                                         <th class="text-center">Cemetery</th>
-                                        <th class="text-center">c</th>
-                                        <th class="text-center">b/s</th>
                                         <th class="text-center">Photo Sent</th>
                                         <th class="text-center">Export</th>
                                     </tr>
@@ -198,11 +186,6 @@
                                             <td
                                                 class="text-center fixing{{ $schedule->fixing_status != 0 ? '-' . $schedule->fixing_status : '' }}">
                                                 {{ $schedule->order->invoice_no }}</td>
-                                            <td
-                                                class="text-center fixing{{ $schedule->fixing_status != 0 ? '-' . $schedule->fixing_status : '' }}">
-                                                <span
-                                                    class="badge badge-{{ $schedule->for_fixing == 0 ? 'danger' : 'success' }}">{{ $schedule->for_fixing == 0 ? 'Incomplete' : 'For Fixing' }}</span>
-                                            </td>
 
                                             <td
                                                 class="text-center payment{{ $schedule->payment_status != 0 ? '-' . $schedule->payment_status : '' }}">
@@ -221,16 +204,6 @@
                                                 {{ $schedule->order->grave_number }}</td>
 
                                             <td class="text-center">{{ $schedule->order->cemetery->name }}</td>
-
-                                            <td
-                                                class="text-center {{ $schedule->is_customer_approved ? 'is-approved' : '' }}">
-                                                {{ $schedule->is_customer_approved ? 'x' : '' }}
-                                            </td>
-
-                                            <td
-                                                class="text-center {{ $schedule->is_burial_society_approved ? 'is-approved' : '' }}">
-                                                {{ $schedule->is_burial_society_approved ? 'x' : '' }}
-                                            </td>
 
                                             <td
                                                 class="text-center view{{ $schedule->view_status != 0 ? '-' . $schedule->view_status : '' }}">
