@@ -15,9 +15,14 @@
             animation: cemetery-pulse 0.8s ease-in-out 1;
         }
 
+        .custom-others-input.cemetery-animate {
+            animation: cemetery-pulse 0.8s ease-in-out 1;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             #custom_cemetery_wrapper.cemetery-animate,
-            #custom_burial_society_wrapper.cemetery-animate {
+            #custom_burial_society_wrapper.cemetery-animate,
+            .custom-others-input.cemetery-animate {
                 animation: none;
             }
         }
@@ -410,6 +415,11 @@
                                     @endforeach
                                     <option value="others">Others</option>
                                 </x-select>
+                                <div class="custom-others-input" id="custom_material_wrapper" style="display:none;">
+                                    <input type="text" class="form-control" name="custom_material_name" id="custom_material_name"
+                                        value="{{ old('custom_material_name') }}" placeholder="Enter new material name">
+                                    <label id="custom_material_name-error" class="error" for="custom_material_name" style="display:none;"></label>
+                                </div>
                             </div>
                             <div class="col-4">
                                 @php
@@ -437,6 +447,11 @@
                                     @endforeach
                                     <option value="others">Others</option>
                                 </x-select>
+                                <div class="custom-others-input" id="custom_material_colour_wrapper" style="display:none;">
+                                    <input type="text" class="form-control" name="custom_material_colour_name" id="custom_material_colour_name"
+                                        value="{{ old('custom_material_colour_name') }}" placeholder="Enter new colour name">
+                                    <label id="custom_material_colour_name-error" class="error" for="custom_material_colour_name" style="display:none;"></label>
+                                </div>
                             </div>
                             <div class="col-4">
                                 @php
@@ -469,6 +484,11 @@
                                     @endforeach
                                     <option value="others">Others</option>
                                 </x-select>
+                                <div class="custom-others-input" id="custom_base_ledger_wrapper" style="display:none;">
+                                    <input type="text" class="form-control" name="custom_base_ledger_name" id="custom_base_ledger_name"
+                                        value="{{ old('custom_base_ledger_name') }}" placeholder="Enter new base ledger name">
+                                    <label id="custom_base_ledger_name-error" class="error" for="custom_base_ledger_name" style="display:none;"></label>
+                                </div>
                             </div>
                             <div class="col-4">
                                 @php
@@ -494,6 +514,11 @@
                                     @endforeach
                                     <option value="others">Others</option>
                                 </x-select>
+                                <div class="custom-others-input" id="custom_letter_type_wrapper" style="display:none;">
+                                    <input type="text" class="form-control" name="custom_letter_type_name" id="custom_letter_type_name"
+                                        value="{{ old('custom_letter_type_name') }}" placeholder="Enter new letter type name">
+                                    <label id="custom_letter_type_name-error" class="error" for="custom_letter_type_name" style="display:none;"></label>
+                                </div>
                             </div>
                             <div class="col-4">
                                 @php
@@ -519,6 +544,11 @@
                                     @endforeach
                                     <option value="others">Others</option>
                                 </x-select>
+                                <div class="custom-others-input" id="custom_accessory_wrapper" style="display:none;">
+                                    <input type="text" class="form-control" name="custom_accessory_name" id="custom_accessory_name"
+                                        value="{{ old('custom_accessory_name') }}" placeholder="Enter new accessory name">
+                                    <label id="custom_accessory_name-error" class="error" for="custom_accessory_name" style="display:none;"></label>
+                                </div>
                             </div>
                             <div class="col-4">
                                 @php
@@ -543,6 +573,11 @@
                                     @endforeach
                                     <option value="others">Others</option>
                                 </x-select>
+                                <div class="custom-others-input" id="custom_accessory_colour_wrapper" style="display:none;">
+                                    <input type="text" class="form-control" name="custom_accessory_colour_name" id="custom_accessory_colour_name"
+                                        value="{{ old('custom_accessory_colour_name') }}" placeholder="Enter new colour name">
+                                    <label id="custom_accessory_colour_name-error" class="error" for="custom_accessory_colour_name" style="display:none;"></label>
+                                </div>
                             </div>
 
                             <div class="col-4">

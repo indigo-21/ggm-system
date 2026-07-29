@@ -65,6 +65,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('module', ModuleController::class);
 
     // Masterfile
+    Route::post('masterfile/check-duplicate', function (\Illuminate\Http\Request $request) {
+        return \App\Http\Controllers\Controller::checkMasterfileDuplicate($request);
+    })->name('masterfile.check_duplicate');
     Route::post('cemetery/check-duplicate', [CemeteryController::class, 'checkDuplicate'])->name('cemetery.check_duplicate');
     Route::resource('cemetery', CemeteryController::class);
     Route::post('burial_society_organization/check-duplicate', [BurialSocietyOrganizationController::class, 'checkDuplicate'])->name('burial_society_organization.check_duplicate');

@@ -17949,6 +17949,10 @@ a:hover {
     color: #dc3545;
     font-size: 12px;
 }
+.custom-others-input label.error{
+    color: #dc3545;
+    font-size: 12px;
+}
 .form-control {
     background: var(--card-color);
     border-color: var(--border-color);

@@ -232,6 +232,73 @@ $(function () {
             $("#custom_burial_society_name-error").hide().text("");
         }
 
+        // Validate all masterfile "Others" custom inputs
+        let masterfileFields = [
+            { select: "material",         input: "#custom_material_name",         error: "#custom_material_name-error",         table: "materials",      label: "material" },
+            { select: "material_colour",  input: "#custom_material_colour_name",  error: "#custom_material_colour_name-error",  table: "colours",        label: "material colour" },
+            { select: "base_ledger",      input: "#custom_base_ledger_name",      error: "#custom_base_ledger_name-error",      table: "based_ledgers",  label: "base ledger" },
+            { select: "letter_type",      input: "#custom_letter_type_name",      error: "#custom_letter_type_name-error",      table: "letter_types",   label: "letter type" },
+            { select: "accessory",        input: "#custom_accessory_name",        error: "#custom_accessory_name-error",        table: "accessories",    label: "accessory" },
+            { select: "accessory_colour", input: "#custom_accessory_colour_name", error: "#custom_accessory_colour_name-error", table: "colours",        label: "accessory colour" },
+        ];
+
+        for (let i = 0; i < masterfileFields.length; i++) {
+            let field = masterfileFields[i];
+            if ($(`[name=${field.select}]`).val() === "others") {
+                let customVal = $(field.input).val().trim();
+
+                if (!customVal) {
+                    $(field.error).text(`Please enter a ${field.label} name.`).show();
+                    return;
+                }
+
+                // Client-side duplicate check
+                let mfDuplicate = false;
+                $(`[name=${field.select}] option`).each(function () {
+                    if ($(this).val() && $(this).val() !== "others" && $(this).val() !== "") {
+                        if ($(this).text().trim().toLowerCase() === customVal.toLowerCase()) {
+                            mfDuplicate = true;
+                            return false;
+                        }
+                    }
+                });
+
+                if (mfDuplicate) {
+                    $(field.error).text("This value already exists. Please select it from the list.").show();
+                    return;
+                }
+
+                // Server-side duplicate check
+                $.ajax({
+                    url: `${BASE_URL}/masterfile/check-duplicate`,
+                    type: 'POST',
+                    data: {
+                        name: customVal,
+                        table: field.table,
+                        _token: $('meta[name="csrf-token"]').attr("content")
+                    },
+                    async: false,
+                    success: function (response) {
+                        if (response.exists) {
+                            $(field.error).text("This value already exists. Please select it from the list.").show();
+                            mfDuplicate = true;
+                        }
+                    },
+                    error: function () {
+                        // Let server-side validation handle it
+                    }
+                });
+
+                if (mfDuplicate) {
+                    return;
+                }
+
+                // Normalize value
+                $(field.input).val(customVal);
+                $(field.error).hide().text("");
+            }
+        }
+
         $("#form_validation").submit();
     });
     // let start   = moment().startOf('month')
@@ -422,28 +489,66 @@ $(function () {
 
     });
 
+    // Configuration for fields with "Others" inline custom inputs
+    const othersFieldConfig = {
+        material:          { wrapper: "#custom_material_wrapper",          input: "#custom_material_name",          error: "#custom_material_name-error",          endpoint: "/masterfile/check-duplicate", table: "materials" },
+        material_colour:   { wrapper: "#custom_material_colour_wrapper",   input: "#custom_material_colour_name",   error: "#custom_material_colour_name-error",   endpoint: "/masterfile/check-duplicate", table: "colours" },
+        base_ledger:       { wrapper: "#custom_base_ledger_wrapper",       input: "#custom_base_ledger_name",       error: "#custom_base_ledger_name-error",       endpoint: "/masterfile/check-duplicate", table: "based_ledgers" },
+        letter_type:       { wrapper: "#custom_letter_type_wrapper",       input: "#custom_letter_type_name",       error: "#custom_letter_type_name-error",       endpoint: "/masterfile/check-duplicate", table: "letter_types" },
+        accessory:         { wrapper: "#custom_accessory_wrapper",         input: "#custom_accessory_name",         error: "#custom_accessory_name-error",         endpoint: "/masterfile/check-duplicate", table: "accessories" },
+        accessory_colour:  { wrapper: "#custom_accessory_colour_wrapper",  input: "#custom_accessory_colour_name",  error: "#custom_accessory_colour_name-error",  endpoint: "/masterfile/check-duplicate", table: "colours" },
+    };
+
     $(document).on("change", ".with-others-option", function () {
-        let thiselement = $(this).attr("name");
-        $("[name=for_others_modal]").val("");
-        if ($(this).val() == "others" || $(this).attr("isother")) {
-            let labels = $(this).closest(".form-group").find(`label[for='${thiselement}']`);
-            let description = $(labels[0]).text();
-            $("#forOthersModalLabel").html(`Other ${description}`);
-            $("#forOthersModalBody").find("label[for='for_others_modal']").html(`${description}`);
-            $("[name=for_others_modal]").attr("placeholder", `Enter other ${description}`)
-            $("#otherModalSave").attr("selectfor", thiselement);
-            $("#forOthersModal").modal("show");
+        let fieldName = $(this).attr("name");
+        let config = othersFieldConfig[fieldName];
+
+        if (!config) return; // Not one of our managed fields
+
+        if ($(this).val() === "others") {
+            // Show inline custom input with animation
+            $(config.wrapper).removeClass("cemetery-animate");
+            $(config.wrapper).show();
+            $(config.wrapper)[0].offsetWidth; // Trigger reflow
+            $(config.wrapper).addClass("cemetery-animate");
+            $(config.input).prop("required", true).focus();
+        } else {
+            // Hide and clear
+            $(config.wrapper).hide().removeClass("cemetery-animate");
+            $(config.input).val("").prop("required", false);
+            $(config.error).hide().text("");
         }
     });
 
-    $(document).on("click", "#otherModalSave", function () {
-        let select_element = $(this).attr("selectfor");
-        let value = $("[name=for_others_modal]").val();
-        let html = `<option value="${value}" selected isother="true">${value}</option>`;
-        // $(`[name=${select_element}]`).append(html);
-        $(`[name=${select_element}]`).prepend(html);
-        $(`[name=${select_element}]`).selectpicker('refresh');
+    // Blur duplicate check for all custom "Others" inputs
+    $(document).on("blur", ".custom-others-input input[type=text]", function () {
+        let input = $(this);
+        let customName = input.val().trim();
+        let wrapper = input.closest(".custom-others-input");
+        let errorLabel = wrapper.find("label.error");
+        let selectElement = wrapper.closest(".col-4").find("select");
+        
+        if (!customName) {
+            errorLabel.hide().text("");
+            return;
+        }
 
+        // Client-side check against existing dropdown options
+        let isDuplicate = false;
+        selectElement.find("option").each(function () {
+            if ($(this).val() && $(this).val() !== "others" && $(this).val() !== "") {
+                if ($(this).text().trim().toLowerCase() === customName.toLowerCase()) {
+                    isDuplicate = true;
+                    return false;
+                }
+            }
+        });
+
+        if (isDuplicate) {
+            errorLabel.text("This value already exists. Please select it from the list.").show();
+        } else {
+            errorLabel.hide().text("");
+        }
     });
 
     $(document).on("keyup", ".cost-computation", function () {

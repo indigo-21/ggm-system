@@ -147,13 +147,16 @@ class OrderService
         $data->grave_number_checked = Carbon::parse($request?->grave_no_checked)->format('Y-m-d') ?? null;
         $data->grave_space_id = $request->grave_space_id;
         $data->design_headstone = $request->design_headstone;
-        $data->material = $request->material;
-        $data->material_colour = $request->material_colour;
+
+        // Handle "Others" for masterfile name-based fields
+        $data->material = self::resolveOthersField($request, 'material', 'custom_material_name', 'materials');
+        $data->material_colour = self::resolveOthersField($request, 'material_colour', 'custom_material_colour_name', 'colours');
         $data->size = $request->size;
-        $data->base_ledger = $request->base_ledger;
-        $data->letter_type = $request->letter_type;
-        $data->accessory = $request->accessory;
-        $data->accessory_colour = $request->accessory_colour;
+        $data->base_ledger = self::resolveOthersField($request, 'base_ledger', 'custom_base_ledger_name', 'based_ledgers');
+        $data->letter_type = self::resolveOthersField($request, 'letter_type', 'custom_letter_type_name', 'letter_types');
+        $data->accessory = self::resolveOthersField($request, 'accessory', 'custom_accessory_name', 'accessories');
+        $data->accessory_colour = self::resolveOthersField($request, 'accessory_colour', 'custom_accessory_colour_name', 'colours');
+
         $data->kerb_riser = $request->kerb_riser;
         $data->issue = $request->issue;
         $data->special_instruction = $request->special_instruction;
@@ -283,6 +286,56 @@ class OrderService
 
         return $result ? $data->id : false;              
     }
-    
+
+    /**
+     * Resolve a masterfile "Others" field: if value is 'others', validate + create record + return custom name.
+     * Otherwise return the selected value directly.
+     */
+    private static function resolveOthersField($request, $fieldName, $customFieldName, $table)
+    {
+        $value = $request->input($fieldName);
+
+        if ($value !== 'others') {
+            return $value;
+        }
+
+        $customName = trim($request->input($customFieldName, ''));
+
+        if (empty($customName)) {
+            return null;
+        }
+
+        // Tables that use soft deletes
+        $softDeleteTables = ['materials', 'based_ledgers', 'letter_types', 'accessories'];
+
+        // Check for duplicate (case-insensitive)
+        $query = DB::table($table)->whereRaw('LOWER(TRIM(name)) = ?', [strtolower($customName)]);
+        if (in_array($table, $softDeleteTables)) {
+            $query->whereNull('deleted_at');
+        }
+        $existing = $query->first();
+
+        if ($existing) {
+            // Record already exists — use its name (normalized from DB)
+            return $existing->name;
+        }
+
+        // Create new record
+        $now = now();
+        $insertData = [
+            'name' => $customName,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+
+        // Add created_by for tables that support it
+        if ($table !== 'colours') {
+            $insertData['created_by'] = Auth::id();
+        }
+
+        DB::table($table)->insert($insertData);
+
+        return $customName;
+    }
 
 }
