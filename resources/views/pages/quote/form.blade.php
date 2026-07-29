@@ -1,4 +1,22 @@
 <x-app-layout>
+    <style>
+        @keyframes cemetery-pulse {
+            0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 150, 136, 0.4); }
+            40%  { transform: scale(1.02); box-shadow: 0 0 8px 4px rgba(0, 150, 136, 0.2); }
+            70%  { transform: scale(0.99); box-shadow: 0 0 4px 2px rgba(0, 150, 136, 0.1); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 150, 136, 0); }
+        }
+
+        #custom_cemetery_wrapper.cemetery-animate {
+            animation: cemetery-pulse 0.8s ease-in-out 1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #custom_cemetery_wrapper.cemetery-animate {
+                animation: none;
+            }
+        }
+    </style>
     <x-slot name="header">
         <div class="block-header">
             <div class="container">
@@ -237,7 +255,17 @@
                                             {{ $cemetery->name }}
                                         </option>
                                     @endforeach
+                                    <option value="others" {{ old('cemetery_id') == 'others' ? 'selected' : '' }}>Others</option>
                                 </x-select>
+                            </div>
+
+                            <div class="col-6" id="custom_cemetery_wrapper" style="{{ old('cemetery_id') == 'others' ? '' : 'display:none;' }}">
+                                <div class="form-group form-float">
+                                    <label for="custom_cemetery_name">Custom Cemetery Name</label>
+                                    <input type="text" class="form-control" name="custom_cemetery_name" id="custom_cemetery_name"
+                                        value="{{ old('custom_cemetery_name') }}" placeholder="Enter new cemetery name">
+                                    <label id="custom_cemetery_name-error" class="error" for="custom_cemetery_name" style="display:none;"></label>
+                                </div>
                             </div>
 
                             <div class="col-6 row">

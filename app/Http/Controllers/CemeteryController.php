@@ -111,4 +111,16 @@ class CemeteryController extends Controller
         $data->delete();
         return response()->json(['message' => "$name deleted successfully."]);
     }
+
+    /**
+     * Check if a cemetery name already exists (case-insensitive, trimmed).
+     */
+    public function checkDuplicate(Request $request)
+    {
+        $name = trim($request->input('name', ''));
+
+        $exists = Cemetery::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($name)])->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }

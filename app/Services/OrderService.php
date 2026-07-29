@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\OrderCost;
 use App\Models\OrderNote;
+use App\Models\Cemetery;
 use App\Services\CustomerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,39 @@ class OrderService
             $fixing_date = str_replace(" ", ' 01, ', $request?->fixed_required_by);
         }
 
+        // Handle custom cemetery ("Others" option)
+        $cemetery_id = $request->cemetery_id;
+        if ($cemetery_id === 'others') {
+            $custom_cemetery_name = trim($request->custom_cemetery_name ?? '');
+
+            if (empty($custom_cemetery_name)) {
+                return [
+                    "success" => false,
+                    "message" => "Please enter a cemetery name when selecting 'Others'.",
+                    "order_id" => $id
+                ];
+            }
+
+            // Case-insensitive duplicate check
+            $existing = Cemetery::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($custom_cemetery_name)])->first();
+
+            if ($existing) {
+                return [
+                    "success" => false,
+                    "message" => "This cemetery already exists. Please select it from the list.",
+                    "order_id" => $id
+                ];
+            }
+
+            // Create the new cemetery
+            $new_cemetery = new Cemetery();
+            $new_cemetery->name = $custom_cemetery_name;
+            $new_cemetery->created_by = Auth::id();
+            $new_cemetery->save();
+
+            $cemetery_id = $new_cemetery->id;
+        }
+
 
         $data = !$id ? new Order() : Order::findOrFail($id);
 
@@ -50,7 +84,7 @@ class OrderService
         $data->deceased_name = $request->deceased_name;
         $data->consecration_date = $request->consecration_date ? Carbon::parse($request->consecration_date)->format('Y-m-d') : null;
         
-        $data->cemetery_id = $request->cemetery_id;
+        $data->cemetery_id = $cemetery_id;
 
         if(isset($request->fixed_date)){
             switch ($request->fixed_date) {

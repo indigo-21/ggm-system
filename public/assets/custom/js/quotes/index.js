@@ -124,6 +124,60 @@ $(function () {
         CKEDITOR.instances.special_instruction.updateElement();
         CKEDITOR.instances.customer_note.updateElement();
 
+        // Custom cemetery validation
+        if ($("[name=cemetery_id]").val() === "others") {
+            let customName = $("#custom_cemetery_name").val().trim();
+
+            if (!customName) {
+                $("#custom_cemetery_name-error").text("Please enter a cemetery name.").show();
+                return;
+            }
+
+            // Client-side duplicate check against existing options
+            let isDuplicate = false;
+            $("[name=cemetery_id] option").each(function () {
+                if ($(this).val() && $(this).val() !== "others" && $(this).val() !== "") {
+                    if ($(this).text().trim().toLowerCase() === customName.toLowerCase()) {
+                        isDuplicate = true;
+                        return false;
+                    }
+                }
+            });
+
+            if (isDuplicate) {
+                $("#custom_cemetery_name-error").text("This cemetery already exists. Please select it from the list.").show();
+                return;
+            }
+
+            // Server-side duplicate check via AJAX
+            $.ajax({
+                url: `${BASE_URL}/cemetery/check-duplicate`,
+                type: 'POST',
+                data: {
+                    name: customName,
+                    _token: $('meta[name="csrf-token"]').attr("content")
+                },
+                async: false,
+                success: function (response) {
+                    if (response.exists) {
+                        $("#custom_cemetery_name-error").text("This cemetery already exists. Please select it from the list.").show();
+                        isDuplicate = true;
+                    }
+                },
+                error: function () {
+                    // If check fails, let server-side validation handle it
+                }
+            });
+
+            if (isDuplicate) {
+                return;
+            }
+
+            // Normalize the value (trim whitespace)
+            $("#custom_cemetery_name").val(customName);
+            $("#custom_cemetery_name-error").hide().text("");
+        }
+
         $("#form_validation").submit();
     });
     // let start   = moment().startOf('month')
@@ -162,12 +216,56 @@ $(function () {
     $(document).on("change", "[name=cemetery_id]", function () {
         let cemetery_id = $(this).val();
         let child_select = "[name=burial_society_organization_id]";
+
+        // Handle custom cemetery input visibility
+        if (cemetery_id === "others") {
+            // Reset animation so it can re-trigger
+            $("#custom_cemetery_wrapper").removeClass("cemetery-animate");
+            $("#custom_cemetery_wrapper").show();
+            // Trigger reflow to restart animation
+            $("#custom_cemetery_wrapper")[0].offsetWidth;
+            $("#custom_cemetery_wrapper").addClass("cemetery-animate");
+            $("#custom_cemetery_name").prop("required", true).focus();
+        } else {
+            $("#custom_cemetery_wrapper").hide().removeClass("cemetery-animate");
+            $("#custom_cemetery_name").val("").prop("required", false);
+            $("#custom_cemetery_name-error").hide().text("");
+        }
+
+        // Filter burial society organizations by cemetery
         $(`${child_select}`).prop('disabled', true);
         $(`${child_select}`).selectpicker('destroy');
         $(`${child_select} option`).addClass("d-none");
-        $(`${child_select} .cemetery_${cemetery_id}`).removeClass("d-none");
+        if (cemetery_id !== "others") {
+            $(`${child_select} .cemetery_${cemetery_id}`).removeClass("d-none");
+        }
         $(`${child_select}`).prop('disabled', false);
         $(`${child_select}`).selectpicker('refresh');
+    });
+
+    // Client-side duplicate check on blur for immediate feedback
+    $(document).on("blur", "#custom_cemetery_name", function () {
+        let customName = $(this).val().trim();
+        if (!customName) {
+            $("#custom_cemetery_name-error").hide().text("");
+            return;
+        }
+
+        let isDuplicate = false;
+        $("[name=cemetery_id] option").each(function () {
+            if ($(this).val() && $(this).val() !== "others" && $(this).val() !== "") {
+                if ($(this).text().trim().toLowerCase() === customName.toLowerCase()) {
+                    isDuplicate = true;
+                    return false;
+                }
+            }
+        });
+
+        if (isDuplicate) {
+            $("#custom_cemetery_name-error").text("This cemetery already exists. Please select it from the list.").show();
+        } else {
+            $("#custom_cemetery_name-error").hide().text("");
+        }
     });
 
     $(document).on("click", ".required-by-radio", function () {
