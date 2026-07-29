@@ -270,7 +270,7 @@ $(function () {
     $(document).on("change", "[name=cemetery_id]", function () {
         let cemetery_id = $(this).val();
         let child_select = "[name=burial_society_organization_id]";
-        $(`${child_select}`).val('');
+        $(`${child_select}`).val('');   
 
         // Handle custom cemetery input visibility
         if (cemetery_id === "others") {
