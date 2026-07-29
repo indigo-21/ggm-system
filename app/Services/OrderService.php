@@ -83,28 +83,51 @@ class OrderService
         $data->customer_id = $customer_id;
         $data->date_of_death = $date_of_death ? Carbon::parse($date_of_death)->format('Y-m-d h:i:s') : null;
         $data->deceased_name = $request->deceased_name;
-        $data->consecration_date = $request->consecration_date ? Carbon::parse($request->consecration_date)->format('Y-m-d') : null;
-        
-        $data->cemetery_id = $cemetery_id;
 
-        if(isset($request->fixed_date)){
-            switch ($request->fixed_date) {
-                case 'is_tba':
-                    $data->is_tba = 1;
-                    break;
-                case 'is_approx':
-                    $data->is_approx = 1;
-                    break;
-                
-                default:
-                    $data->is_asap = 1;
-                    break;
+        // Handle No Consecration workflow
+        $no_consecration = $request->has('no_consecration') && $request->no_consecration;
+
+        if ($no_consecration) {
+            // Clear consecration date when No Consecration is checked
+            $data->consecration_date = null;
+
+            // Reset all flags first
+            $data->is_tba = 0;
+            $data->is_approx = 0;
+            $data->is_asap = 0;
+
+            if (isset($request->fixed_date)) {
+                switch ($request->fixed_date) {
+                    case 'is_tba':
+                        $data->is_tba = 1;
+                        break;
+                    case 'is_approx':
+                        $data->is_approx = 1;
+                        break;
+                    default:
+                        $data->is_asap = 1;
+                        break;
+                }
             }
+
+            // Only store fixing_date when Approx is selected
+            if ($request->fixed_date === 'is_approx' && $fixing_date != null) {
+                $data->fixing_date = Carbon::parse($fixing_date)->format('Y-m-d');
+            } else {
+                $data->fixing_date = null;
+            }
+        } else {
+            // Normal consecration workflow
+            $data->consecration_date = $request->consecration_date ? Carbon::parse($request->consecration_date)->format('Y-m-d') : null;
+
+            // Clear radio-related fields
+            $data->is_tba = 0;
+            $data->is_approx = 0;
+            $data->is_asap = 0;
+            $data->fixing_date = null;
         }
 
-        // $data->fixing_date = Carbon::parse($request?->fixed_required_by)->format('Y-m-d') ?? null;
-        $data->fixing_date = Carbon::parse($fixing_date)->format('Y-m-d') ?? null;
-       
+        $data->cemetery_id = $cemetery_id;
 
 
         // Handle custom burial society organization ("Others" option)

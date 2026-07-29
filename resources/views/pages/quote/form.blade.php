@@ -241,15 +241,70 @@
 
                             <div class="col-6">
                                 @php
+                                    $no_consecration = isset($quote)
+                                        ? ($quote->is_tba || $quote->is_approx || $quote->is_asap)
+                                        : (old('no_consecration') ? true : false);
                                     $consecration_date = isset($quote)
                                         ? ($quote->consecration_date
                                             ? date('F d, Y', strtotime($quote->consecration_date))
                                             : '')
                                         : old('consecration_date');
                                 @endphp
-                                <x-input type="text" name="consecration_date" value="{{ $consecration_date }}"
-                                    class="daterange clear-daterange" label="Consecration / Required By" />
+
+                                {{-- No Consecration Checkbox --}}
+                                <div class="form-group">
+                                    <div class="checkbox">
+                                        <input id="no_consecration" name="no_consecration" type="checkbox" value="1"
+                                            class="input-checkbox" {{ $no_consecration ? 'checked' : '' }}>
+                                        <label for="no_consecration" class="ml-2">No Consecration</label>
+                                    </div>
+                                </div>
+
+                                {{-- Consecration / Required By (visible when No Consecration is unchecked) --}}
+                                <div id="consecration_date_wrapper" style="{{ $no_consecration ? 'display:none;' : '' }}">
+                                    <x-input type="text" name="consecration_date" value="{{ $consecration_date }}"
+                                        class="daterange clear-daterange" label="Consecration / Required By" />
+                                </div>
+
+                                {{-- TBA / Approx / ASAP radio group (visible when No Consecration is checked) --}}
+                                <div id="no_consecration_options" style="{{ $no_consecration ? '' : 'display:none;' }}">
+                                    @php
+                                        $is_tba = isset($quote) ? $quote->is_tba : old('fixed_date') == 'is_tba';
+                                        $is_approx = isset($quote) ? $quote->is_approx : old('fixed_date') == 'is_approx';
+                                        $is_asap = isset($quote) ? $quote->is_asap : old('fixed_date') == 'is_asap';
+                                    @endphp
+                                    <label>Select an option:</label>
+                                    <div class="mb-2">
+                                        <x-input type="radio" name="fixed_date" id="is_tba"
+                                            checked="{{ $is_tba }}" value="is_tba" class="with-gap mr-2"
+                                            label="To be Advised" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <x-input type="radio" name="fixed_date" id="is_approx"
+                                            checked="{{ $is_approx }}" value="is_approx" class="with-gap mr-2"
+                                            label="Approximate" />
+                                    </div>
+                                    <div class="mb-2">
+                                        <x-input type="radio" name="fixed_date" id="is_asap"
+                                            checked="{{ $is_asap }}" value="is_asap" class="with-gap mr-2"
+                                            label="ASAP" />
+                                    </div>
+
+                                    {{-- Approximate Date input (visible only when Approx is selected) --}}
+                                    <div id="fixed_required_by_wrapper" style="{{ $is_approx ? '' : 'display:none;' }}">
+                                        @php
+                                            $fixing_date = isset($quote)
+                                                ? ($quote->fixing_date
+                                                    ? date('F Y', strtotime($quote->fixing_date))
+                                                    : '')
+                                                : old('fixed_required_by', '');
+                                        @endphp
+                                        <x-input type="text" name="fixed_required_by" value="{{ $fixing_date }}"
+                                            class="month-year" label="Approximate Date" />
+                                    </div>
+                                </div>
                             </div>
+                            <div class="col-6"></div>
 
                             <div class="col-6">
                                 @php
@@ -278,43 +333,6 @@
                                 </div>
                             </div>
 
-                            <div class="col-6 row">
-                                <div class="col-6">
-                                    @php
-                                        $is_tba = isset($quote) ? $quote->is_tba : old('fixed_date') == 1;
-                                        $is_approx = isset($quote) ? $quote->is_approx : old('fixed_date') == 2;
-                                        $is_asap = isset($quote) ? $quote->is_asap : old('fixed_date') == 3;
-                                    @endphp
-                                    <div class="col-12">
-                                        <x-input type="radio" name="fixed_date" id="is_tba"
-                                            checked="{{ $is_tba }}" value="is_tba" class="with-gap mr-2"
-                                            label="To be Advised" />
-                                    </div>
-                                    <div class="col-12">
-                                        <x-input type="radio" name="fixed_date" id="is_approx"
-                                            checked="{{ $is_approx }}" value="is_approx" class="with-gap mr-2"
-                                            label="Approximate" />
-                                    </div>
-                                    <div class="col-12">
-                                        <x-input type="radio" name="fixed_date" id="is_asap"
-                                            checked="{{ $is_asap }}" value="is_asap" class="with-gap mr-2"
-                                            label="ASAP" />
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="col-12">
-                                        @php
-                                            $fixing_date = isset($quote)
-                                                ? ($quote->fixing_date
-                                                    ? date('F Y', strtotime($quote->fixing_date))
-                                                    : '')
-                                                : '';
-                                        @endphp
-                                        <x-input type="text" name="fixed_required_by" value="{{ $fixing_date }}"
-                                            class="month-year" label="Required By" />
-                                    </div>
-                                </div>
-                            </div>
 
                             <div class="col-6">
                                 @php
@@ -624,7 +642,7 @@
                                                 : '0.00';
                                         @endphp
                                         <x-input type="text" class="text-right cost-computation for-total-amount"
-                                            name="cost_amount" value="{{ $old_cost_amount }}"
+                                            name="cost_amount" value="{{ $old_cost_amount }}" 
                                             label="Price Amount" />
                                     </div>
                                 </div>
@@ -733,7 +751,7 @@
                                     <div class="col-5">
                                         <x-input type="text" class="text-right cost-computation"
                                             name="discount_amount"
-                                            value="{{ $order_cost?->discount_amount ?? '0.00' }}" label="Amount" />
+                                            value="{{ $order_cost?->discount_amount ?? '0.00' }}" label="Amount"  />
                                     </div>
                                 </div>
 
@@ -806,7 +824,7 @@
                                                 : '';
                                         @endphp
                                         <x-input type="text" name="deposit_description"
-                                            value="{{ $deposit_description ?? '' }}" label="Deposit" />
+                                            value="{{ $deposit_description ?? '' }}" label="Deposit" readonly="true" />
                                     </div>
                                     <div class="col-5">
                                         @php
@@ -815,7 +833,7 @@
                                                 : '0.00';
                                         @endphp
                                         <x-input type="text" class="text-right cost-computation"
-                                            name="deposit_amount" value="{{ $deposit_amount }}" label="Amount" />
+                                            name="deposit_amount" value="{{ $deposit_amount }}" label="Amount" readonly="true" />
                                     </div>
                                 </div>
 

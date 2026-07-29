@@ -7,6 +7,30 @@ $(function () {
         ]
     });
 
+    // Initialize No Consecration state on page load
+    (function initNoConsecration() {
+        let isChecked = $("#no_consecration").is(":checked");
+        if (isChecked) {
+            $("#consecration_date_wrapper").hide();
+            $("[name=consecration_date]").prop("disabled", true);
+            $("#no_consecration_options").show();
+            // Check if Approx is selected
+            if ($("#is_approx").is(":checked")) {
+                $("#fixed_required_by_wrapper").show();
+                $("[name=fixed_required_by]").prop("disabled", false).prop("required", true);
+            } else {
+                $("#fixed_required_by_wrapper").hide();
+                $("[name=fixed_required_by]").prop("disabled", true).prop("required", false);
+            }
+        } else {
+            $("#consecration_date_wrapper").show();
+            $("[name=consecration_date]").prop("disabled", false);
+            $("#no_consecration_options").hide();
+            $("#fixed_required_by_wrapper").hide();
+            $("[name=fixed_required_by]").prop("disabled", true).prop("required", false);
+        }
+    })();
+
     $('#form_validation').validate({
         rules: {
             'checkbox': {
@@ -442,6 +466,43 @@ $(function () {
     $(document).on("click", ".required-by-radio", function () {
         if ($(this).prop("checked")) {
             $(this).prop("checked", false);
+        }
+    });
+
+    // No Consecration checkbox toggle
+    $(document).on("change", "#no_consecration", function () {
+        if ($(this).is(":checked")) {
+            // Hide consecration date field and clear it
+            $("#consecration_date_wrapper").hide();
+            $("[name=consecration_date]").val("").prop("disabled", true);
+            // Show the radio group
+            $("#no_consecration_options").show();
+            // Hide fixed_required_by by default (only shown when Approx selected)
+            $("#fixed_required_by_wrapper").hide();
+            $("[name=fixed_required_by]").val("").prop("disabled", true).prop("required", false);
+        } else {
+            // Show consecration date field
+            $("#consecration_date_wrapper").show();
+            $("[name=consecration_date]").prop("disabled", false);
+            // Hide the radio group and clear selections
+            $("#no_consecration_options").hide();
+            $("[name=fixed_date]").prop("checked", false);
+            // Hide and clear fixed_required_by
+            $("#fixed_required_by_wrapper").hide();
+            $("[name=fixed_required_by]").val("").prop("disabled", true).prop("required", false);
+        }
+    });
+
+    // Fixed date radio button change (TBA/Approx/ASAP)
+    $(document).on("change", "[name=fixed_date]", function () {
+        if ($(this).val() === "is_approx") {
+            // Show and enable the approximate date input
+            $("#fixed_required_by_wrapper").show();
+            $("[name=fixed_required_by]").prop("disabled", false).prop("required", true);
+        } else {
+            // Hide, disable, and clear the approximate date input
+            $("#fixed_required_by_wrapper").hide();
+            $("[name=fixed_required_by]").val("").prop("disabled", true).prop("required", false);
         }
     });
 
