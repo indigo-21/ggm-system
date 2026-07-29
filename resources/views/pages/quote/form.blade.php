@@ -11,8 +11,13 @@
             animation: cemetery-pulse 0.8s ease-in-out 1;
         }
 
+        #custom_burial_society_wrapper.cemetery-animate {
+            animation: cemetery-pulse 0.8s ease-in-out 1;
+        }
+
         @media (prefers-reduced-motion: reduce) {
-            #custom_cemetery_wrapper.cemetery-animate {
+            #custom_cemetery_wrapper.cemetery-animate,
+            #custom_burial_society_wrapper.cemetery-animate {
                 animation: none;
             }
         }
@@ -326,7 +331,18 @@
                                             {{ $burial_society_organization->name }}
                                         </option>
                                     @endforeach
+                                    <option value="others" class="cemetery_others d-none"
+                                        {{ old('burial_society_organization_id') == 'others' ? 'selected' : '' }}>Others</option>
                                 </x-select>
+                            </div>
+
+                            <div class="col-6" id="custom_burial_society_wrapper" style="{{ old('burial_society_organization_id') == 'others' ? '' : 'display:none;' }}">
+                                <div class="form-group form-float">
+                                    <label for="custom_burial_society_name">Custom Burial Society Organization Name</label>
+                                    <input type="text" class="form-control" name="custom_burial_society_name" id="custom_burial_society_name"
+                                        value="{{ old('custom_burial_society_name') }}" placeholder="Enter new burial society organization name">
+                                    <label id="custom_burial_society_name-error" class="error" for="custom_burial_society_name" style="display:none;"></label>
+                                </div>
                             </div>
 
                             <div class="col-4">

@@ -178,6 +178,60 @@ $(function () {
             $("#custom_cemetery_name-error").hide().text("");
         }
 
+        // Custom burial society organization validation
+        if ($("[name=burial_society_organization_id]").val() === "others") {
+            let customBsName = $("#custom_burial_society_name").val().trim();
+
+            if (!customBsName) {
+                $("#custom_burial_society_name-error").text("Please enter a burial society organization name.").show();
+                return;
+            }
+
+            // Client-side duplicate check against existing options
+            let isBsDuplicate = false;
+            $("[name=burial_society_organization_id] option").each(function () {
+                if ($(this).val() && $(this).val() !== "others" && $(this).val() !== "") {
+                    if ($(this).text().trim().toLowerCase() === customBsName.toLowerCase()) {
+                        isBsDuplicate = true;
+                        return false;
+                    }
+                }
+            });
+
+            if (isBsDuplicate) {
+                $("#custom_burial_society_name-error").text("This burial society organization already exists. Please select it from the list.").show();
+                return;
+            }
+
+            // Server-side duplicate check via AJAX
+            $.ajax({
+                url: `${BASE_URL}/burial_society_organization/check-duplicate`,
+                type: 'POST',
+                data: {
+                    name: customBsName,
+                    _token: $('meta[name="csrf-token"]').attr("content")
+                },
+                async: false,
+                success: function (response) {
+                    if (response.exists) {
+                        $("#custom_burial_society_name-error").text("This burial society organization already exists. Please select it from the list.").show();
+                        isBsDuplicate = true;
+                    }
+                },
+                error: function () {
+                    // If check fails, let server-side validation handle it
+                }
+            });
+
+            if (isBsDuplicate) {
+                return;
+            }
+
+            // Normalize the value (trim whitespace)
+            $("#custom_burial_society_name").val(customBsName);
+            $("#custom_burial_society_name-error").hide().text("");
+        }
+
         $("#form_validation").submit();
     });
     // let start   = moment().startOf('month')
@@ -216,6 +270,7 @@ $(function () {
     $(document).on("change", "[name=cemetery_id]", function () {
         let cemetery_id = $(this).val();
         let child_select = "[name=burial_society_organization_id]";
+        $(`${child_select}`).val('');
 
         // Handle custom cemetery input visibility
         if (cemetery_id === "others") {
@@ -236,11 +291,35 @@ $(function () {
         $(`${child_select}`).prop('disabled', true);
         $(`${child_select}`).selectpicker('destroy');
         $(`${child_select} option`).addClass("d-none");
-        if (cemetery_id !== "others") {
+        if (cemetery_id === "others") {
+            // Show only the "Others" option for burial society when cemetery is "Others"
+            $(`${child_select} option[value="others"]`).removeClass("d-none");
+            $(`${child_select}`).val("others");
+        } else {
             $(`${child_select} .cemetery_${cemetery_id}`).removeClass("d-none");
+            // Also show the "Others" option for predefined cemeteries
+            $(`${child_select} option[value="others"]`).removeClass("d-none").addClass(`cemetery_${cemetery_id}`);
         }
         $(`${child_select}`).prop('disabled', false);
         $(`${child_select}`).selectpicker('refresh');
+
+        // Handle custom burial society visibility based on burial society selection
+        if (cemetery_id === "others") {
+            // Auto-show custom burial society input since "Others" is auto-selected
+            showCustomBurialSociety();
+        } else {
+            // Hide custom burial society input when switching to predefined cemetery
+            hideCustomBurialSociety();
+        }
+    });
+
+    // Handle burial society organization change
+    $(document).on("change", "[name=burial_society_organization_id]", function () {
+        if ($(this).val() === "others") {
+            showCustomBurialSociety();
+        } else {
+            hideCustomBurialSociety();
+        }
     });
 
     // Client-side duplicate check on blur for immediate feedback
@@ -265,6 +344,31 @@ $(function () {
             $("#custom_cemetery_name-error").text("This cemetery already exists. Please select it from the list.").show();
         } else {
             $("#custom_cemetery_name-error").hide().text("");
+        }
+    });
+
+    // Client-side duplicate check on blur for custom burial society
+    $(document).on("blur", "#custom_burial_society_name", function () {
+        let customName = $(this).val().trim();
+        if (!customName) {
+            $("#custom_burial_society_name-error").hide().text("");
+            return;
+        }
+
+        let isDuplicate = false;
+        $("[name=burial_society_organization_id] option").each(function () {
+            if ($(this).val() && $(this).val() !== "others" && $(this).val() !== "") {
+                if ($(this).text().trim().toLowerCase() === customName.toLowerCase()) {
+                    isDuplicate = true;
+                    return false;
+                }
+            }
+        });
+
+        if (isDuplicate) {
+            $("#custom_burial_society_name-error").text("This burial society organization already exists. Please select it from the list.").show();
+        } else {
+            $("#custom_burial_society_name-error").hide().text("");
         }
     });
 
@@ -740,3 +844,18 @@ function updateCostAdditionalSectionElement() {
         element.find("input").attr("name", `price_amount[${index}]`).attr("id", `price_amount[${index}]`);
     });
 };
+
+function showCustomBurialSociety() {
+    $("#custom_burial_society_wrapper").removeClass("cemetery-animate");
+    $("#custom_burial_society_wrapper").show();
+    // Trigger reflow to restart animation
+    $("#custom_burial_society_wrapper")[0].offsetWidth;
+    $("#custom_burial_society_wrapper").addClass("cemetery-animate");
+    $("#custom_burial_society_name").prop("required", true).focus();
+}
+
+function hideCustomBurialSociety() {
+    $("#custom_burial_society_wrapper").hide().removeClass("cemetery-animate");
+    $("#custom_burial_society_name").val("").prop("required", false);
+    $("#custom_burial_society_name-error").hide().text("");
+}

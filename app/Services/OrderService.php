@@ -5,6 +5,7 @@ use App\Models\Order;
 use App\Models\OrderCost;
 use App\Models\OrderNote;
 use App\Models\Cemetery;
+use App\Models\BurialSocietyOrganization;
 use App\Services\CustomerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -106,7 +107,42 @@ class OrderService
        
 
 
-        $data->burial_society_organization_id = $request->burial_society_organization_id;
+        // Handle custom burial society organization ("Others" option)
+        $burial_society_organization_id = $request->burial_society_organization_id;
+        if ($burial_society_organization_id === 'others') {
+            $custom_bs_name = trim($request->custom_burial_society_name ?? '');
+
+            if (empty($custom_bs_name)) {
+                return [
+                    "success" => false,
+                    "message" => "Please enter a burial society organization name when selecting 'Others'.",
+                    "order_id" => $id
+                ];
+            }
+
+            // Case-insensitive duplicate check
+            $existing_bs = BurialSocietyOrganization::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($custom_bs_name)])->first();
+
+            if ($existing_bs) {
+                return [
+                    "success" => false,
+                    "message" => "This burial society organization already exists. Please select it from the list.",
+                    "order_id" => $id
+                ];
+            }
+
+            // Create the new burial society organization associated with the cemetery
+            $new_bs = new BurialSocietyOrganization();
+            $new_bs->name = $custom_bs_name;
+            $new_bs->cemetery_id = $cemetery_id;
+            $new_bs->created_by = Auth::id();
+            $new_bs->save();
+
+            $burial_society_organization_id = $new_bs->id;
+        }
+
+
+        $data->burial_society_organization_id = $burial_society_organization_id;
         $data->grave_number = $request->grave_no;
         $data->grave_number_checked = Carbon::parse($request?->grave_no_checked)->format('Y-m-d') ?? null;
         $data->grave_space_id = $request->grave_space_id;

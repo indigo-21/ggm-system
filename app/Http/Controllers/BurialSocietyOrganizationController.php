@@ -110,4 +110,16 @@ class BurialSocietyOrganizationController extends Controller
         $data->delete();
         return response()->json(['message' => "$name deleted successfully."]);
     }
+
+    /**
+     * Check if a burial society organization name already exists (case-insensitive, trimmed).
+     */
+    public function checkDuplicate(Request $request)
+    {
+        $name = trim($request->input('name', ''));
+
+        $exists = BurialSocietyOrganization::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($name)])->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }
