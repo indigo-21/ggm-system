@@ -34,7 +34,7 @@
                                 <input type="hidden" name="is_order" value="1">
                                 <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
                                     search="true">
-                                    <option value="" disabled selected>-All-</option>
+                                    <option value="" selected>-All-</option>
                                     @foreach ($order_types as $order_type)
                                         <option value="{{ $order_type->id }}"
                                             {{ isset($filterInput) ? ($filterInput['orderTypeId'] == $order_type->id ? 'selected' : '') : '' }}>

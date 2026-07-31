@@ -342,9 +342,12 @@
                                 @endphp
                                 <x-select class="z-index show-tick" name="burial_society_organization_id"
                                     label="Burial Society Organization">
-                                    <option value="" disabled
+                                    {{-- <option value="" disabled
                                         {{ $old_burial_society_organization == '' ? 'selected' : '' }}>-Select Burial
                                         Society Organization-
+                                    </option> --}}
+                                    <option value=""
+                                        {{ $old_burial_society_organization == '' ? 'selected' : '' }}>-N/A-
                                     </option>
                                     @foreach ($burial_society_organizations as $burial_society_organization)
                                         <option

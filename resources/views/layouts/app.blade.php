@@ -58,6 +58,43 @@
                 outline: none;
                 border-color: #22c55e;
             }
+
+            /* Bootstrap Select: Force dropdown below trigger, constrain height */
+            .bootstrap-select .dropdown-menu {
+                top: 100% !important;
+                bottom: auto !important;
+                transform: none !important;
+                max-height: 280px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                will-change: auto;
+            }
+
+            .bootstrap-select.dropup .dropdown-menu {
+                top: 100% !important;
+                bottom: auto !important;
+            }
+
+            .bootstrap-select .dropdown-menu .inner {
+                max-height: 240px;
+                overflow-y: auto;
+            }
+
+            /* Prevent clipping by overflow:hidden containers */
+            .bootstrap-select {
+                position: relative;
+            }
+
+            .bootstrap-select .dropdown-menu {
+                z-index: 1060;
+            }
+
+            /* Focus indicator for keyboard navigation */
+            .bootstrap-select .dropdown-menu li.active a,
+            .bootstrap-select .dropdown-menu li a:focus {
+                outline: 2px solid rgba(0, 150, 136, 0.5);
+                outline-offset: -2px;
+            }
         </style>
 
         {{ $customStyle ?? "" }}
@@ -149,6 +186,14 @@
             <!-- Jquery Core Js --> 
             <script src="{{asset('assets/bundles/libscripts.bundle.js')}}"></script> <!-- Lib Scripts Plugin Js --> 
             <script src="{{asset('assets/bundles/vendorscripts.bundle.js')}}"></script> <!-- Lib Scripts Plugin Js --> 
+            <!-- Bootstrap Select: Force dropdown below, disable auto-flip -->
+            <script>
+                if ($.fn.selectpicker) {
+                    $.fn.selectpicker.defaults = $.extend($.fn.selectpicker.defaults || {}, {
+                        dropupAuto: false
+                    });
+                }
+            </script>
             <!-- Multi Select Plugin Js --> 
             <script src="{{asset('assets/plugins/multi-select/js/jquery.multi-select.js')}}"></script> 
             <!-- Jquery DataTable Plugin Js --> 

@@ -384,8 +384,8 @@ $(function () {
         $(`${child_select} option`).addClass("d-none");
         if (cemetery_id === "others") {
             // Show only the "Others" option for burial society when cemetery is "Others"
-            $(`${child_select} option[value="others"]`).removeClass("d-none");
-            $(`${child_select}`).val("others");
+            // $(`${child_select} option[value="others"]`).removeClass("d-none");
+            // $(`${child_select}`).val("others");
         } else {
             $(`${child_select} .cemetery_${cemetery_id}`).removeClass("d-none");
             // Also show the "Others" option for predefined cemeteries
@@ -394,10 +394,16 @@ $(function () {
         $(`${child_select}`).prop('disabled', false);
         $(`${child_select}`).selectpicker('refresh');
 
+        // Select the first option (placeholder) after filtering
+        $(`${child_select}`).val('');
+        $(`${child_select}`).selectpicker('refresh');
+
         // Handle custom burial society visibility based on burial society selection
         if (cemetery_id === "others") {
             // Auto-show custom burial society input since "Others" is auto-selected
-            showCustomBurialSociety();
+            // $(`${child_select}`).val("others");
+            // $(`${child_select}`).selectpicker('refresh');
+            // showCustomBurialSociety();
         } else {
             // Hide custom burial society input when switching to predefined cemetery
             hideCustomBurialSociety();
