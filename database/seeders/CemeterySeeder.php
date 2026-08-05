@@ -109,11 +109,6 @@ class CemeterySeeder extends Seeder
                 'name'          => 'Willesden United',
                 'created_by'    => '1'
 
-            ],
-            [
-                'name'          => 'Others',
-                'created_by'    => '1'
-
             ]
 
             
