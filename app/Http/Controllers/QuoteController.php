@@ -84,7 +84,8 @@ class QuoteController extends Controller
                     ->where("contact_type", 3)
                     ->pluck('contact_value')
                     ->toArray();
-                $order_cost     = OrderCost::find($id);
+                // $order_cost     = OrderCost::find($id);
+                $order_cost     = OrderCost::where("order_id", $id)->first();
                 $order_payments = OrderPayment::where("order_id", $id)->get();
                 $total_deposit = $order_payments->sum('amount');
                 $order_inscription = OrderInscription::where("order_id", $id)->first();
@@ -212,7 +213,7 @@ class QuoteController extends Controller
      */
     public function store(Request $request, OrderService $order_service)
     {
-
+        
         $result = $order_service->order_upsert($request);
         if (!$result["success"]) {
             return redirect()->back()->with('error', $result["message"]);

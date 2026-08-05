@@ -21,6 +21,7 @@ class OrderService
     {}
 
     public function order_upsert($request, $id = false){
+
         // $customer_id = $request->customer_id;
         $date_of_death = $request->date_of_death;
         $grave_number_checked = $request->grave_no_checked;
@@ -191,10 +192,12 @@ class OrderService
         $result = $data->save();
         
         if($result){
+            
             $order_id = $data->id;
             $request["order_id"] = $order_id;
             $result_cost  = self::order_cost_upsert($request, $order_id);
             $result_note  = self::order_note_upsert($request, $order_id);
+            
             $message = $id ? "Order No. $id has been successfully updated" : "New order successfully created.";
             if(!$result_cost) $message = "Detect issues in the Order Cost request";
             if(!$result_note) $message = "Detect issues in the Order Note request";
@@ -207,13 +210,16 @@ class OrderService
         ];
     }
     
-    public function order_cost_upsert($request, $id = false){
+    public function order_cost_upsert($request, $order_id = false){
+        
+        $orderCost = OrderCost::where("order_id", $order_id)->first();
+
         $cost_additional_description = $request->price_description;
         $cost_additional_amount = $request->price_amount;
-
-        $data = !$id ? new OrderCost() : OrderCost::findOrFail($id);
-
-        $data->order_id = $request->order_id;
+        
+        $data = $orderCost ?? new OrderCost();
+        
+        $data->order_id = $order_id;
         $data->description = $request->cost_description;
         $data->amount = str_replace(',', '', $request->cost_amount);
         $data->letter_count = $request->letters_no;
@@ -239,7 +245,7 @@ class OrderService
         $data->gross_amount = str_replace(',', '', $request->gross_amount);
         $data->is_cost_analysis_print = $request->is_cost_analysis_print;
         $data->is_cost_analysis_trade = $request->is_cost_analysis_trade;
-
+                        
         $result = $data->save();
 
         if($result && count($cost_additional_description)){
@@ -275,8 +281,12 @@ class OrderService
         return $result ? $data->id : false;
     }
 
-    public function order_note_upsert($request, $id = false){
-        $data = !$id ? new OrderNote() : OrderNote::findOrFail($id);
+    public function order_note_upsert($request, $order_id = false){
+        
+        $orderNote = OrderNote::where("order_id", $order_id)->first();
+
+        // $data = !$id ? new OrderNote() : OrderNote::findOrFail($id);
+        $data = $orderNote ?? new OrderNote();
 
         $data->order_id = $request->order_id;
         $data->free_letters = $request->free_letters;

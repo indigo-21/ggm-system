@@ -258,12 +258,12 @@ $(function () {
 
         // Validate all masterfile "Others" custom inputs
         let masterfileFields = [
-            { select: "material",         input: "#custom_material_name",         error: "#custom_material_name-error",         table: "materials",      label: "material" },
-            { select: "material_colour",  input: "#custom_material_colour_name",  error: "#custom_material_colour_name-error",  table: "colours",        label: "material colour" },
-            { select: "base_ledger",      input: "#custom_base_ledger_name",      error: "#custom_base_ledger_name-error",      table: "based_ledgers",  label: "base ledger" },
-            { select: "letter_type",      input: "#custom_letter_type_name",      error: "#custom_letter_type_name-error",      table: "letter_types",   label: "letter type" },
-            { select: "accessory",        input: "#custom_accessory_name",        error: "#custom_accessory_name-error",        table: "accessories",    label: "accessory" },
-            { select: "accessory_colour", input: "#custom_accessory_colour_name", error: "#custom_accessory_colour_name-error", table: "colours",        label: "accessory colour" },
+            { select: "material", input: "#custom_material_name", error: "#custom_material_name-error", table: "materials", label: "material" },
+            { select: "material_colour", input: "#custom_material_colour_name", error: "#custom_material_colour_name-error", table: "colours", label: "material colour" },
+            { select: "base_ledger", input: "#custom_base_ledger_name", error: "#custom_base_ledger_name-error", table: "based_ledgers", label: "base ledger" },
+            { select: "letter_type", input: "#custom_letter_type_name", error: "#custom_letter_type_name-error", table: "letter_types", label: "letter type" },
+            { select: "accessory", input: "#custom_accessory_name", error: "#custom_accessory_name-error", table: "accessories", label: "accessory" },
+            { select: "accessory_colour", input: "#custom_accessory_colour_name", error: "#custom_accessory_colour_name-error", table: "colours", label: "accessory colour" },
         ];
 
         for (let i = 0; i < masterfileFields.length; i++) {
@@ -325,30 +325,6 @@ $(function () {
 
         $("#form_validation").submit();
     });
-    // let start   = moment().startOf('month')
-    // let end     = moment().endOf('month');
-
-    // function predifinedDateRange(start, end) {
-    //     $('#daterange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-    // }
-
-    // $('#daterange').daterangepicker({
-    //     startDate: start,
-    //     endDate: end,
-    //     ranges: {
-    //     'Today': [moment(), moment()],
-    //     'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-    //     'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-    //     'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-    //     'This Month': [moment().startOf('month'), moment().endOf('month')],
-    //     'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-    //     },
-    //     locale: {
-    //         format: 'MMMM DD, YYYY'
-    //     }
-    // }, predifinedDateRange);
-
-    // predifinedDateRange(start, end);
 
 
     //Multi-select
@@ -361,7 +337,7 @@ $(function () {
     $(document).on("change", "[name=cemetery_id]", function () {
         let cemetery_id = $(this).val();
         let child_select = "[name=burial_society_organization_id]";
-        $(`${child_select}`).val('');   
+        $(`${child_select}`).val('');
 
         // Handle custom cemetery input visibility
         if (cemetery_id === "others") {
@@ -558,12 +534,12 @@ $(function () {
 
     // Configuration for fields with "Others" inline custom inputs
     const othersFieldConfig = {
-        material:          { wrapper: "#custom_material_wrapper",          input: "#custom_material_name",          error: "#custom_material_name-error",          endpoint: "/masterfile/check-duplicate", table: "materials" },
-        material_colour:   { wrapper: "#custom_material_colour_wrapper",   input: "#custom_material_colour_name",   error: "#custom_material_colour_name-error",   endpoint: "/masterfile/check-duplicate", table: "colours" },
-        base_ledger:       { wrapper: "#custom_base_ledger_wrapper",       input: "#custom_base_ledger_name",       error: "#custom_base_ledger_name-error",       endpoint: "/masterfile/check-duplicate", table: "based_ledgers" },
-        letter_type:       { wrapper: "#custom_letter_type_wrapper",       input: "#custom_letter_type_name",       error: "#custom_letter_type_name-error",       endpoint: "/masterfile/check-duplicate", table: "letter_types" },
-        accessory:         { wrapper: "#custom_accessory_wrapper",         input: "#custom_accessory_name",         error: "#custom_accessory_name-error",         endpoint: "/masterfile/check-duplicate", table: "accessories" },
-        accessory_colour:  { wrapper: "#custom_accessory_colour_wrapper",  input: "#custom_accessory_colour_name",  error: "#custom_accessory_colour_name-error",  endpoint: "/masterfile/check-duplicate", table: "colours" },
+        material: { wrapper: "#custom_material_wrapper", input: "#custom_material_name", error: "#custom_material_name-error", endpoint: "/masterfile/check-duplicate", table: "materials" },
+        material_colour: { wrapper: "#custom_material_colour_wrapper", input: "#custom_material_colour_name", error: "#custom_material_colour_name-error", endpoint: "/masterfile/check-duplicate", table: "colours" },
+        base_ledger: { wrapper: "#custom_base_ledger_wrapper", input: "#custom_base_ledger_name", error: "#custom_base_ledger_name-error", endpoint: "/masterfile/check-duplicate", table: "based_ledgers" },
+        letter_type: { wrapper: "#custom_letter_type_wrapper", input: "#custom_letter_type_name", error: "#custom_letter_type_name-error", endpoint: "/masterfile/check-duplicate", table: "letter_types" },
+        accessory: { wrapper: "#custom_accessory_wrapper", input: "#custom_accessory_name", error: "#custom_accessory_name-error", endpoint: "/masterfile/check-duplicate", table: "accessories" },
+        accessory_colour: { wrapper: "#custom_accessory_colour_wrapper", input: "#custom_accessory_colour_name", error: "#custom_accessory_colour_name-error", endpoint: "/masterfile/check-duplicate", table: "colours" },
     };
 
     $(document).on("change", ".with-others-option", function () {
@@ -594,7 +570,7 @@ $(function () {
         let wrapper = input.closest(".custom-others-input");
         let errorLabel = wrapper.find("label.error");
         let selectElement = wrapper.closest(".col-4").find("select");
-        
+
         if (!customName) {
             errorLabel.hide().text("");
             return;
