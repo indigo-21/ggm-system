@@ -193,8 +193,8 @@ class OrderService
         if($result){
             $order_id = $data->id;
             $request["order_id"] = $order_id;
-            $result_cost  = self::order_cost_upsert($request, $id);
-            $result_note  = self::order_note_upsert($request, $id);
+            $result_cost  = self::order_cost_upsert($request, $order_id);
+            $result_note  = self::order_note_upsert($request, $order_id);
             $message = $id ? "Order No. $id has been successfully updated" : "New order successfully created.";
             if(!$result_cost) $message = "Detect issues in the Order Cost request";
             if(!$result_note) $message = "Detect issues in the Order Note request";
