@@ -235,8 +235,8 @@
                                             : '')
                                         : old('date_of_death');
                                 @endphp
-                                <x-input type="text" name="date_of_death" value="{{ $date_of_death }}"
-                                    class="daterange-am-pm clear-daterange" label="Date of Death" />
+                                <x-input type="date" name="date_of_death" value="{{ $date_of_death }}"
+                                    class="datetime-am-pm" label="Date of Death" />
                             </div>
 
                             <div class="col-6">
@@ -262,8 +262,8 @@
 
                                 {{-- Consecration / Required By (visible when No Consecration is unchecked) --}}
                                 <div id="consecration_date_wrapper" style="{{ $no_consecration ? 'display:none;' : '' }}">
-                                    <x-input type="text" name="consecration_date" value="{{ $consecration_date }}"
-                                        class="daterange clear-daterange" label="Consecration / Required By" />
+                                    <x-input type="date" name="consecration_date" value="{{ $consecration_date }}"
+                                        class="" label="Consecration / Required By" />
                                 </div>
 
                                 {{-- TBA / Approx / ASAP radio group (visible when No Consecration is checked) --}}
@@ -382,8 +382,8 @@
                                         ? date('F d, Y', strtotime($quote->grave_number_checked))
                                         : old('grave_no_checked');
                                 @endphp
-                                <x-input type="text" name="grave_no_checked" value="{{ $grave_no_checked }}"
-                                    class="daterange clear-daterange" label="Grave Number Checked" />
+                                <x-input type="date" name="grave_no_checked" value="{{ $grave_no_checked }}"
+                                    class="" label="Grave Number Checked" />
                             </div>
                             <div class="col-4">
                                 @php
@@ -702,7 +702,7 @@
                                             <div class="col-6">
                                                 <x-input type="textarea"
                                                     name="price_description[{{ $index }}]"
-                                                    value="{{ $additional?->description ?? '' }}"
+                                                    value="{!! $additional?->description ?? '' !!}"
                                                     :label="false" />
                                             </div>
                                             <div class="col-5 d-flex align-items-center">
@@ -748,7 +748,7 @@
                                 <div class="col-12 row mt-5">
                                     <div class="col-7">
                                         <x-input type="text" name="discount_description"
-                                            value="{{ $order_cost?->discount_description ?? '' }}"
+                                            value="{!! $order_cost?->discount_description ?? '' !!}"
                                             label="Discount" />
                                     </div>
                                     <div class="col-5">
@@ -769,13 +769,13 @@
                                 <div class="col-12 row">
                                     <div class="col-7">
                                         <x-input type="text" name="cemetery_fee_description_1"
-                                            value="{{ $order_cost?->cemetery_fee_description_1 ?? '' }}"
+                                            value="{!! $order_cost?->cemetery_fee_description_1 ?? '' !!}"
                                             label="Cemetery Fees 1" />
                                     </div>
                                     <div class="col-5">
                                         <x-input type="text" class="text-right zero-rated cost-computation"
                                             name="cemetery_fee_amount_1"
-                                            value="{{ $order_cost?->cemetery_fee_amount_1 ?? '0.00' }}"
+                                            value="{!! $order_cost?->cemetery_fee_amount_1 ?? '0.00' !!}"
                                             label="Amount" />
                                     </div>
                                 </div>
