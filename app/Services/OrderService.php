@@ -24,13 +24,13 @@ class OrderService
 
         // $customer_id = $request->customer_id;
         $date_of_death = $request->date_of_death;
+        $data_of_death_period = $request->period;
         $grave_number_checked = $request->grave_no_checked;
         $fixing_date = $request?->fixed_required_by ?? null;
         $customer_id = $this->customerService->form_action($request, $request->customer_id);
         
-        if($date_of_death){
-            $date_of_death = str_replace(['AM', 'PM'], '', $date_of_death);
-            $date_of_death = trim($date_of_death).' 12:00 '.(str_contains($request->date_of_death, 'PM') ? 'PM' : 'AM'); 
+        if($data_of_death_period){
+            $date_of_death = trim($date_of_death).' 12:00 '.$data_of_death_period ; 
         }
 
         if($fixing_date != null){
@@ -190,7 +190,9 @@ class OrderService
         $data->{$id ? "updated_by" : "created_by"} = Auth::id();
         $message = "Detect issues in the order request";
         $result = $data->save();
-        
+
+        // dd($result);
+
         if($result){
             
             $order_id = $data->id;
