@@ -1,26 +1,25 @@
 <?php
 
 namespace App\Services;
+
+use App\Models\BurialSocietyOrganization;
+use App\Models\Cemetery;
 use App\Models\Order;
 use App\Models\OrderCost;
 use App\Models\OrderNote;
-use App\Models\Cemetery;
-use App\Models\BurialSocietyOrganization;
-use App\Services\CustomerService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
 
 class OrderService
 {
     /**
      * Create a new class instance.
      */
-    public function __construct( protected CustomerService $customerService)
-    {}
+    public function __construct(protected CustomerService $customerService) {}
 
-    public function order_upsert($request, $id = false){
+    public function order_upsert($request, $id = false)
+    {
 
         // $customer_id = $request->customer_id;
         $date_of_death = $request->date_of_death;
@@ -28,13 +27,13 @@ class OrderService
         $grave_number_checked = $request->grave_no_checked;
         $fixing_date = $request?->fixed_required_by ?? null;
         $customer_id = $this->customerService->form_action($request, $request->customer_id);
-        
-        if($data_of_death_period){
-            $date_of_death = trim($date_of_death).' 12:00 '.$data_of_death_period ; 
+
+        if ($data_of_death_period) {
+            $date_of_death = trim($date_of_death).' 12:00 '.$data_of_death_period;
         }
 
-        if($fixing_date != null){
-            $fixing_date = str_replace(" ", ' 01, ', $request?->fixed_required_by);
+        if ($fixing_date != null) {
+            $fixing_date = str_replace(' ', ' 01, ', $request?->fixed_required_by);
         }
 
         // Handle custom cemetery ("Others" option)
@@ -44,9 +43,9 @@ class OrderService
 
             if (empty($custom_cemetery_name)) {
                 return [
-                    "success" => false,
-                    "message" => "Please enter a cemetery name when selecting 'Others'.",
-                    "order_id" => $id
+                    'success' => false,
+                    'message' => "Please enter a cemetery name when selecting 'Others'.",
+                    'order_id' => $id,
                 ];
             }
 
@@ -55,14 +54,14 @@ class OrderService
 
             if ($existing) {
                 return [
-                    "success" => false,
-                    "message" => "This cemetery already exists. Please select it from the list.",
-                    "order_id" => $id
+                    'success' => false,
+                    'message' => 'This cemetery already exists. Please select it from the list.',
+                    'order_id' => $id,
                 ];
             }
 
             // Create the new cemetery
-            $new_cemetery = new Cemetery();
+            $new_cemetery = new Cemetery;
             $new_cemetery->name = $custom_cemetery_name;
             $new_cemetery->created_by = Auth::id();
             $new_cemetery->save();
@@ -70,15 +69,16 @@ class OrderService
             $cemetery_id = $new_cemetery->id;
         }
 
-
-        $data = !$id ? new Order() : Order::findOrFail($id);
+        $data = ! $id ? new Order : Order::findOrFail($id);
 
         $data->order_type_id = $request->order_type_id;
         $data->location_id = $request->location_id;
 
-        if($id){
+        if ($id) {
             $data->invoice_no = $request->invoice_no;
-            $data->invoice_date = Carbon::parse($request->invoice_date)->format('Y-m-d');
+            $data->invoice_date = $request->invoice_date
+                ? Carbon::parse($request->invoice_date)->format('Y-m-d')
+                : null;
         }
 
         $data->customer_id = $customer_id;
@@ -130,7 +130,6 @@ class OrderService
 
         $data->cemetery_id = $cemetery_id;
 
-
         // Handle custom burial society organization ("Others" option)
         $burial_society_organization_id = $request->burial_society_organization_id;
         if ($burial_society_organization_id === 'others') {
@@ -138,9 +137,9 @@ class OrderService
 
             if (empty($custom_bs_name)) {
                 return [
-                    "success" => false,
-                    "message" => "Please enter a burial society organization name when selecting 'Others'.",
-                    "order_id" => $id
+                    'success' => false,
+                    'message' => "Please enter a burial society organization name when selecting 'Others'.",
+                    'order_id' => $id,
                 ];
             }
 
@@ -149,14 +148,14 @@ class OrderService
 
             if ($existing_bs) {
                 return [
-                    "success" => false,
-                    "message" => "This burial society organization already exists. Please select it from the list.",
-                    "order_id" => $id
+                    'success' => false,
+                    'message' => 'This burial society organization already exists. Please select it from the list.',
+                    'order_id' => $id,
                 ];
             }
 
             // Create the new burial society organization associated with the cemetery
-            $new_bs = new BurialSocietyOrganization();
+            $new_bs = new BurialSocietyOrganization;
             $new_bs->name = $custom_bs_name;
             $new_bs->cemetery_id = $cemetery_id;
             $new_bs->created_by = Auth::id();
@@ -165,10 +164,11 @@ class OrderService
             $burial_society_organization_id = $new_bs->id;
         }
 
-
         $data->burial_society_organization_id = $burial_society_organization_id;
         $data->grave_number = $request->grave_no;
-        $data->grave_number_checked = Carbon::parse($request?->grave_no_checked)->format('Y-m-d') ?? null;
+        $data->grave_number_checked = $request->grave_no_checked
+            ? Carbon::parse($request->grave_no_checked)->format('Y-m-d')
+            : null;
         $data->grave_space_id = $request->grave_space_id;
         $data->design_headstone = $request->design_headstone;
 
@@ -187,40 +187,46 @@ class OrderService
         $data->customer_notes = $request->customer_note;
         $data->additional_notes = $request->additional_note;
 
-        $data->{$id ? "updated_by" : "created_by"} = Auth::id();
-        $message = "Detect issues in the order request";
+        $data->{$id ? 'updated_by' : 'created_by'} = Auth::id();
+        $message = 'Detect issues in the order request';
         $result = $data->save();
 
         // dd($result);
 
-        if($result){
-            
+        if ($result) {
+
             $order_id = $data->id;
-            $request["order_id"] = $order_id;
-            $result_cost  = self::order_cost_upsert($request, $order_id);
-            $result_note  = self::order_note_upsert($request, $order_id);
-            
-            $message = $id ? "Order No. $id has been successfully updated" : "New order successfully created.";
-            if(!$result_cost) $message = "Detect issues in the Order Cost request";
-            if(!$result_note) $message = "Detect issues in the Order Note request";
+            $request['order_id'] = $order_id;
+            $result_cost = self::order_cost_upsert($request, $order_id);
+            $result_note = self::order_note_upsert($request, $order_id);
+
+            $message = $id ? "Order No. $id has been successfully updated" : 'New order successfully created.';
+            if (! $result_cost) {
+                $message = 'Detect issues in the Order Cost request';
+            }
+            if (! $result_note) {
+                $message = 'Detect issues in the Order Note request';
+            }
         }
+
         // return $result ? $result->id() : dd("Error on: Order Related");
         return [
-                "success" => $result ? true : false,
-                "message" => $message,
-                "order_id" => $order_id
+            'success' => $result ? true : false,
+            'message' => $message,
+            'order_id' => $order_id,
         ];
     }
-    
-    public function order_cost_upsert($request, $order_id = false){
-        
-        $orderCost = OrderCost::where("order_id", $order_id)->first();
 
-        $cost_additional_description = $request->price_description;
-        $cost_additional_amount = $request->price_amount;
-        
-        $data = $orderCost ?? new OrderCost();
-        
+    public function order_cost_upsert($request, $order_id = false)
+    {
+
+        $orderCost = OrderCost::where('order_id', $order_id)->first();
+
+        $cost_additional_description = $request->input('price_description', []);
+        $cost_additional_amount = $request->input('price_amount', []);
+
+        $data = $orderCost ?? new OrderCost;
+
         $data->order_id = $order_id;
         $data->description = $request->cost_description;
         $data->amount = str_replace(',', '', $request->cost_amount);
@@ -247,48 +253,45 @@ class OrderService
         $data->gross_amount = str_replace(',', '', $request->gross_amount);
         $data->is_cost_analysis_print = $request->is_cost_analysis_print;
         $data->is_cost_analysis_trade = $request->is_cost_analysis_trade;
-                        
+
         $result = $data->save();
 
-        if($result && count($cost_additional_description)){
-            $existing_additional_costs_ids = [];
-            $existing_additional_costs = DB::table("order_cost_additionals")->where("order_cost_id", $data->id)->get();
-
-            foreach ($existing_additional_costs as $key => $value) {
-                array_push($existing_additional_costs_ids, $value->id);
-            }  
-
-            $order_cost_id = $data->id;
-            $cost_additional_description_length = count($cost_additional_description);
+        if ($result) {
+            $cost_additional_description = is_array($cost_additional_description)
+                ? $cost_additional_description
+                : [];
+            $cost_additional_amount = is_array($cost_additional_amount)
+                ? $cost_additional_amount
+                : [];
             $cost_additional_data = [];
-            for ($i=0; $i < $cost_additional_description_length ; $i++) { 
-                if($cost_additional_description[$i]){
-                   array_push($cost_additional_data, [
-                        "order_cost_id" => $order_cost_id,
-                        "description" => $cost_additional_description[$i],
-                        "amount" => $cost_additional_amount[$i],
-                    ]); 
+            foreach ($cost_additional_description as $index => $description) {
+                if (filled($description)) {
+                    $cost_additional_data[] = [
+                        'order_cost_id' => $data->id,
+                        'description' => $description,
+                        'amount' => $cost_additional_amount[$index] ?? 0,
+                    ];
                 }
             }
 
-            if(count($cost_additional_data) > 0){
-                $result = DB::table("order_cost_additionals")->insert($cost_additional_data);
-                if($result && count($existing_additional_costs_ids) > 0){
-                    DB::table("order_cost_additionals")->whereIn("id", $existing_additional_costs_ids)->delete();
-                }
+            // Replace the child rows as a set.  This also removes stale rows
+            // when the user clears every additional-cost field on an update.
+            DB::table('order_cost_additionals')->where('order_cost_id', $data->id)->delete();
+            if (count($cost_additional_data) > 0) {
+                $result = DB::table('order_cost_additionals')->insert($cost_additional_data);
             }
-
         }
 
         return $result ? $data->id : false;
     }
 
-    public function order_note_upsert($request, $order_id = false){
-        
-        $orderNote = OrderNote::where("order_id", $order_id)->first();
+    public function order_note_upsert($request, $order_id = false)
+    {
+
+        $orderNote = OrderNote::where('order_id', $order_id)->first();
 
         // $data = !$id ? new OrderNote() : OrderNote::findOrFail($id);
-        $data = $orderNote ?? new OrderNote();
+        $data = $orderNote ?? new OrderNote;
 
         $data->order_id = $request->order_id;
         $data->free_letters = $request->free_letters;
@@ -316,10 +319,10 @@ class OrderService
         $data->masonart_printout_approved = $request->masonart_printout_approved ? Carbon::parse($request->masonart_printout_approved)->format('Y-m-d') : null;
         // $data->approved_by_burial_society = Carbon::parse($request?->approved_by_burial_society)->format('Y-m-d') ?? null;
         $data->approved_by_burial_society = $request?->approved_by_burial_society;
-        
+
         $result = $data->save();
 
-        return $result ? $data->id : false;              
+        return $result ? $data->id : false;
     }
 
     /**
@@ -372,5 +375,4 @@ class OrderService
 
         return $customName;
     }
-
 }
