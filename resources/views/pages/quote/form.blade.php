@@ -60,6 +60,17 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Please correct the following:</strong>
+                <ul class="mb-0 mt-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form id="form_validation" method="POST"
             action="{{ !isset($quote) ? route('quote.store') : route('quote.update', $quote->id) }}">
             @csrf
@@ -135,9 +146,7 @@
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Customer Details</h2>
                             <input type="hidden" name="customer_id"
-                                value="{{ isset($quote) ? $quote->customer_id : '' }} ">
-
-                            {{ $errors->any() }}
+                                value="{{ isset($quote) ? $quote->customer_id : '' }}">
 
                             @if (!isset($quote))
                                 <button type="button" class="btn btn-default btn-simple waves-effect"
@@ -995,7 +1004,7 @@
                                         </div>
 
                                         <div class="col-6">
-                                            <x-select class="z-index show-tick" name="is_inscription_completed"
+                                            <x-select class="z-index show-tick" name="is_inscription_complete"
                                                 label="Inscription Complete">
                                                 <option value="0"
                                                     {{ $order_note?->is_inscription_complete == 0 ? 'selected' : '' }}>-

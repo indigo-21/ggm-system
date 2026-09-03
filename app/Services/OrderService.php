@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\OrderPersistenceException;
 use App\Models\BurialSocietyOrganization;
 use App\Models\Cemetery;
 use App\Models\Order;
@@ -10,6 +11,7 @@ use App\Models\OrderNote;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -20,13 +22,60 @@ class OrderService
 
     public function order_upsert($request, $id = false)
     {
+        try {
+            $order_id = DB::transaction(function () use ($request, $id) {
+                return $this->persistQuote($request, $id);
+            });
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Let Laravel handle field-level validation errors (redirect back
+            // with the error bag) instead of collapsing them into a flash message.
+            throw $e;
+        } catch (OrderPersistenceException $e) {
+            // Domain-level validation failure (e.g. duplicate "Others" record).
+            // The transaction has already rolled back at this point.
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'order_id' => $id ?: null,
+            ];
+        } catch (\Throwable $e) {
+            // Unexpected failure — roll back and surface a generic message while
+            // logging the real cause for investigation.
+            Log::error('Quote upsert failed', [
+                'order_id' => $id ?: null,
+                'exception' => $e,
+            ]);
 
-        // $customer_id = $request->customer_id;
+            return [
+                'success' => false,
+                'message' => 'Detect issues in the order request',
+                'order_id' => $id ?: null,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => $id ? "Order No. $id has been successfully updated" : 'New order successfully created.',
+            'order_id' => $order_id,
+        ];
+    }
+
+    /**
+     * Persist the order and its cost/note children within an open transaction.
+     * Throws on any failure so the surrounding transaction rolls back.
+     *
+     * @return int the persisted order id
+     */
+    private function persistQuote($request, $id = false): int
+    {
         $date_of_death = $request->date_of_death;
         $data_of_death_period = $request->period;
-        $grave_number_checked = $request->grave_no_checked;
         $fixing_date = $request?->fixed_required_by ?? null;
         $customer_id = $this->customerService->form_action($request, $request->customer_id);
+
+        if (! $customer_id) {
+            throw new OrderPersistenceException('Detect issues in the customer request');
+        }
 
         if ($data_of_death_period) {
             $date_of_death = trim($date_of_death).' 12:00 '.$data_of_death_period;
@@ -36,38 +85,7 @@ class OrderService
             $fixing_date = str_replace(' ', ' 01, ', $request?->fixed_required_by);
         }
 
-        // Handle custom cemetery ("Others" option)
-        $cemetery_id = $request->cemetery_id;
-        if ($cemetery_id === 'others') {
-            $custom_cemetery_name = trim($request->custom_cemetery_name ?? '');
-
-            if (empty($custom_cemetery_name)) {
-                return [
-                    'success' => false,
-                    'message' => "Please enter a cemetery name when selecting 'Others'.",
-                    'order_id' => $id,
-                ];
-            }
-
-            // Case-insensitive duplicate check
-            $existing = Cemetery::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($custom_cemetery_name)])->first();
-
-            if ($existing) {
-                return [
-                    'success' => false,
-                    'message' => 'This cemetery already exists. Please select it from the list.',
-                    'order_id' => $id,
-                ];
-            }
-
-            // Create the new cemetery
-            $new_cemetery = new Cemetery;
-            $new_cemetery->name = $custom_cemetery_name;
-            $new_cemetery->created_by = Auth::id();
-            $new_cemetery->save();
-
-            $cemetery_id = $new_cemetery->id;
-        }
+        $cemetery_id = $this->resolveCemetery($request);
 
         $data = ! $id ? new Order : Order::findOrFail($id);
 
@@ -129,42 +147,7 @@ class OrderService
         }
 
         $data->cemetery_id = $cemetery_id;
-
-        // Handle custom burial society organization ("Others" option)
-        $burial_society_organization_id = $request->burial_society_organization_id;
-        if ($burial_society_organization_id === 'others') {
-            $custom_bs_name = trim($request->custom_burial_society_name ?? '');
-
-            if (empty($custom_bs_name)) {
-                return [
-                    'success' => false,
-                    'message' => "Please enter a burial society organization name when selecting 'Others'.",
-                    'order_id' => $id,
-                ];
-            }
-
-            // Case-insensitive duplicate check
-            $existing_bs = BurialSocietyOrganization::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($custom_bs_name)])->first();
-
-            if ($existing_bs) {
-                return [
-                    'success' => false,
-                    'message' => 'This burial society organization already exists. Please select it from the list.',
-                    'order_id' => $id,
-                ];
-            }
-
-            // Create the new burial society organization associated with the cemetery
-            $new_bs = new BurialSocietyOrganization;
-            $new_bs->name = $custom_bs_name;
-            $new_bs->cemetery_id = $cemetery_id;
-            $new_bs->created_by = Auth::id();
-            $new_bs->save();
-
-            $burial_society_organization_id = $new_bs->id;
-        }
-
-        $data->burial_society_organization_id = $burial_society_organization_id;
+        $data->burial_society_organization_id = $this->resolveBurialSociety($request, $cemetery_id);
         $data->grave_number = $request->grave_no;
         $data->grave_number_checked = $request->grave_no_checked
             ? Carbon::parse($request->grave_no_checked)->format('Y-m-d')
@@ -188,33 +171,91 @@ class OrderService
         $data->additional_notes = $request->additional_note;
 
         $data->{$id ? 'updated_by' : 'created_by'} = Auth::id();
-        $message = 'Detect issues in the order request';
-        $result = $data->save();
 
-        // dd($result);
-
-        if ($result) {
-
-            $order_id = $data->id;
-            $request['order_id'] = $order_id;
-            $result_cost = self::order_cost_upsert($request, $order_id);
-            $result_note = self::order_note_upsert($request, $order_id);
-
-            $message = $id ? "Order No. $id has been successfully updated" : 'New order successfully created.';
-            if (! $result_cost) {
-                $message = 'Detect issues in the Order Cost request';
-            }
-            if (! $result_note) {
-                $message = 'Detect issues in the Order Note request';
-            }
+        if (! $data->save()) {
+            throw new OrderPersistenceException('Detect issues in the order request');
         }
 
-        // return $result ? $result->id() : dd("Error on: Order Related");
-        return [
-            'success' => $result ? true : false,
-            'message' => $message,
-            'order_id' => $order_id,
-        ];
+        $order_id = $data->id;
+        $request['order_id'] = $order_id;
+
+        if (! self::order_cost_upsert($request, $order_id)) {
+            throw new OrderPersistenceException('Detect issues in the Order Cost request');
+        }
+
+        if (! self::order_note_upsert($request, $order_id)) {
+            throw new OrderPersistenceException('Detect issues in the Order Note request');
+        }
+
+        return $order_id;
+    }
+
+    /**
+     * Resolve the cemetery id, creating a new cemetery when the "Others" option
+     * is selected. Throws when the requested custom cemetery already exists.
+     */
+    private function resolveCemetery($request): ?int
+    {
+        $cemetery_id = $request->cemetery_id;
+
+        if ($cemetery_id !== 'others') {
+            return $cemetery_id !== null && $cemetery_id !== '' ? (int) $cemetery_id : null;
+        }
+
+        $custom_cemetery_name = trim($request->custom_cemetery_name ?? '');
+
+        // Empty case is guarded by the Form Request (required_if); keep a defensive check.
+        if ($custom_cemetery_name === '') {
+            throw new OrderPersistenceException("Please enter a cemetery name when selecting 'Others'.");
+        }
+
+        $existing = Cemetery::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($custom_cemetery_name)])->first();
+
+        if ($existing) {
+            throw new OrderPersistenceException('This cemetery already exists. Please select it from the list.');
+        }
+
+        $new_cemetery = new Cemetery;
+        $new_cemetery->name = $custom_cemetery_name;
+        $new_cemetery->created_by = Auth::id();
+        $new_cemetery->save();
+
+        return $new_cemetery->id;
+    }
+
+    /**
+     * Resolve the burial society organization id, creating a new record when the
+     * "Others" option is selected. Throws when a duplicate custom name exists.
+     */
+    private function resolveBurialSociety($request, ?int $cemetery_id): ?int
+    {
+        $burial_society_organization_id = $request->burial_society_organization_id;
+
+        if ($burial_society_organization_id !== 'others') {
+            return $burial_society_organization_id !== null && $burial_society_organization_id !== ''
+                ? (int) $burial_society_organization_id
+                : null;
+        }
+
+        $custom_bs_name = trim($request->custom_burial_society_name ?? '');
+
+        if ($custom_bs_name === '') {
+            throw new OrderPersistenceException("Please enter a burial society organization name when selecting 'Others'.");
+        }
+
+        $existing_bs = BurialSocietyOrganization::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($custom_bs_name)])->first();
+
+        if ($existing_bs) {
+            throw new OrderPersistenceException('This burial society organization already exists. Please select it from the list.');
+        }
+
+        $new_bs = new BurialSocietyOrganization;
+        $new_bs->name = $custom_bs_name;
+        $new_bs->cemetery_id = $cemetery_id;
+        $new_bs->created_by = Auth::id();
+        $new_bs->save();
+
+        return $new_bs->id;
     }
 
     public function order_cost_upsert($request, $order_id = false)
@@ -229,30 +270,30 @@ class OrderService
 
         $data->order_id = $order_id;
         $data->description = $request->cost_description;
-        $data->amount = str_replace(',', '', $request->cost_amount);
-        $data->letter_count = $request->letters_no;
-        $data->letter_amount = str_replace(',', '', $request->letters_amount);
-        $data->letter_total_amount = str_replace(',', '', $request->letters_total_amount);
+        $data->amount = self::toDecimal($request->cost_amount);
+        $data->letter_count = self::toDecimal($request->letters_no);
+        $data->letter_amount = self::toDecimal($request->letters_amount);
+        $data->letter_total_amount = self::toDecimal($request->letters_total_amount);
         $data->discount_description = $request->discount_description;
-        $data->discount_amount = str_replace(',', '', $request->discount_amount);
-        $data->total = str_replace(',', '', $request->total_amount);
+        $data->discount_amount = self::toDecimal($request->discount_amount);
+        $data->total = self::toDecimal($request->total_amount);
         $data->cemetery_fee_description_1 = $request->cemetery_fee_description_1;
-        $data->cemetery_fee_amount_1 = str_replace(',', '', $request->cemetery_fee_amount_1);
+        $data->cemetery_fee_amount_1 = self::toDecimal($request->cemetery_fee_amount_1);
         $data->cemetery_fee_description_2 = $request->cemetery_fee_description_2;
-        $data->cemetery_fee_amount_2 = str_replace(',', '', $request->cemetery_fee_amount_2);
-        $data->grand_total = str_replace(',', '', $request->grand_total_amount);
+        $data->cemetery_fee_amount_2 = self::toDecimal($request->cemetery_fee_amount_2);
+        $data->grand_total = self::toDecimal($request->grand_total_amount);
         $data->deposit_description = $request->deposit_description;
-        $data->deposit_amount = str_replace(',', '', $request->deposit_amount);
-        $data->amount_received = str_replace(',', '', $request->amount_received);
-        $data->balance = str_replace(',', '', $request->balance_amount);
-        $data->net_amount = str_replace(',', '', $request->net_amount);
-        $data->vat_rate = $request->vat_rate;
-        $data->vat_amount = str_replace(',', '', $request->vat_amount);
-        $data->zero_rated_fee = str_replace(',', '', $request->zero_rated_fees);
-        $data->adjustment = str_replace(',', '', $request->adjustment);
-        $data->gross_amount = str_replace(',', '', $request->gross_amount);
-        $data->is_cost_analysis_print = $request->is_cost_analysis_print;
-        $data->is_cost_analysis_trade = $request->is_cost_analysis_trade;
+        $data->deposit_amount = self::toDecimal($request->deposit_amount);
+        $data->amount_received = self::toDecimal($request->amount_received);
+        $data->balance = self::toDecimal($request->balance_amount);
+        $data->net_amount = self::toDecimal($request->net_amount);
+        $data->vat_rate = self::toDecimal($request->vat_rate);
+        $data->vat_amount = self::toDecimal($request->vat_amount);
+        $data->zero_rated_fee = self::toDecimal($request->zero_rated_fees);
+        $data->adjustment = self::toDecimal($request->adjustment);
+        $data->gross_amount = self::toDecimal($request->gross_amount);
+        $data->is_cost_analysis_print = $request->is_cost_analysis_print ?? 0;
+        $data->is_cost_analysis_trade = $request->is_cost_analysis_trade ?? 0;
 
         $result = $data->save();
 
@@ -269,7 +310,7 @@ class OrderService
                     $cost_additional_data[] = [
                         'order_cost_id' => $data->id,
                         'description' => $description,
-                        'amount' => $cost_additional_amount[$index] ?? 0,
+                        'amount' => self::toDecimal($cost_additional_amount[$index] ?? 0),
                     ];
                 }
             }
@@ -323,6 +364,24 @@ class OrderService
         $result = $data->save();
 
         return $result ? $data->id : false;
+    }
+
+    /**
+     * Normalize a currency/numeric form value into a decimal string.
+     *
+     * Strips thousands separators and coerces empty/blank input to 0 so that
+     * MySQL (in strict mode) never receives '' for a numeric column, which is
+     * what caused the "Incorrect double value: ''" error on empty fee fields.
+     */
+    private static function toDecimal($value, float $default = 0): string
+    {
+        if ($value === null) {
+            return (string) $default;
+        }
+
+        $normalized = str_replace(',', '', trim((string) $value));
+
+        return is_numeric($normalized) ? $normalized : (string) $default;
     }
 
     /**

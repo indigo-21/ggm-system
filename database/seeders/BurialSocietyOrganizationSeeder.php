@@ -206,12 +206,6 @@ class BurialSocietyOrganizationSeeder extends Seeder
                 'created_by'    => '1'
 
             ],
-            [
-                'cemetery_id'   => '20',
-                'name'          => '-',
-                'created_by'    => '1'
-
-            ],
 
         ];
         foreach ($values as $key => $value) {

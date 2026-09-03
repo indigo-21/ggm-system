@@ -3,50 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use App\Models\OrderType;
-use App\Models\Location;
 use App\Models\User;
 use App\Services\PdfService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
-{   
+{
     public function __construct(
         protected PdfService $pdfService
     ) {}
-    
-    public function default_required_data($isFrom = "index", $id = false){
+
+    public function default_required_data($isFrom = 'index', $id = false)
+    {
         $data = [
-                    "order_types" => OrderType::all(),
-                    "users"       => User::all(),
-                    "months"      => ["January","February","March","April","May","June","July","August","September","October","November","December"],
-                    "years"       => ["2024","2025","2026"],
-                    "payment_methods" => [["id" => 1, "name" => "Cash"], ["id" => 2, "name" => "Cheque"], ["id" => 3, "name" => "Credit Card"], ["id" => 4, "name" => "Bank Transfer"], ["id" => 5, "name" => "Debit Card"]],
-                    // "orders" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
-                    "orders" => Order::whereMonth('created_at', now()->month)
-                                    ->whereYear('created_at', now()->year)
-                                    ->whereHas('payments')
-                                    ->get()
-                ];
-        
+            'order_types' => OrderType::all(),
+            'users' => User::all(),
+            'months' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            'years' => ['2024', '2025', '2026'],
+            'payment_methods' => [['id' => 1, 'name' => 'Cash'], ['id' => 2, 'name' => 'Cheque'], ['id' => 3, 'name' => 'Credit Card'], ['id' => 4, 'name' => 'Bank Transfer'], ['id' => 5, 'name' => 'Debit Card']],
+            // "orders" => Order::whereRaw("MONTH(created_at) = MONTH(CURRENT_DATE())")->get()
+            'orders' => Order::orders()
+                ->forPeriod(now()->month, now()->year)
+                ->get(),
+        ];
+
         return $data;
     }
 
     public function index()
     {
         $data = self::default_required_data();
-        return view("pages.order.index", $data);
+
+        return view('pages.order.index', $data);
     }
 
     public function index_filtered(Request $request)
     {
 
-        $data  = self::default_required_data();
+        $data = self::default_required_data();
 
         $isOrder = $request->is_order == 1;
         $orderTypeId = $request->order_type_id ?? 1;
@@ -56,13 +53,14 @@ class OrderController extends Controller
         $orderYear = $request->order_date_year;
         $searchColumn = $request->search_column;
         $searchInput = $request->search_input;
-        $allowedColumns = ["id", "customer_name", "deceased_name", "grave_number", "invoice_no",];
+        $allowedColumns = ['id', 'customer_name', 'deceased_name', 'grave_number', 'invoice_no'];
 
-        $query = Order::where("order_type_id", $orderTypeId)
-                        ->whereHas("payments");;
+        $query = Order::query()
+            ->where('order_type_id', $orderTypeId)
+            ->orders();
 
         if ($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)) {
-            if ($searchColumn == "customer_name") {
+            if ($searchColumn == 'customer_name') {
                 $query->whereHas('customer', function ($q) use ($searchInput) {
                     $q->WhereRaw(
                         "CONCAT(firstname, ' ', lastname) LIKE ?",
@@ -74,34 +72,31 @@ class OrderController extends Controller
             }
         } else {
             if ($userId) {
-                $query->where("created_by", $userId);
+                $query->where('created_by', $userId);
             }
 
             if ($isInvoiced) {
-                $query->where("invoice_no", 1);
+                $query->where('invoice_no', 1);
             }
 
-            if ($orderYear && $orderYear) {
-                $query->whereRaw("MONTH(created_at) = $orderMonth");
-                $query->whereRaw("YEAR(created_at) = $orderYear");
+            if ($orderMonth && $orderYear) {
+                $query->whereMonth('created_at', $orderMonth)
+                    ->whereYear('created_at', $orderYear);
             }
         }
 
-        
+        $data['orders'] = $query->get();
+        $data['filterInput'] = [
+            'orderTypeId' => $orderTypeId,
+            'userId' => $userId,
+            'invoicedStatus' => $request->invoice_status,
+            'orderMonth' => $orderMonth,
+            'orderYear' => $orderYear,
+            'searchColumn' => $searchColumn,
+            'searchInput' => $searchInput,
+        ];
 
-        $data["orders"] = $query->get();
-        $data["filterInput"] = [
-                                 "orderTypeId" => $orderTypeId,
-                                 "userId" => $userId,
-                                 "invoicedStatus" => $request->invoice_status,
-                                 "orderMonth" => $orderMonth,
-                                 "orderYear" => $orderYear,
-                                 "searchColumn" => $searchColumn,
-                                 "searchInput" => $searchInput
-                                ];
-
-
-        return view("pages.order.index", $data);
+        return view('pages.order.index', $data);
     }
 
     /**
@@ -152,23 +147,24 @@ class OrderController extends Controller
         //
     }
 
-    public function print_pdf($order_id){
+    public function print_pdf($order_id)
+    {
         $orderId = $order_id;
 
         $path = $this->pdfService->generateOrder($orderId);
-        
+
         return response()->download(storage_path('app/'.$path));
         // return view("pdf.order", $data);
     }
 
-    public function print_pdf_no_price($order_id){
+    public function print_pdf_no_price($order_id)
+    {
         $orderId = $order_id;
 
         $path = $this->pdfService->generateOrderNoPrice($orderId);
-      
+
         return response()->download(storage_path('app/'.$path));
 
         // return view("pdf.order-no-price", $data);
     }
-
 }

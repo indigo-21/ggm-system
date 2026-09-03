@@ -2,7 +2,7 @@
 
 @section('content')
     <div style="font-size:80%;"
-        <table class="table-bordered">
+        <table class="table-bordered-none">
             <tr>
                 <td colspan="3"><strong>Customer Name: </strong>{{ $customerName }} </td>
                 <td><strong>Date: </strong>{{ $printDate }} </td>
@@ -58,7 +58,10 @@
         <br>
         <strong>{{ $orderAdditionalNote }}</strong>
         <br><br>
-        When deciding to place an order a deposit of £1,500.00 will be required. <br>
+        @php
+            $deposit_amount = number_format($orderPayment->first()->amount ?? 0, 2);
+        @endphp
+        When deciding to place an order a deposit of £ {{ $deposit_amount }} will be required. <br>
         Please do not hesitate to contact me should you require any further information regarding this quotation. <br>
         I assure you of our best attention at all times. <br><br>
         Yours sincerely

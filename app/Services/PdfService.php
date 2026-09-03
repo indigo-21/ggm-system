@@ -31,7 +31,8 @@ class PdfService
         $data = [
             "title" => "Quotation-" . $orderId,
             "customerName" => $customerData?->firstname ?? ''. " " . $customerData->lastname,
-            "printDate" => Carbon::now()->format('F d, Y H:i A'),
+            // "printDate" => Carbon::now()->format('F d, Y H:i A'),
+            "printDate" => Carbon::now()->format('jS F Y'),
             "customerAddress" => $addressOne . " " . $addressTwo . " " . $cityCounty . " " . $postCode,
             "orderReference" => self::order_type_code($orderData->order_type_id) . $orderId,
             "customerFirstname" => $customerData->firstname,
@@ -42,6 +43,7 @@ class PdfService
             "headStoneSize" => $orderData->size ?? "",
             "material" => $orderData->material ?? "",
             "orderCost" => $orderData->order_cost,
+            "orderPayment" => $orderData->payments,
             "orderCostAdditionals" => $orderData->order_cost->additionals,
             "orderAdditionalNote" => $orderData->additional_notes,
             "locationName" => $orderData->location->name
@@ -73,7 +75,7 @@ class PdfService
 
         $data = [
                     "title" => "Order-".$orderId,
-                    "printDate" => Carbon::now()->format("F d, Y"),
+                    "printDate" => Carbon::now()->format("jS F Y"),
                     "orderDate" => Carbon::parse($orderData->createdAt)->format("F d, Y"),
                     "customerData" => $customerData,
                     "customerAddress" => $addressOne." ".$addressTwo." ".$cityCounty." ".$postCode,
@@ -116,7 +118,7 @@ class PdfService
 
         $data = [
                     "title" => "Order-".$orderId,
-                    "printDate" => Carbon::now()->format("F d, Y"),
+                    "printDate" => Carbon::now()->format("jS F Y"),
                     "orderDate" => Carbon::parse($orderData->createdAt)->format("F d, Y"),
                     "customerData" => $customerData,
                     "customerAddress" => $addressOne." ".$addressTwo." ".$cityCounty." ".$postCode,

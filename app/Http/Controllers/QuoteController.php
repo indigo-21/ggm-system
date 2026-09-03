@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreQuoteRequest;
+use App\Http\Requests\UpdateQuoteRequest;
 use App\Models\Accessory;
 use App\Models\BasedLedger;
 use App\Models\BurialSocietyOrganization;
@@ -116,9 +118,8 @@ class QuoteController extends Controller
             //             ->get()
             // ];
             $data += [
-                'quotes' => Order::whereMonth('created_at', now()->month)
-                    ->whereYear('created_at', now()->year)
-                    ->doesntHave('payments')
+                'quotes' => Order::quotes()
+                    ->forPeriod(now()->month, now()->year)
                     ->get(),
             ];
         }
@@ -151,8 +152,9 @@ class QuoteController extends Controller
         $searchInput = $request->search_input;
         $allowedColumns = ['id', 'customer_name', 'deceased_name', 'grave_number', 'invoice_no'];
 
-        $query = Order::where('order_type_id', $orderTypeId)
-            ->doesntHave('payments');
+        $query = Order::query()
+            ->where('order_type_id', $orderTypeId)
+            ->quotes();
 
         if ($searchColumn && $searchInput && in_array($searchColumn, $allowedColumns)) {
             if ($searchColumn == 'customer_name') {
@@ -174,9 +176,9 @@ class QuoteController extends Controller
             //     $query->where("invoice_no", 1);
             // }
 
-            if ($orderYear && $orderYear) {
-                $query->whereRaw("MONTH(created_at) = $orderMonth");
-                $query->whereRaw("YEAR(created_at) = $orderYear");
+            if ($orderMonth && $orderYear) {
+                $query->whereMonth('created_at', $orderMonth)
+                    ->whereYear('created_at', $orderYear);
             }
         }
 
@@ -207,22 +209,17 @@ class QuoteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, OrderService $order_service)
+    public function store(StoreQuoteRequest $request, OrderService $order_service)
     {
-
         $result = $order_service->order_upsert($request);
-        if (! $result['success']) {
-            return redirect()->back()->with('error', $result['message']);
-        } else {
-            $data = self::default_required_data();
 
-            // return view("pages.quote.index", $data)->with("success", $result["message"]);
-            //  return redirect()->route("quote.edit", $result["order_id"])->with("success", $result["message"], $data);
-            return redirect()
-                ->route('quote.edit', $result['order_id'])
-                ->with('success', $result['message'])
-                ->with('data', $data);
+        if (! $result['success']) {
+            return redirect()->back()->withInput()->with('error', $result['message']);
         }
+
+        return redirect()
+            ->route('quote.edit', $result['order_id'])
+            ->with('success', $result['message']);
     }
 
     /**
@@ -247,18 +244,17 @@ class QuoteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id, OrderService $order_service)
+    public function update(UpdateQuoteRequest $request, $id, OrderService $order_service)
     {
         $result = $order_service->order_upsert($request, $id);
-        if (! $result['success']) {
-            return redirect()->back()->with('error', $result['message']);
-        } else {
-            $data = self::default_required_data();
-            session()->flash('success', $result['message']);
 
-            // return view("pages.quote.index", $data);
-            return redirect()->route('quote.edit', $id);
+        if (! $result['success']) {
+            return redirect()->back()->withInput()->with('error', $result['message']);
         }
+
+        return redirect()
+            ->route('quote.edit', $id)
+            ->with('success', $result['message']);
     }
 
     /**

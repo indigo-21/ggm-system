@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
                 'firstname'         => 'Support',
                 'lastname'          => 'Indigo21',
                 'email'             => 'support@indigo21.com',
-                'username'          => 'admin',
+                'username'          => 'developers',
                 'password'          => Hash::make("indigo21"),
                 'email_verified_at' => date('Y-m-d H:i:s'),
             ],
