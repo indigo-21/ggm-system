@@ -829,23 +829,26 @@
                                 </div>
 
                                 <div class="col-12 row">
+                                    {{--
+                                        Deposit = the required / expected deposit for this quotation.
+                                        This is a reference figure entered by staff and is stored on
+                                        order_costs (deposit_description / deposit_amount). It is
+                                        intentionally independent of the Receipts/Payments section,
+                                        which records the money actually received from the customer.
+                                    --}}
                                     <div class="col-7">
                                         @php
-                                            $deposit_description = isset($order_payments)
-                                                ? $order_payments->first()?->comment
-                                                : '';
+                                            $deposit_description = $order_cost?->deposit_description ?? '';
                                         @endphp
                                         <x-input type="text" name="deposit_description"
-                                            value="{{ $deposit_description ?? '' }}" label="Deposit" readonly="true" />
+                                            value="{{ $deposit_description }}" label="Deposit" />
                                     </div>
                                     <div class="col-5">
                                         @php
-                                            $deposit_amount = isset($order_payments)
-                                                ? number_format($order_payments->first()->amount ?? 0, 2)
-                                                : '0.00';
+                                            $deposit_amount = number_format($order_cost?->deposit_amount ?? 0, 2);
                                         @endphp
-                                        <x-input type="text" class="text-right cost-computation"
-                                            name="deposit_amount" value="{{ $deposit_amount }}" label="Amount" readonly="true" />
+                                        <x-input type="text" class="text-right"
+                                            name="deposit_amount" value="{{ $deposit_amount }}" label="Amount" />
                                     </div>
                                 </div>
 
@@ -1302,7 +1305,10 @@
                                 <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_quotation_btn" href="{{ url('pdf/quotation/' . $quote?->id) }}"
                                     target="_blank" order_id="{{ $quote?->id ?? '' }}">Print Quotation</a>
-                                @if ($deposit_description && $deposit_amount)
+                                {{-- An order (as opposed to a bare quote) exists once a payment
+                                     has been recorded, so gate "Print Order" on actual payments
+                                     rather than the quoted deposit figure. --}}
+                                @if (($order_payments ?? collect())->isNotEmpty())
                                     <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_order_btn" href="{{ url('pdf/order/' . $quote?->id) }}" target="_blank"
                                     order_id="{{ $quote?->id ?? '' }}">Print Order</a>

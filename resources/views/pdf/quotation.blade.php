@@ -273,7 +273,7 @@
     @endif
 
     @php
-        $depositAmount = number_format(optional($orderPayment->first())->amount ?? 0, 2);
+        $depositAmount = number_format($depositRequired ?? 0, 2);
     @endphp
 
     <p class="closing-block">When deciding to place an order a deposit of £{{ $depositAmount }} will be required.</p>
