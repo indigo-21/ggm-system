@@ -56,16 +56,6 @@ class CustomerService
                         }
 
                         // Check uniqueness in DB
-                        $exists = DB::table('customer_contacts')
-                            ->where('contact_type', $contact_type)
-                            ->where('contact_value', $contact)
-                            ->when($id, fn($q) => $q->where('customer_id', '!=', $id))
-                            ->exists();
-
-                        if ($exists) {
-                            $fail("The $description '$contact' has already been taken.");
-                            return;
-                        }
                     }
                 }  ;
 
