@@ -219,7 +219,7 @@
     <p class="salutation">Dear {{ $customerFirstname }},</p>
 
     <div class="memorial-subject">
-        Memorial of the late {{ $deceasedName }}<br>
+        Memorial of the late {!! $deceasedName !!}<br>
         <span class="underline">{{ trim($cemeteryName . ' ' . $graveNumber) }}</span>
     </div>
 

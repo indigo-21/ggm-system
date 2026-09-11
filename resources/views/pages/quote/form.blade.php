@@ -231,8 +231,11 @@
                         </div>
                         <div class="body row">
                             <div class="col-6">
+                                @php
+                                    $deceased_name =  isset($quote) ? $quote->deceased_name : old('deceased_name')
+                                @endphp
                                 <x-input type="text" name="deceased_name"
-                                    value="{{ isset($quote) ? $quote->deceased_name : old('deceased_name') }}"
+                                    value="{!! $deceased_name !!}"
                                     label="Deceased" />
                             </div>
 
