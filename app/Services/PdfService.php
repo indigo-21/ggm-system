@@ -51,6 +51,12 @@ class PdfService
             'locationName' => $orderData->location->name,
         ];
 
+        // Derive a layout density so the Blade template can compact spacing and
+        // type scale to keep the quotation on a single page whenever reasonable.
+        // The main driver of vertical growth is the number of line items plus
+        // any long free-text blocks (deceased name, address, price note).
+        $data['density'] = self::quoteDensity($orderData, $data);
+
         $pdf = Pdf::loadView('pdf.quotation', $data);
 
         $filename = "Quotation-{$orderId}.pdf";
@@ -59,6 +65,56 @@ class PdfService
         Storage::put($relativePath, $pdf->output());
 
         return $relativePath;
+    }
+
+    /**
+     * Estimate how "tall" a quotation will render and return a density level the
+     * Blade template uses to scale spacing/typography:
+     *   "normal"  – roomy layout (few items, short text)
+     *   "compact" – tightened spacing to keep a busier quote on one page
+     *   "dense"   – maximum tightening for very long content
+     *
+     * This is a heuristic, not a pixel-perfect measurement (DomPDF cannot report
+     * rendered height back to us), but it reliably prevents a single extra line
+     * item or a long note from pushing the closing block onto a second page.
+     */
+    private static function quoteDensity($orderData, array $data): string
+    {
+        $cost = $orderData->order_cost;
+
+        // Count the line items that will actually render.
+        $lineItems = 0;
+        if ($cost && $cost->description && $cost->amount) {
+            $lineItems++;
+        }
+        if ($cost && $cost->letter_count && $cost->letter_amount) {
+            $lineItems++;
+        }
+        $lineItems += ($data['orderCostAdditionals'] ?? collect())
+            ->filter(fn ($additional) => filled($additional->description))
+            ->count();
+
+        // Long free-text blocks also consume vertical space.
+        $noteLength = mb_strlen(trim((string) ($data['orderAdditionalNote'] ?? '')));
+        $addressLength = mb_strlen(trim((string) ($data['customerAddress'] ?? '')));
+        $deceasedLength = mb_strlen(trim(strip_tags((string) ($data['deceasedName'] ?? ''))));
+
+        // Rough vertical-cost score. Thresholds tuned for A4 portrait with the
+        // template's baseline spacing.
+        $score = $lineItems * 2
+            + intdiv($noteLength, 90)
+            + intdiv($addressLength, 60)
+            + intdiv($deceasedLength, 60);
+
+        if ($score >= 12) {
+            return 'dense';
+        }
+
+        if ($score >= 6) {
+            return 'compact';
+        }
+
+        return 'normal';
     }
 
     public function generateOrder($order_id)

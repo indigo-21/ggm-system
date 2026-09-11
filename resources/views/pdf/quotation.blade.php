@@ -6,9 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
 
+    @php
+        // Density is provided by PdfService::quoteDensity(). Fall back to "normal"
+        // so the template still renders if called without it.
+        $density = $density ?? 'normal';
+    @endphp
+
     <style>
         @page {
-            margin: 40px 45px;
+            margin: 34px 45px;
         }
 
         * {
@@ -18,14 +24,14 @@
         body {
             font-family: "DejaVu Sans", sans-serif;
             font-size: 12px;
-            line-height: 1.5;
+            line-height: 1.45;
             color: #000;
             margin: 0;
             padding: 0;
         }
 
         p {
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
         }
 
         strong {
@@ -44,10 +50,16 @@
             text-align: right;
         }
 
+        /* Keep logically-grouped blocks from splitting across pages when the
+           content genuinely overflows onto a second page. */
+        .keep-together {
+            page-break-inside: avoid;
+        }
+
         /* ---------- Header ---------- */
         .company-name {
             text-align: center;
-            font-size: 30px;
+            font-size: 28px;
             font-weight: bold;
             letter-spacing: 1px;
             margin: 0;
@@ -64,13 +76,13 @@
         .branch-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 18px;
+            margin-top: 14px;
         }
 
         .branch-table td {
             vertical-align: top;
             font-size: 11px;
-            line-height: 1.45;
+            line-height: 1.4;
         }
 
         .branch-left {
@@ -87,13 +99,13 @@
         .meta-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 45px;
+            margin-top: 30px;
         }
 
         .meta-table td {
             vertical-align: top;
             font-size: 12px;
-            line-height: 1.55;
+            line-height: 1.5;
         }
 
         .meta-left {
@@ -108,20 +120,20 @@
 
         /* ---------- Body ---------- */
         .salutation {
-            margin-top: 40px;
+            margin-top: 26px;
         }
 
         .memorial-subject {
-            margin: 28px 0;
+            margin: 20px 0;
             text-align: center;
-            line-height: 1.7;
+            line-height: 1.6;
         }
 
         /* ---------- Quotation line items ---------- */
         .quote-heading {
             text-align: center;
             font-weight: bold;
-            margin: 30px 0 14px 0;
+            margin: 22px 0 10px 0;
         }
 
         .items-table {
@@ -130,8 +142,12 @@
             margin: 0 auto;
         }
 
+        .items-table tr {
+            page-break-inside: avoid;
+        }
+
         .items-table td {
-            padding: 4px 0;
+            padding: 3px 0;
             font-size: 12px;
         }
 
@@ -148,16 +164,16 @@
 
         /* ---------- Notes / closing ---------- */
         .price-note {
-            margin-top: 30px;
+            margin-top: 20px;
             font-weight: bold;
         }
 
         .closing-block {
-            margin-top: 26px;
+            margin-top: 18px;
         }
 
         .signoff {
-            margin-top: 45px;
+            margin-top: 30px;
         }
 
         .memorials-line {
@@ -169,13 +185,63 @@
 
         /* ---------- Bank details ---------- */
         .bank-details {
-            margin-top: 30px;
-            line-height: 1.6;
+            margin-top: 22px;
+            line-height: 1.55;
         }
+
+        /* =====================================================================
+           COMPACT density — tighten spacing/type for busier quotations so the
+           closing block and bank details stay on the first page.
+           ===================================================================== */
+        body.compact {
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        body.compact .company-name { font-size: 26px; }
+        body.compact .branch-table { margin-top: 10px; }
+        body.compact .branch-table td { font-size: 10.5px; line-height: 1.3; }
+        body.compact .meta-table { margin-top: 20px; }
+        body.compact .meta-table td { line-height: 1.4; }
+        body.compact .salutation { margin-top: 18px; }
+        body.compact .memorial-subject { margin: 14px 0; line-height: 1.45; }
+        body.compact p { margin: 0 0 6px 0; }
+        body.compact .quote-heading { margin: 16px 0 8px 0; }
+        body.compact .items-table td { padding: 2px 0; font-size: 11px; }
+        body.compact .price-note { margin-top: 14px; }
+        body.compact .closing-block { margin-top: 13px; }
+        body.compact .signoff { margin-top: 20px; }
+        body.compact .bank-details { margin-top: 16px; line-height: 1.45; }
+
+        /* =====================================================================
+           DENSE density — maximum tightening for very long content. Still keeps
+           readable type (>= 10px) and clear separation between sections.
+           ===================================================================== */
+        body.dense {
+            font-size: 10.5px;
+            line-height: 1.3;
+        }
+
+        body.dense .company-name { font-size: 24px; }
+        body.dense .company-subtitle { font-size: 11px; }
+        body.dense .branch-table { margin-top: 8px; }
+        body.dense .branch-table td { font-size: 10px; line-height: 1.25; }
+        body.dense .meta-table { margin-top: 14px; }
+        body.dense .meta-table td { font-size: 11px; line-height: 1.35; }
+        body.dense .salutation { margin-top: 12px; }
+        body.dense .memorial-subject { margin: 10px 0; line-height: 1.35; }
+        body.dense p { margin: 0 0 5px 0; }
+        body.dense .quote-heading { margin: 12px 0 6px 0; }
+        body.dense .items-table td { padding: 1.5px 0; font-size: 10.5px; }
+        body.dense .price-note { margin-top: 10px; }
+        body.dense .closing-block { margin-top: 10px; }
+        body.dense .signoff { margin-top: 14px; }
+        body.dense .memorials-line { font-size: 12px; }
+        body.dense .bank-details { margin-top: 12px; line-height: 1.35; }
     </style>
 </head>
 
-<body>
+<body class="{{ $density }}">
 
     {{-- ===================== Header ===================== --}}
     <div class="company-name">Gary Green</div>
@@ -238,34 +304,36 @@
             ->implode(' - ');
     @endphp
 
-    @if ($quoteHeading !== '')
-        <div class="quote-heading"><span class="underline">{{ $quoteHeading }}</span></div>
-    @endif
-
-    <table class="items-table">
-        @if ($orderCost && $orderCost->description && $orderCost->amount)
-            <tr>
-                <td class="item-desc">{{ $orderCost->description }}</td>
-                <td class="item-amount">£{{ number_format($orderCost->amount, 2) }}</td>
-            </tr>
+    <div class="keep-together">
+        @if ($quoteHeading !== '')
+            <div class="quote-heading"><span class="underline">{{ $quoteHeading }}</span></div>
         @endif
 
-        @if ($orderCost && $orderCost->letter_count && $orderCost->letter_amount)
-            <tr>
-                <td class="item-desc">{{ $orderCost->letter_count }} Letters @ £{{ number_format($orderCost->letter_amount, 2) }}</td>
-                <td class="item-amount">£{{ number_format($orderCost->letter_total_amount, 2) }}</td>
-            </tr>
-        @endif
-
-        @foreach ($orderCostAdditionals as $additional)
-            @if ($additional->description)
+        <table class="items-table">
+            @if ($orderCost && $orderCost->description && $orderCost->amount)
                 <tr>
-                    <td class="item-desc">{{ $additional->description }}</td>
-                    <td class="item-amount">£{{ number_format($additional->amount, 2) }}</td>
+                    <td class="item-desc">{{ $orderCost->description }}</td>
+                    <td class="item-amount">£{{ number_format($orderCost->amount, 2) }}</td>
                 </tr>
             @endif
-        @endforeach
-    </table>
+
+            @if ($orderCost && $orderCost->letter_count && $orderCost->letter_amount)
+                <tr>
+                    <td class="item-desc">{{ $orderCost->letter_count }} Letters @ £{{ number_format($orderCost->letter_amount, 2) }}</td>
+                    <td class="item-amount">£{{ number_format($orderCost->letter_total_amount, 2) }}</td>
+                </tr>
+            @endif
+
+            @foreach ($orderCostAdditionals as $additional)
+                @if ($additional->description)
+                    <tr>
+                        <td class="item-desc">{{ $additional->description }}</td>
+                        <td class="item-amount">£{{ number_format($additional->amount, 2) }}</td>
+                    </tr>
+                @endif
+            @endforeach
+        </table>
+    </div>
 
     {{-- ===================== Notes & Closing ===================== --}}
     @if (trim($orderAdditionalNote ?? '') !== '')
@@ -276,16 +344,18 @@
         $depositAmount = number_format($depositRequired ?? 0, 2);
     @endphp
 
-    <p class="closing-block">When deciding to place an order a deposit of £{{ $depositAmount }} will be required.</p>
-    <p>Please do not hesitate to contact me should you require any further information regarding this quotation.</p>
-    <p>I assure you of our best attention at all times.</p>
+    <div class="keep-together">
+        <p class="closing-block">When deciding to place an order a deposit of £{{ $depositAmount }} will be required.</p>
+        <p>Please do not hesitate to contact me should you require any further information regarding this quotation.</p>
+        <p>I assure you of our best attention at all times.</p>
 
-    <p class="signoff">Yours sincerely,</p>
+        <p class="signoff">Yours sincerely,</p>
 
-    <div class="memorials-line">GARY GREEN MEMORIALS - {{ $locationName }}</div>
+        <div class="memorials-line">GARY GREEN MEMORIALS - {{ $locationName }}</div>
+    </div>
 
     {{-- ===================== Bank Details ===================== --}}
-    <div class="bank-details">
+    <div class="bank-details keep-together">
         If paying deposit by bank transfer details as follows<br>
         Barclays Bank / Account Name: Gary Green Monumental Mason Limited<br>
         Account No: 70390909 / Sort Code: 20-44-22<br>
