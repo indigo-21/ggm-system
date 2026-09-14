@@ -82,7 +82,7 @@
                 <td class="flex-td">
                     <div class="label-left">Burial Society Organization: </div>
                     <div class="label-right">
-                        {{ $orderData->burial_society_organization->name }}
+                        {{ $orderData->burial_society_organization->name ?? '' }}
 
                     </div>
                 </td>
@@ -91,19 +91,19 @@
                 <td class="flex-td">
                     <div class="label-left">Material: </div>
                     <div class="label-right">
-                        {{ $orderData->material }}
+                        {{ $orderData->material ?? '' }}
                     </div>
                 </td>
                 <td class="flex-td">
                     <div class="label-left">Grave Space: </div>
                     <div class="label-right">
-                        {{ $orderData->grave_space->name }}
+                        {{ $orderData->grave_space->name ?? '' }}
                     </div>
                 </td>
                 <td class="flex-td">
                     <div class="label-left">Colour: </div>
                     <div class="label-right">
-                        {{ $orderData->material_colour }}
+                        {{ $orderData->material_colour ?? '' }}
                     </div>
                 </td>
             </tr>
@@ -112,13 +112,13 @@
                 <td class="flex-td">
                     <div class="label-left">Letter Type: </div>
                     <div class="label-right">
-                        {{ $orderData->letter_type }}
+                        {{ $orderData->letter_type ?? '' }}
                     </div>
                 </td>
                 <td class="flex-td">
                     <div class="label-left">Design/Headstone: </div>
                     <div class="label-right">
-                        {{ $orderData->design_headstone }}
+                        {{ $orderData->design_headstone ?? '' }}
                     </div>
                 </td>
                 <td class="flex-td">

@@ -1306,14 +1306,9 @@
                                 <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_quotation_btn" href="{{ url('pdf/quotation/' . $quote?->id) }}"
                                     target="_blank" order_id="{{ $quote?->id ?? '' }}">Print Quotation</a>
-                                {{-- An order (as opposed to a bare quote) exists once a payment
-                                     has been recorded, so gate "Print Order" on actual payments
-                                     rather than the quoted deposit figure. --}}
-                                @if (($order_payments ?? collect())->isNotEmpty())
-                                    <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
+                                <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_order_btn" href="{{ url('pdf/order/' . $quote?->id) }}" target="_blank"
                                     order_id="{{ $quote?->id ?? '' }}">Print Order</a>
-                                @endif
                                 <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_no_prices_btn" href="{{ url('pdf/order_no_price/' . $quote?->id) }}"
                                     target="_blank" order_id="{{ $quote?->id ?? '' }}">Print - No Prices</a>
