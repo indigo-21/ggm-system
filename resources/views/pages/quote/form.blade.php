@@ -189,31 +189,29 @@
                                     value="{{ isset($quote) ? $customer_email : old('email') }}" label="Email Address"
                                     readonly="true" :error="$errors->first('email')" />
                             </div>
-
-                            <div class="col-6">
+                            <div class="col-12">
                                 <x-input type="text" name="address_1" value="" label="Address Line 1"
                                     value="{{ isset($quote) ? $quote->customer?->address_one : old('address_1') }}" />
                             </div>
-                            <div class="col-6">
+                            <div class="col-12">
                                 <x-input type="text" name="address_2" value="" label="Address Line 2"
                                     value="{{ isset($quote) ? $quote->customer?->address_two : old('address_2') }}" />
                             </div>
-
-                            <div class="col-3">
+                            <div class="col-12">
                                 <x-input type="text" name="city_county" label="City / County"
                                     value="{{ isset($quote) ? $quote->customer?->city_county : old('city_county') }}" />
                             </div>
-                            <div class="col-3">
+                            <div class="col-12">
                                 <x-input type="text" name="post_code"
                                     value="{{ isset($quote) ? $quote->customer?->postcode : old('post_code') }}"
                                     label="Post Code" />
                             </div>
-                            <div class="col-3">
+                            <div class="col-6">
                                 <x-input type="text" name="tel_no"
                                     value="{{ isset($quote) ? $customer_tel_no : old('tel_no') }}" label="Tel. No."
                                     readonly="true" :error="$errors->first('tel_no')" />
                             </div>
-                            <div class="col-3">
+                            <div class="col-6">
                                 <x-input type="text" name="mobile_no"
                                     value="{{ isset($quote) ? $customer_mobile_no : old('mobile_no') }}"
                                     label="Mobile No." readonly="true" :error="$errors->first('mobile_no')" />
@@ -465,7 +463,7 @@
                                     }
                                 @endphp
                                 <x-select class="z-index show-tick with-others-option" name="material_colour"
-                                    label="Material - Colour" search="true">
+                                    label="Material - Colour " search="true">
                                     <option value="" disabled
                                         {{ $old_material_colour == '' ? 'selected' : '' }}>-Select Colour-</option>
                                     @if ($old_material_colour != '' && !in_array($old_material_colour, $material_colour_data))
@@ -473,7 +471,7 @@
                                             {{ $old_material_colour }}</option>
                                     @endif
                                     @foreach ($colours as $colour)
-                                        <option {{ $old_material == $colour->name ? 'selected' : '' }}
+                                        <option {{ $old_material_colour == $colour->name ? 'selected' : '' }}
                                             value="{{ $colour->name }}">
                                             {{ $colour->name }}
                                         </option>
@@ -540,7 +538,7 @@
                                             {{ $old_letter_type }}</option>
                                     @endif
                                     @foreach ($letter_types as $letter_type)
-                                        <option {{ $old_letter_type == $letter_type->name }}
+                                        <option {{ $old_letter_type == $letter_type->name ? 'selected' : '' }}
                                             value="{{ $letter_type->name }}">
                                             {{ $letter_type->name }}
                                         </option>
