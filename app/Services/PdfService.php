@@ -16,6 +16,28 @@ class PdfService
      */
     public function __construct() {}
 
+    /**
+     * Build the customer address as an ordered list of non-empty lines
+     * (address 1, address 2, city/county, postcode). Empty fields are dropped
+     * so the PDF never renders blank address lines, and each remaining part is
+     * shown on its own line to match the client-facing address layout.
+     *
+     * @return array<int, string>
+     */
+    private static function addressLines($customerData): array
+    {
+        return collect([
+            $customerData->address_one ?? '',
+            $customerData->address_two ?? '',
+            $customerData->city_county ?? '',
+            $customerData->postcode ?? '',
+        ])
+            ->map(fn ($line) => trim((string) $line))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
     public function generateQuote($orderId)
     {
         $orderData = Order::find($orderId);
@@ -23,17 +45,16 @@ class PdfService
         $customerData = $orderData->customer;
         $locationData = $orderData->location;
 
-        $addressOne = $customerData->address_one ?? '';
-        $addressTwo = $customerData->address_two ?? '';
-        $cityCounty = $customerData->city_county ?? '';
-        $postCode = $customerData->postcode ?? '';
+        $addressLines = self::addressLines($customerData);
 
         $data = [
             'title' => 'Quotation-'.$orderId,
-            'customerName' => $customerData?->firstname ?? ''.' '.$customerData->lastname,
+            'customerFistname' => $customerData->firstname,
+            'customerLastname' => $customerData->lastname ,
             // "printDate" => Carbon::now()->format('F d, Y H:i A'),
             'printDate' => Carbon::now()->format('jS F Y'),
-            'customerAddress' => $addressOne.' '.$addressTwo.' '.$cityCounty.' '.$postCode,
+            'customerAddress' => implode(' ', $addressLines),
+            'customerAddressLines' => $addressLines,
             'orderReference' => self::order_type_code($orderData->order_type_id).$orderId,
             'customerFirstname' => $customerData->firstname,
             'deceasedName' => $orderData?->deceased_name ?? '',
@@ -117,6 +138,53 @@ class PdfService
         return 'normal';
     }
 
+    /**
+     * Estimate rendered height for the Order form and return a density level the
+     * Blade template uses to scale spacing/typography. The order form is heavier
+     * than the quotation (full order-detail grid + notes + declaration), so it
+     * leans toward "compact" sooner.
+     */
+    private static function orderDensity($orderData): string
+    {
+        $cost = $orderData->order_cost;
+
+        $lineItems = 0;
+        if ($cost && $cost->description && $cost->amount) {
+            $lineItems++;
+        }
+        if ($cost && $cost->letter_count && $cost->letter_amount) {
+            $lineItems++;
+        }
+        if ($cost) {
+            $lineItems += $cost->additionals
+                ->filter(fn ($additional) => filled($additional->description))
+                ->count();
+        }
+
+        $notesLength = mb_strlen(trim((string) ($orderData->customer_notes ?? '')));
+
+        // The address is rendered stacked (one component per line), so each line
+        // adds vertical height. Count the lines beyond the first, which is the
+        // extra height compared with a single-line address.
+        $addressLineCount = count(self::addressLines($orderData->customer));
+        $extraAddressLines = max(0, $addressLineCount - 1);
+
+        // The order layout carries a lot of fixed content (full detail grid +
+        // terms + declaration) that already fills most of a page, so even a
+        // minimal order renders at "compact"; heavier orders step up to "dense".
+        // "normal" is intentionally not used for orders — it is kept available
+        // in the template only as a graceful fallback.
+        $score = $lineItems * 2
+            + intdiv($notesLength, 120)
+            + $extraAddressLines * 2;
+
+        if ($score >= 4) {
+            return 'dense';
+        }
+
+        return 'compact';
+    }
+
     public function generateOrder($order_id)
     {
         $orderId = $order_id;
@@ -127,21 +195,23 @@ class PdfService
 
         // $locationData = $orderData->location;
 
-        $addressOne = $customerData->address_one ?? '';
-        $addressTwo = $customerData->address_two ?? '';
-        $cityCounty = $customerData->city_county ?? '';
-        $postCode = $customerData->postcode ?? '';
+        $addressLines = self::addressLines($customerData);
 
         $data = [
             'title' => 'Order-'.$orderId,
             'printDate' => Carbon::now()->format('jS F Y'),
-            'orderDate' => Carbon::parse($orderData->createdAt)->format('F d, Y'),
+            'orderDate' => $orderData->created_at ? Carbon::parse($orderData->created_at)->format('F d, Y') : '',
             'customerData' => $customerData,
-            'customerAddress' => $addressOne.' '.$addressTwo.' '.$cityCounty.' '.$postCode,
+            'customerAddress' => implode(' ', $addressLines),
+            'customerAddressLines' => $addressLines,
             'orderData' => $orderData,
             'orderCost' => $orderCostData,
             'orderDeposit' => $orderData->payments->first(),
         ];
+
+        // Reuse the same content-density heuristic as the quotation so the order
+        // form compacts spacing/type to stay on a single page when reasonable.
+        $data['density'] = self::orderDensity($orderData);
 
         $pdf = Pdf::loadView('pdf.order', $data);
         $pdf->setPaper('A4', 'portrait');

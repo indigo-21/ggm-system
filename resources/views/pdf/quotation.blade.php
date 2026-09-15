@@ -269,10 +269,10 @@
     <table class="meta-table">
         <tr>
             <td class="meta-left">
-                {{ $customerName }}<br>
-                @if (trim($customerAddress) !== '')
-                    {!! nl2br(e(trim($customerAddress))) !!}
-                @endif
+                {{ $customerFistname }} {{ $customerLastname }}<br>
+                @foreach ($customerAddressLines ?? [] as $line)
+                    {{ $line }}@if (!$loop->last)<br>@endif
+                @endforeach
             </td>
             <td class="meta-right">
                 {{ $printDate }}<br>
