@@ -70,7 +70,7 @@ class OrderInscriptionController extends Controller
                 ];
         $pdf = Pdf::loadView('pdf.inscription', $data);
 
-        $filename  = "Inscription-{$orderId}";
+        $filename  = "Inscription-{$orderId}.pdf";
         $relativePath = "pdfs/{$filename}";
 
         
