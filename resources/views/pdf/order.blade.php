@@ -33,16 +33,18 @@
         }
 
         body {
+            /* Base type scaled down ~15% (11px -> 9.5px) to improve
+               single-page printability while staying readable. */
             font-family: "DejaVu Sans", sans-serif;
-            font-size: 11px;
-            line-height: 1.4;
+            font-size: 9.5px;
+            line-height: 1.35;
             color: #000;
             margin: 0;
             padding: 0;
         }
 
         p {
-            margin: 0 0 7px 0;
+            margin: 0 0 6px 0;
         }
 
         strong {
@@ -59,7 +61,7 @@
         /* ---------- Header ---------- */
         .company-name {
             text-align: center;
-            font-size: 26px;
+            font-size: 22px;
             font-weight: bold;
             letter-spacing: 1px;
             margin: 0;
@@ -67,7 +69,7 @@
 
         .company-subtitle {
             text-align: center;
-            font-size: 11px;
+            font-size: 9.5px;
             font-weight: bold;
             letter-spacing: 1px;
             margin: 2px 0 0 0;
@@ -76,13 +78,13 @@
         .branch-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
+            margin-top: 10px;
         }
 
         .branch-table td {
             vertical-align: top;
-            font-size: 10.5px;
-            line-height: 1.35;
+            font-size: 9px;
+            line-height: 1.3;
         }
 
         .branch-left { width: 50%; text-align: left; }
@@ -90,24 +92,24 @@
 
         .doc-title {
             text-align: center;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: bold;
-            margin: 16px 0 4px 0;
-            padding-bottom: 6px;
+            margin: 13px 0 3px 0;
+            padding-bottom: 5px;
             border-bottom: 2px solid #000;
         }
 
         /* ---------- Section headings ---------- */
         .section {
-            margin-top: 11px;
+            margin-top: 9px;
         }
 
         .section-title {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 0 0 5px 0;
+            margin: 0 0 4px 0;
             padding-bottom: 3px;
             border-bottom: 1px solid #000;
         }
@@ -120,9 +122,9 @@
 
         .info-table td {
             vertical-align: top;
-            padding: 3px 8px 3px 0;
-            font-size: 11px;
-            line-height: 1.4;
+            padding: 2.5px 8px 2.5px 0;
+            font-size: 9.5px;
+            line-height: 1.35;
         }
 
         .info-label {
@@ -144,7 +146,7 @@
         .address-lines td {
             padding: 1px 0 2px 0;
             border-bottom: 1px solid #999;
-            line-height: 1.35;
+            line-height: 1.3;
         }
 
         /* ---------- Cost table ---------- */
@@ -157,15 +159,15 @@
         .cost-table th {
             border: 1px solid #000;
             background: #f0f0f0;
-            padding: 5px 8px;
+            padding: 4px 7px;
             text-align: left;
-            font-size: 11px;
+            font-size: 9.5px;
         }
 
         .cost-table td {
             border: 1px solid #000;
-            padding: 4px 8px;
-            font-size: 11px;
+            padding: 3px 7px;
+            font-size: 9.5px;
         }
 
         .cost-table tr {
@@ -183,21 +185,21 @@
         /* ---------- Notes / terms ---------- */
         .notes-box {
             border: 1px solid #000;
-            padding: 7px 9px;
-            min-height: 40px;
-            font-size: 11px;
-            line-height: 1.4;
-        }
-
-        .terms {
-            margin-top: 3px;
+            padding: 6px 8px;
+            min-height: 34px;
             font-size: 9.5px;
             line-height: 1.35;
         }
 
+        .terms {
+            margin-top: 3px;
+            font-size: 8px;
+            line-height: 1.3;
+        }
+
         .terms-list {
             margin: 0;
-            padding-left: 15px;
+            padding-left: 14px;
         }
 
         .terms-list li {
@@ -205,25 +207,25 @@
         }
 
         .produced-on {
-            margin-top: 6px;
+            margin-top: 5px;
             font-style: italic;
-            font-size: 10px;
+            font-size: 8.5px;
         }
 
         /* ---------- Declaration / signature ---------- */
         .declaration {
-            margin-top: 14px;
+            margin-top: 12px;
         }
 
         .sign-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 16px;
+            margin-top: 14px;
         }
 
         .sign-table td {
             width: 50%;
-            font-size: 11px;
+            font-size: 9.5px;
             padding-right: 20px;
         }
 
@@ -234,42 +236,46 @@
         }
 
         /* =====================================================================
-           COMPACT density
+           COMPACT density (~15% smaller than the previous compact tier)
            ===================================================================== */
-        body.compact { font-size: 10.5px; line-height: 1.28; }
-        body.compact .company-name { font-size: 23px; }
-        body.compact .branch-table { margin-top: 8px; }
-        body.compact .doc-title { font-size: 14px; margin: 10px 0 3px 0; padding-bottom: 4px; }
-        body.compact .section { margin-top: 9px; }
-        body.compact .section-title { margin-bottom: 4px; }
-        body.compact .info-table td { padding: 1.5px 8px 1.5px 0; }
+        body.compact { font-size: 9px; line-height: 1.25; }
+        body.compact .company-name { font-size: 19.5px; }
+        body.compact .company-subtitle { font-size: 9px; }
+        body.compact .branch-table { margin-top: 7px; }
+        body.compact .branch-table td { font-size: 8.5px; }
+        body.compact .doc-title { font-size: 12px; margin: 9px 0 3px 0; padding-bottom: 4px; }
+        body.compact .section { margin-top: 8px; }
+        body.compact .section-title { font-size: 9.5px; margin-bottom: 3px; }
+        body.compact .info-table td { padding: 1.5px 8px 1.5px 0; font-size: 9px; }
         body.compact .cost-table td,
-        body.compact .cost-table th { padding: 2.5px 7px; }
-        body.compact .notes-box { padding: 5px 7px; min-height: 30px; }
-        body.compact .terms { font-size: 9px; line-height: 1.32; }
-        body.compact .produced-on { margin-top: 4px; }
-        body.compact .declaration { margin-top: 10px; }
-        body.compact .sign-table { margin-top: 13px; }
+        body.compact .cost-table th { padding: 2px 6px; font-size: 9px; }
+        body.compact .notes-box { padding: 4px 6px; min-height: 26px; font-size: 9px; }
+        body.compact .terms { font-size: 7.5px; line-height: 1.25; }
+        body.compact .produced-on { margin-top: 3px; font-size: 8px; }
+        body.compact .declaration { margin-top: 9px; }
+        body.compact .sign-table { margin-top: 11px; }
+        body.compact .sign-table td { font-size: 9px; }
 
         /* =====================================================================
-           DENSE density
+           DENSE density (~15% smaller than the previous dense tier)
            ===================================================================== */
-        body.dense { font-size: 10px; line-height: 1.28; }
-        body.dense .company-name { font-size: 22px; }
-        body.dense .company-subtitle { font-size: 10px; }
-        body.dense .branch-table { margin-top: 7px; }
-        body.dense .branch-table td { font-size: 10px; line-height: 1.28; }
-        body.dense .doc-title { font-size: 13px; margin: 10px 0 3px 0; padding-bottom: 4px; }
-        body.dense .section { margin-top: 9px; }
-        body.dense .section-title { margin-bottom: 4px; }
-        body.dense .info-table td { padding: 1.5px 8px 1.5px 0; font-size: 10px; }
+        body.dense { font-size: 8.5px; line-height: 1.25; }
+        body.dense .company-name { font-size: 18.5px; }
+        body.dense .company-subtitle { font-size: 8.5px; }
+        body.dense .branch-table { margin-top: 6px; }
+        body.dense .branch-table td { font-size: 8.5px; line-height: 1.25; }
+        body.dense .doc-title { font-size: 11px; margin: 8px 0 3px 0; padding-bottom: 4px; }
+        body.dense .section { margin-top: 8px; }
+        body.dense .section-title { font-size: 9px; margin-bottom: 3px; }
+        body.dense .info-table td { padding: 1.5px 8px 1.5px 0; font-size: 8.5px; }
         body.dense .cost-table td,
-        body.dense .cost-table th { padding: 2.5px 6px; font-size: 10px; }
-        body.dense .notes-box { padding: 5px 7px; min-height: 28px; }
-        body.dense .terms { font-size: 9px; line-height: 1.32; }
-        body.dense .produced-on { margin-top: 4px; }
-        body.dense .declaration { margin-top: 10px; }
-        body.dense .sign-table { margin-top: 14px; }
+        body.dense .cost-table th { padding: 2px 5px; font-size: 8.5px; }
+        body.dense .notes-box { padding: 4px 6px; min-height: 24px; font-size: 8.5px; }
+        body.dense .terms { font-size: 7.5px; line-height: 1.25; }
+        body.dense .produced-on { margin-top: 3px; font-size: 8px; }
+        body.dense .declaration { margin-top: 9px; }
+        body.dense .sign-table { margin-top: 12px; }
+        body.dense .sign-table td { font-size: 8.5px; }
     </style>
 </head>
 
