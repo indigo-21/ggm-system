@@ -16,10 +16,10 @@
         $mobileNos = $customerData->customer_contacts->where('contact_type', 2)->pluck('contact_value')->filter();
 
         $dateOfDeath = $orderData->date_of_death
-            ? \Carbon\Carbon::parse($orderData->date_of_death)->format('F d, Y A')
+            ? \Carbon\Carbon::parse($orderData->date_of_death)->format('jS F Y')
             : '';
         $consecration = $orderData->consecration_date
-            ? \Carbon\Carbon::parse($orderData->consecration_date)->format('F d, Y')
+            ? \Carbon\Carbon::parse($orderData->consecration_date)->format('jS F Y')
             : '';
     @endphp
 
