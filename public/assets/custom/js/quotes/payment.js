@@ -78,7 +78,27 @@ $(document).on("click", "#save_payment_btn", function () {
                 window.location.reload();
             },
             error: function (xhr, status, error) {
-                console.error(error);
+                // Surface server-side validation errors (422) next to the
+                // relevant fields; fall back to a console log otherwise.
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const map = {
+                        // Server error key -> form field name.
+                        payment_datetime: "payment_timestamp",
+                        payment_method: "payment_method",
+                        payment_amount: "payment_amount",
+                        payment_comment: "payment_comment",
+                    };
+                    Object.keys(xhr.responseJSON.errors).forEach(function (field) {
+                        const name = map[field] || field;
+                        $(`[name=${name}]`).addClass("is-invalid");
+                    });
+                    const first = Object.values(xhr.responseJSON.errors)[0];
+                    $("#paymentTableBody").html(
+                        `<tr><td colspan="6" class="text-center text-danger">${first && first[0] ? first[0] : "Please correct the highlighted fields."}</td></tr>`
+                    );
+                } else {
+                    console.error(error);
+                }
             }
         })
     }

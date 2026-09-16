@@ -10,7 +10,8 @@
                 <div class="payment-form row">
                     <div class="col-4">
                         <x-input type="text" name="payment_timestamp" value=""
-                            class="daterange-timestamp clear-daterange" label="Payment Date & Time" />
+                            class="daterange-timestamp clear-daterange" label="Payment Date & Time"
+                            :required="true" />
                     </div>
                     <div class="col-4">
                         <x-select class="z-index show-tick" name="payment_method" label="Payment Method"
@@ -24,9 +25,10 @@
                     </div>
                     <div class="col-4">
                         <x-input type="text" class="text-right cost-computation" name="payment_amount" value=""
-                            label="Price Amount" />
+                            label="Price Amount" :required="true" />
                     </div>
                     <div class="col-12">
+                        {{-- Comment is optional per the revised business rules. --}}
                         <x-input type="textarea" name="payment_comment" value="" label="Comment" />
                     </div>
 
