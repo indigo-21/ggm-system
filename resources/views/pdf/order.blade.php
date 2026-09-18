@@ -149,37 +149,62 @@
             line-height: 1.3;
         }
 
-        /* ---------- Cost table ---------- */
+        /* ---------- Cost summary ----------
+           Three columns: a right-aligned label, an underlined centre
+           description, and a right-aligned amount. Underlines are applied to
+           the description + amount cells to mirror the fill-in-line look of the
+           reference, rather than a fully boxed table. */
         .cost-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 2px;
-        }
-
-        .cost-table th {
-            border: 1px solid #000;
-            background: #f0f0f0;
-            padding: 4px 7px;
-            text-align: left;
-            font-size: 9.5px;
-        }
-
-        .cost-table td {
-            border: 1px solid #000;
-            padding: 3px 7px;
-            font-size: 9.5px;
+            margin-top: 4px;
         }
 
         .cost-table tr {
             page-break-inside: avoid;
         }
 
-        .cost-desc { text-align: left; }
-        .cost-amount { text-align: right; white-space: nowrap; width: 28%; }
+        .cost-table td {
+            font-size: 9.5px;
+            padding: 3px 6px;
+            vertical-align: bottom;
+        }
 
-        .cost-total td {
+        .cost-label {
+            width: 20%;
+            text-align: right;
             font-weight: bold;
-            background: #f7f7f7;
+            white-space: nowrap;
+            padding-right: 10px;
+        }
+
+        .cost-desc {
+            text-align: center;
+            border-bottom: 1px solid #000;
+        }
+
+        .cost-amount {
+            width: 22%;
+            text-align: right;
+            white-space: nowrap;
+            border-bottom: 1px solid #000;
+        }
+
+        /* Grand Total / Deposit summary rows: emphasise the figure. */
+        .cost-summary .cost-label,
+        .cost-summary .cost-amount {
+            font-weight: bold;
+        }
+
+        /* Balance Due: strongest emphasis with a double top rule. */
+        .cost-balance .cost-label,
+        .cost-balance .cost-amount {
+            font-weight: bold;
+        }
+
+        .cost-balance .cost-amount {
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
         }
 
         /* ---------- Notes / terms ---------- */
@@ -247,8 +272,7 @@
         body.compact .section { margin-top: 8px; }
         body.compact .section-title { font-size: 9.5px; margin-bottom: 3px; }
         body.compact .info-table td { padding: 1.5px 8px 1.5px 0; font-size: 9px; }
-        body.compact .cost-table td,
-        body.compact .cost-table th { padding: 2px 6px; font-size: 9px; }
+        body.compact .cost-table td { padding: 2px 6px; font-size: 9px; }
         body.compact .notes-box { padding: 4px 6px; min-height: 26px; font-size: 9px; }
         body.compact .terms { font-size: 7.5px; line-height: 1.25; }
         body.compact .produced-on { margin-top: 3px; font-size: 8px; }
@@ -268,8 +292,7 @@
         body.dense .section { margin-top: 8px; }
         body.dense .section-title { font-size: 9px; margin-bottom: 3px; }
         body.dense .info-table td { padding: 1.5px 8px 1.5px 0; font-size: 8.5px; }
-        body.dense .cost-table td,
-        body.dense .cost-table th { padding: 2px 5px; font-size: 8.5px; }
+        body.dense .cost-table td { padding: 2px 5px; font-size: 8.5px; }
         body.dense .notes-box { padding: 4px 6px; min-height: 24px; font-size: 8.5px; }
         body.dense .terms { font-size: 7.5px; line-height: 1.25; }
         body.dense .produced-on { margin-top: 3px; font-size: 8px; }
@@ -396,25 +419,37 @@
     </div>
 
     {{-- ===================== Cost ===================== --}}
+    @php
+        $money = fn ($value) => '£' . number_format((float) ($value ?? 0), 2);
+        $moneyNeg = fn ($value) => '- £' . number_format((float) ($value ?? 0), 2);
+
+        $grandTotal = (float) ($orderCost->grand_total ?? 0);
+        $depositAmount = $orderDeposit ? (float) $orderDeposit->amount : 0.0;
+        // Balance is derived from grand total less the recorded deposit so it is
+        // always internally consistent regardless of the stored value.
+        $balanceDue = $grandTotal - $depositAmount;
+
+        $hasDiscount = filled($orderCost->discount_description ?? null)
+            || (float) ($orderCost->discount_amount ?? 0) != 0;
+    @endphp
+
     <div class="section keep-together">
         <div class="section-title">Cost</div>
         <table class="cost-table">
-            <tr>
-                <th class="cost-desc">Description</th>
-                <th class="cost-amount">Amount</th>
-            </tr>
-
+            {{-- ----- Price line items ----- --}}
             @if ($orderCost && $orderCost->description && $orderCost->amount)
                 <tr>
+                    <td class="cost-label">Price :</td>
                     <td class="cost-desc">{{ $orderCost->description }}</td>
-                    <td class="cost-amount">£{{ number_format($orderCost->amount, 2) }}</td>
+                    <td class="cost-amount">{{ $money($orderCost->amount) }}</td>
                 </tr>
             @endif
 
             @if ($orderCost && $orderCost->letter_count && $orderCost->letter_amount)
                 <tr>
+                    <td class="cost-label"></td>
                     <td class="cost-desc">{{ $orderCost->letter_count }} Letters @ £{{ number_format($orderCost->letter_amount, 2) }}</td>
-                    <td class="cost-amount">£{{ number_format($orderCost->letter_total_amount ?? 0, 2) }}</td>
+                    <td class="cost-amount">{{ $money($orderCost->letter_total_amount) }}</td>
                 </tr>
             @endif
 
@@ -422,20 +457,44 @@
                 @foreach ($orderCost->additionals as $additional)
                     @if ($additional->description)
                         <tr>
+                            <td class="cost-label"></td>
                             <td class="cost-desc">{{ $additional->description }}</td>
-                            <td class="cost-amount">£{{ number_format($additional->amount ?? 0, 2) }}</td>
+                            <td class="cost-amount">{{ $money($additional->amount) }}</td>
                         </tr>
                     @endif
                 @endforeach
             @endif
 
-            <tr class="cost-total">
-                <td class="cost-desc">Grand Total</td>
-                <td class="cost-amount">£{{ number_format($orderCost->grand_total ?? 0, 2) }}</td>
+            {{-- ----- Discount (only when present) ----- --}}
+            @if ($hasDiscount)
+                <tr>
+                    <td class="cost-label">Discount :</td>
+                    <td class="cost-desc">{{ $orderCost->discount_description }}</td>
+                    <td class="cost-amount">{{ $moneyNeg($orderCost->discount_amount) }}</td>
+                </tr>
+            @endif
+
+            {{-- ----- Grand Total ----- --}}
+            <tr class="cost-summary">
+                <td class="cost-label">Grand Total :</td>
+                <td class="cost-desc"></td>
+                <td class="cost-amount">{{ $money($grandTotal) }}</td>
             </tr>
-            <tr>
-                <td class="cost-desc"><strong>Deposit:</strong> {{ $orderDeposit?->comment ?? '' }}</td>
-                <td class="cost-amount">- £{{ $orderDeposit ? number_format($orderDeposit->amount, 2) : '0.00' }}</td>
+
+            {{-- ----- Deposit (only when a deposit/payment exists) ----- --}}
+            @if ($orderDeposit)
+                <tr class="cost-summary">
+                    <td class="cost-label">Deposit :</td>
+                    <td class="cost-desc">{{ $orderCost->deposit_description ?? '' }}</td>
+                    <td class="cost-amount">{{ $moneyNeg($depositAmount) }}</td>
+                </tr>
+            @endif
+
+            {{-- ----- Balance Due (emphasised) ----- --}}
+            <tr class="cost-balance">
+                <td class="cost-label">Balance :</td>
+                <td class="cost-desc"></td>
+                <td class="cost-amount">{{ $money($balanceDue) }}</td>
             </tr>
         </table>
     </div>
