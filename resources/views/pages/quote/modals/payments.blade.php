@@ -63,7 +63,7 @@
                                     {{ $order_payment->created_user->lastname ?? '' }}</td>
                                 <td>{{ date('F d, Y h:i A', strtotime($order_payment->payment_datetime)) ?? '' }}</td>
                                 <td>
-                                    @switch($order_payment->payment_method)
+                                    @switch($order_payment->method)
                                         @case(1)
                                             Cash
                                         @break
