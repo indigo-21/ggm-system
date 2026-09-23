@@ -68,11 +68,15 @@
                                 </div>
                             </div>
                             <div class="col-12 mt-3">
+                                @php
+                                    $order_month = isset($schedule) && $schedule->order_date ? date('n', strtotime($schedule->order_date)) : date('n');
+                                    $order_year = isset($schedule) && $schedule->order_date ? date('Y', strtotime($schedule->order_date)) : date('Y');
+                                @endphp
                                 <div class="d-flex justify-content-center align-items-center" style="gap: 10px;">
                                     <x-select class="z-index show-tick" name="month" label="Month" search="true">
                                         @foreach ($months as $month)
                                             <option value="{{ $loop->iteration }}"
-                                                {{ date('n') == $loop->iteration ? 'selected' : '' }}>
+                                                {{ $order_month == $loop->iteration ? 'selected' : '' }}>
                                                 {{ $month }}
                                             </option>
                                         @endforeach
@@ -80,7 +84,7 @@
                                     <x-select class="z-index show-tick" label="Year" name="year" search="true">
                                         @foreach ($years as $year)
                                             <option value="{{ $year }}"
-                                                {{ date('Y') == $year ? 'selected' : '' }}>{{ $year }}
+                                                {{ $order_year == $year ? 'selected' : '' }}>{{ $year }}
                                             </option>
                                         @endforeach
                                     </x-select>
