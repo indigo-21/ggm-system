@@ -80,7 +80,16 @@
                 <div class="col-12">
                     <div class="card top_widget">
                         <div class="body row">
-                            <div class="col-6">
+                            <div class="col-4">
+                                <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
+                                    :required="true" search="true">
+                                    @foreach ($order_types as $order_type)
+                                        <option value="{{ $order_type->id }}" {{ $order_type->id == 3 ? 'selected' : '' }}>{{ $order_type->name }}</option>
+                                    @endforeach
+                                </x-select>
+                            </div> 
+
+                            <div class="col-4">
                                 <x-select class="z-index show-tick" name="fixing_status" label="Fixing Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
@@ -88,7 +97,7 @@
                                     <option value="1">-Fixed-</option>
                                 </x-select>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <x-select class="z-index show-tick" name="payment_status" label="Payment Status"
                                     search="true">
                                     <option value="" disabled selected>-All-</option>
@@ -98,12 +107,17 @@
                                     @endforeach
                                 </x-select>
                             </div>
+                            @php
+                                $scheduleFilters = $filters ?? [];
+                                $activeMonth = $scheduleFilters['orderMonth'] ?? date('n');
+                                $activeYear = $scheduleFilters['orderYear'] ?? date('Y');
+                            @endphp
                             <div class="col-2">
                                 <x-select class="z-index show-tick" name="order_date_month" label="Order Date"
                                     search="true">
                                     @foreach ($months as $month)
                                         <option value="{{ $loop->iteration }}"
-                                            {{ date('n') == $loop->iteration ? 'selected' : '' }}>{{ $month }}
+                                            {{ (int) $activeMonth == $loop->iteration ? 'selected' : '' }}>{{ $month }}
                                         </option>
                                     @endforeach
                                 </x-select>
@@ -112,7 +126,7 @@
                                 <x-select class="z-index show-tick" label="Year Filter" name="order_date_year"
                                     search="true">
                                     @foreach ($years as $year)
-                                        <option value="{{ $year }}" {{ date('Y') == $year ? 'selected' : '' }}>
+                                        <option value="{{ $year }}" {{ (string) $activeYear === (string) $year ? 'selected' : '' }}>
                                             {{ $year }}</option>
                                     @endforeach
                                 </x-select>

@@ -25,9 +25,10 @@
                     <div class="col-lg-6 col-md-12">
                         <ul class="breadcrumb pl-0 pb-0 ">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Schedule</li>
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Schedules</a></li>
+                            <li class="breadcrumb-item active">New Memorials</li>
                         </ul>
-                        <h1 class="mb-1 mt-1">Schedule</h1>
+                        <h1 class="mb-1 mt-1">New Memorials</h1>
                         <span>Lorem ipsum dolor sit amet consectetur adipisicing elit.</span>
                     </div>
                     <div class="col-lg-6 col-md-12 text-md-right">
@@ -48,28 +49,42 @@
                 <div class="col-12">
                     <div class="card top_widget">
                         <div class="body row">
-                            {{-- <div class="col-4">
+                            <div class="col-4">
                                 <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
                                     :required="true" search="true">
                                     @foreach ($order_types as $order_type)
-                                        <option value="{{ $order_type->id }}">{{ $order_type->name }}</option>
+                                        <option value="{{ $order_type->id }}" {{ $order_type->id == 1 ? 'selected' : '' }}>{{ $order_type->name }}</option>
                                     @endforeach
                                 </x-select>
-                            </div> --}}
-                            <div class="col-6">
+                            </div> 
+                            @php
+                                // Active filter values (present when the page was reached via a
+                                // filter submission or the post-save redirect). Fall back to the
+                                // current month/year for the initial listing.
+                                $filters = $filters ?? [];
+                                $activeFixing = $filters['fixingStatus'] ?? null;
+                                $activePayment = $filters['paymentStatus'] ?? null;
+                                $activeMonth = $filters['orderMonth'] ?? date('n');
+                                $activeYear = $filters['orderYear'] ?? date('Y');
+                                $activeSearchColumn = $filters['searchColumn'] ?? '';
+                                $activeSearchInput = $filters['searchInput'] ?? '';
+                            @endphp
+                            <div class="col-4">
                                 <x-select class="z-index show-tick" name="fixing_status" label="Fixing Status"
                                     search="true">
-                                    <option value="" disabled selected>-All-</option>
-                                    <option value="0">-Unfixed-</option>
-                                    <option value="1">-Fixed-</option>
+                                    <option value="" {{ $activeFixing === null || $activeFixing === '' ? 'selected' : '' }}>-All-</option>
+                                    <option value="0" {{ $activeFixing !== null && $activeFixing !== '' && (int) $activeFixing === 0 ? 'selected' : '' }}>-Unfixed-</option>
+                                    <option value="1" {{ (string) $activeFixing === '1' ? 'selected' : '' }}>-Fixed-</option>
                                 </x-select>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <x-select class="z-index show-tick" name="payment_status" label="Payment Status"
                                     search="true">
-                                    <option value="" disabled selected>-All-</option>
+                                    <option value="" {{ $activePayment === null || $activePayment === '' ? 'selected' : '' }}>-All-</option>
                                     @foreach ($payment_statuses as $payment_status)
-                                        <option value="{{ $payment_status['id'] }}">{{ $payment_status['name'] }}</option>
+                                        <option value="{{ $payment_status['id'] }}"
+                                            {{ (string) $activePayment === (string) $payment_status['id'] ? 'selected' : '' }}>
+                                            {{ $payment_status['name'] }}</option>
                                     @endforeach
                                 </x-select>
                             </div>
@@ -78,7 +93,7 @@
                                     search="true">
                                     @foreach ($months as $month)
                                         <option value="{{ $loop->iteration }}"
-                                            {{ date('n') == $loop->iteration ? 'selected' : '' }}>{{ $month }}
+                                            {{ (int) $activeMonth == $loop->iteration ? 'selected' : '' }}>{{ $month }}
                                         </option>
                                     @endforeach
                                 </x-select>
@@ -87,7 +102,7 @@
                                 <x-select class="z-index show-tick" label="Year Filter" name="order_date_year"
                                     search="true">
                                     @foreach ($years as $year)
-                                        <option value="{{ $year }}" {{ date('Y') == $year ? 'selected' : '' }}>
+                                        <option value="{{ $year }}" {{ (string) $activeYear === (string) $year ? 'selected' : '' }}>
                                             {{ $year }}</option>
                                     @endforeach
                                 </x-select>
@@ -97,15 +112,15 @@
                                     <div class="col-3">
                                         <x-select class="z-index show-tick" name="search_column" label="Search"
                                             search="true">
-                                            <option value="">-All-</option>
-                                            <option value="deceased_name">Deceased.</option>
-                                            <option value="grave_number">Grave No.</option>
-                                            <option value="invoice_no">Invoice No.</option>
+                                            <option value="" {{ $activeSearchColumn === '' ? 'selected' : '' }}>-All-</option>
+                                            <option value="deceased_name" {{ $activeSearchColumn === 'deceased_name' ? 'selected' : '' }}>Deceased.</option>
+                                            <option value="grave_number" {{ $activeSearchColumn === 'grave_number' ? 'selected' : '' }}>Grave No.</option>
+                                            <option value="invoice_no" {{ $activeSearchColumn === 'invoice_no' ? 'selected' : '' }}>Invoice No.</option>
                                         </x-select>
                                     </div>
                                     <div class="col-9">
                                         <x-input type="text" name="search_input" label="Search Input"
-                                            inputformat="alphanumeric" />
+                                            inputformat="alphanumeric" value="{{ $activeSearchInput }}" />
                                     </div>
                                 </div>
                             </div>

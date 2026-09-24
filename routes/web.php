@@ -135,12 +135,16 @@ Route::middleware('auth')->group(function () {
 
     // GROUPING ORDER NEW MEMORIALS (SCHEDULES)
     Route::group(['prefix'=> 'schedule', 'as' => 'schedule.'], function(){
-        Route::get('/{orderTypeId}', [ScheduleController::class, 'show']);
+        // Filtered listing (GET) — declared before the /{orderTypeId} catch-all
+        // so it is matched first. Used by the post-save redirect and shareable
+        // pre-filtered views. Filter values are passed as query parameters.
+        Route::get('/filtered/{orderTypeId}/{orderMonth}/{orderYear}', [ScheduleController::class, 'filtered'])->name('filtered');
         Route::get('/create/{order_type}/{id}', [ScheduleController::class, 'create']);
         Route::get('/store', [ScheduleController::class, 'store']);
         Route::put('/update{scheduleId}', [ScheduleController::class, 'update']);
         Route::get('/view/{orderTypeId}/{scheduleId}', [ScheduleController::class, 'edit'])->name('edit');
         Route::post('/index_filtered',[ ScheduleController::class, 'index_filtered'])->name("index_filtered");
+        Route::get('/{orderTypeId}', [ScheduleController::class, 'show']);
     });
     
 

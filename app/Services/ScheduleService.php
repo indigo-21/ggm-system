@@ -22,6 +22,7 @@ class ScheduleService
 
     public function upsertSchedule(Request $data, $id = false)
     {
+        
         $orderTypeId = $data->orderTypeId;
         switch ($orderTypeId) {
             case '1':
@@ -69,6 +70,7 @@ class ScheduleService
      */
     private function buildResult($model, bool $result, $id, string $view): array
     {
+        
         return [
             'result' => $result,
             'tableData' => $model,
@@ -76,6 +78,86 @@ class ScheduleService
                 ? (! $id ? 'Succesfully Created' : "Order No. $id updated Succesfully")
                 : 'Detect issues in the schedule request',
             'view' => $view,
+        ];
+    }
+
+    /**
+     * Configuration-driven map of order type -> schedule model + index view.
+     * Keeps the type resolution in a single place shared by filtering.
+     *
+     * @return array<int, array{model: class-string, view: string}>
+     */
+    private function scheduleTypeMap(): array
+    {
+        return [
+            1 => ['model' => OrderNewMemorial::class,      'view' => 'pages.schedule.new-memorial.index'],
+            2 => ['model' => OrderAddedInscription::class, 'view' => 'pages.schedule.added-inscription.index'],
+            3 => ['model' => OrderRenovation::class,       'view' => 'pages.schedule.renovation.index'],
+            4 => ['model' => OrderWashdown::class,         'view' => 'pages.schedule.washdown.index'],
+        ];
+    }
+
+    /**
+     * Build a filtered schedule listing for a given order type.
+     *
+     * Centralises the query logic (previously in the controller): resolves the
+     * correct model/view for the order type and applies the optional fixing
+     * status, payment status, month/year and column search filters.
+     *
+     * @param  array{
+     *     orderTypeId?: int|string|null,
+     *     fixingStatus?: int|string|null,
+     *     paymentStatus?: int|string|null,
+     *     orderMonth?: int|string|null,
+     *     orderYear?: int|string|null,
+     *     searchColumn?: string|null,
+     *     searchInput?: string|null
+     * }  $filters
+     * @return array{schedules: \Illuminate\Database\Eloquent\Collection, view: string}
+     */
+    public function filterSchedules(array $filters): array
+    {
+        $orderTypeId = (int) ($filters['orderTypeId'] ?? 1);
+        $map = $this->scheduleTypeMap();
+        $config = $map[$orderTypeId] ?? $map[1];
+
+        $fixingStatus = $filters['fixingStatus'] ?? null;
+        $paymentStatus = $filters['paymentStatus'] ?? null;
+        $orderMonth = $filters['orderMonth'] ?? null;
+        $orderYear = $filters['orderYear'] ?? null;
+        $searchColumn = $filters['searchColumn'] ?? null;
+        $searchInput = $filters['searchInput'] ?? null;
+
+        $allowedColumns = ['deceased_name', 'grave_number', 'invoice_no'];
+
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
+        $query = $config['model']::query()->with('order');
+
+        // Note: New Memorial / Renovation carry fixing_status; Added Inscription
+        // uses schedule_status and Washdown has neither. Only filter when the
+        // column applies to avoid errors on tables without it.
+        if (filled($fixingStatus) && in_array($orderTypeId, [1, 3], true)) {
+            $query->where('fixing_status', $fixingStatus);
+        }
+
+        if (filled($paymentStatus)) {
+            $query->where('payment_status', $paymentStatus);
+        }
+
+        if (filled($orderMonth) && filled($orderYear)) {
+            $query->whereMonth('order_date', $orderMonth)
+                ->whereYear('order_date', $orderYear);
+        }
+
+        if (filled($searchColumn) && filled($searchInput) && in_array($searchColumn, $allowedColumns, true)) {
+            $query->whereHas('order', function ($q) use ($searchColumn, $searchInput) {
+                $q->where($searchColumn, 'LIKE', "%{$searchInput}%");
+            });
+        }
+
+        return [
+            'schedules' => $query->get(),
+            'view' => $config['view'],
         ];
     }
 

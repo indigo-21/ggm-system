@@ -53,7 +53,7 @@
                                 <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
                                     :required="true" search="true">
                                     @foreach ($order_types as $order_type)
-                                        <option value="{{ $order_type->id }}">{{ $order_type->name }}</option>
+                                        <option value="{{ $order_type->id }}" {{ $order_type->id == 2 ? 'selected' : '' }}>{{ $order_type->name }}</option>
                                     @endforeach
                                 </x-select>
                             </div>
@@ -74,12 +74,17 @@
                                     @endforeach
                                 </x-select>
                             </div>
+                            @php
+                                $scheduleFilters = $filters ?? [];
+                                $activeMonth = $scheduleFilters['orderMonth'] ?? date('n');
+                                $activeYear = $scheduleFilters['orderYear'] ?? date('Y');
+                            @endphp
                             <div class="col-2">
                                 <x-select class="z-index show-tick" name="order_date_month" label="Order Date"
                                     search="true">
                                     @foreach ($months as $month)
                                         <option value="{{ $loop->iteration }}"
-                                            {{ date('n') == $loop->iteration ? 'selected' : '' }}>{{ $month }}
+                                            {{ (int) $activeMonth == $loop->iteration ? 'selected' : '' }}>{{ $month }}
                                         </option>
                                     @endforeach
                                 </x-select>
@@ -88,7 +93,7 @@
                                 <x-select class="z-index show-tick" label="Year Filter" name="order_date_year"
                                     search="true">
                                     @foreach ($years as $year)
-                                        <option value="{{ $year }}" {{ date('Y') == $year ? 'selected' : '' }}>
+                                        <option value="{{ $year }}" {{ (string) $activeYear === (string) $year ? 'selected' : '' }}>
                                             {{ $year }}</option>
                                     @endforeach
                                 </x-select>
@@ -152,36 +157,39 @@
                                     </tr>
                                 </thead>
                                 <tbody style="font-size:70%;">
-                                    @foreach ($schedules as $schedule)
-                                        <tr class="shedule-table-row"
-                                            href="{{ route('schedule.edit', [
-                                                'orderTypeId' => $schedule->order->order_type_id,
-                                                'scheduleId' => $schedule->id
-                                            ]) }}">
-                                            <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->schedule_date ? \Carbon\Carbon::parse($schedule->schedule_date)->format('d/m/Y') : ''  }}</td>
-                                            <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->letter_cutter_name }}</td>
-                                            <td class="text-center payment{{$schedule->payment_status != 0 ? '-'.$schedule->payment_status : '' }}">{{ $schedule->order->deceased_name }} </td>
-                                            <td class="text-center {{ $schedule->is_permit_back != 0 ? 'permit-back' : '' }}">{{ $schedule->order->grave_number }}</td>
-                                            <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule->order->letter_type->name ?? '' }}</td>
-                                            <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->details }}</td>
-                                            <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->extras }}</td>
-                                            <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->order->invoice_no }}</td>
-                                            <td class="text-center {{ $schedule->is_customer_approved ? 'is-approved' : '' }}">
-                                                {{ $schedule->is_customer_approved ? 'x' : '' }}
-                                            </td>
+                                    @if($schedules)
+                                        @foreach ($schedules as $schedule)
+                                            <tr class="shedule-table-row">
+                                                <td class="text-center schedule{{'-'.$schedule->schedule_status }}">
+                                                    <a href="{{ route('schedule.edit', [
+                                                        'orderTypeId' => $schedule->order->order_type_id,
+                                                        'scheduleId' => $schedule->id
+                                                    ]) }}">{{ $schedule?->schedule_date ? \Carbon\Carbon::parse($schedule->schedule_date)->format('d/m/Y') : ''  }}</a>
+                                                </td>
+                                                <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->letter_cutter_name }}</td>
+                                                <td class="text-center payment{{$schedule->payment_status != 0 ? '-'.$schedule->payment_status : '' }}">{{ $schedule->order->deceased_name }} </td>
+                                                <td class="text-center {{ $schedule->is_permit_back != 0 ? 'permit-back' : '' }}">{{ $schedule->order->grave_number }}</td>
+                                                <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule->order->letter_type->name ?? '' }}</td>
+                                                <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->details }}</td>
+                                                <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->extras }}</td>
+                                                <td class="text-center schedule{{'-'.$schedule->schedule_status }}">{{ $schedule?->order->invoice_no }}</td>
+                                                <td class="text-center {{ $schedule->is_customer_approved ? 'is-approved' : '' }}">
+                                                    {{ $schedule->is_customer_approved ? 'x' : '' }}
+                                                </td>
 
-                                            <td class="text-center {{ $schedule->is_burial_society_approved ? 'is-approved' : '' }}">
-                                                {{ $schedule->is_burial_society_approved ? 'x' : '' }}
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="d-flex justify-content-center">
-                                                    <x-input class="m-auto" type="checkbox" label=""
-                                                        name="export" />
-                                                </div>
-                                            </td>
+                                                <td class="text-center {{ $schedule->is_burial_society_approved ? 'is-approved' : '' }}">
+                                                    {{ $schedule->is_burial_society_approved ? 'x' : '' }}
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center">
+                                                        <x-input class="m-auto" type="checkbox" label=""
+                                                            name="export" />
+                                                    </div>
+                                                </td>
 
-                                        </tr>
-                                    @endforeach
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
