@@ -168,7 +168,7 @@
                                     search="true">
                                     <option value="1" {{ isset($schedule) && $schedule->view_location == 1 ? "selected" : "" }}>By Photo</option>
                                     <option value="2" {{ isset($schedule) && $schedule->view_location == 2 ? "selected" : "" }}>Clayhall</option>
-                                    <option value="3" {{ isset($schedule) && $schedule->view_location == 3 ? "selected" : "" }}>Edgeware</option>
+                                    <option value="3" {{ isset($schedule) && $schedule->view_location == 3 ? "selected" : "" }}>Edgware</option>
                                 </x-select>
                             </div>
                             <div class="col-lg-4 col-12">

@@ -14,7 +14,7 @@ class LocationSeeder extends Seeder
     {   
         $values = [
             [
-                'name'       => 'Edgeware',
+                'name'       => 'Edgware',
                 'created_by' => '1',
             ],
             [

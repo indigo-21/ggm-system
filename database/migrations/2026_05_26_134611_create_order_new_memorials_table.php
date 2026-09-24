@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date("fixing_date")->nullable();
             $table->integer("fixing_status")->default(0)->comment("0=not_fixed|1=fixed|2=part_fixed|3=fixing_this_week|4=fixing_next_week|5=fixing_week_after_next");
             $table->integer("payment_status")->default(0)->comment("0=unpaid|1=paid|2=part_paid");
-            $table->integer("view_location")->default(1)->comment("1=by_photo|2=clayhall|3=edgeware");
+            $table->integer("view_location")->default(1)->comment("1=by_photo|2=clayhall|3=Edgware");
             $table->integer("view_status")->default(1)->comment("1=factory|2=on_route|3=showroom|4=photo_sent");
             $table->date("view_date")->nullable();
             $table->longText("description")->nullable();
