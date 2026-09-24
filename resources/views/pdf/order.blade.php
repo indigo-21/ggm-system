@@ -21,6 +21,9 @@
         $consecration = $orderData->consecration_date
             ? \Carbon\Carbon::parse($orderData->consecration_date)->format('jS F Y')
             : '';
+        $fixing_date = $consecration = $orderData->fixing_date
+            ? \Carbon\Carbon::parse($orderData->fixing_date)->format('F Y')
+            : '';
     @endphp
 
     <style>
@@ -373,7 +376,17 @@
                 <td style="width:16%;" class="info-label">Date of Death</td>
                 <td style="width:17%;" class="info-value">{{ $dateOfDeath ?: '—' }}</td>
                 <td style="width:16%;" class="info-label">Consecration</td>
-                <td style="width:18%;" class="info-value">{{ $consecration ?: '—' }}</td>
+                <td style="width:18%;" class="info-value">
+                    @if($orderData->is_asap)
+                        ASAP
+                    @elseif($orderData->is_tba)
+                        TBA
+                    @elseif($orderData->is_approx)
+                        Approx — {{$fixing_date}}
+                    @else
+                        {{ $consecration ?: '—' }}
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td class="info-label">Cemetery</td>
