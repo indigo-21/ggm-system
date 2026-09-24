@@ -96,7 +96,7 @@ w<!-- Top Bar -->
                             <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Archives</span></a>
                         </x-nav-link>
                         <x-nav-link>
-                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Rylond</span></a>
+                            <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-home"></i><span>Stoneguard</span></a>
                         </x-nav-link>
 
                         @if (Auth::id() == 1):
