@@ -33,38 +33,38 @@
             <input type="hidden" name="orderTypeId" value="{{ $order->order_type_id }}">
             <div class="row clearfix row-deck">
                 <div class="col-12">
-                    <div class="card top_widget">
-                        <div class="header">
+                    <div class="card top_widget bg-light-green">
+                        <div class="header text-black">
                             <h2>New Memorial</h2>
                         </div>
                         <div class="body row px-5">
-                            <div class="col-6">
-                                <div class="d-flex justify-content-between">
+                            <div class="col-6 text-black">
+                                <div class="d-flex">
                                     <p><strong>Order Date:</strong></p>
-                                    <p>{{ \Carbon\Carbon::parse($order->created_at)?->format('F d, Y A') }} (Ref:
+                                    <p class="ml-2">{{ \Carbon\Carbon::parse($order->created_at)?->format('F d, Y A') }} (Ref:
                                         NM/{{ $order->id }})</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Customer:</strong></p>
-                                    <p>{{ $order->customer->firstname }} {{ $order->customer->lastname }}</p>
+                                    <p class="ml-2">{{ $order->customer->firstname }} {{ $order->customer->lastname }}</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Deceased:</strong></p>
-                                    <p>{{ $order->deceased_name }}</p>
+                                    <p class="ml-2">{{ $order->deceased_name }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="d-flex justify-content-between">
+                            <div class="col-6 text-black">
+                                <div class="d-flex">
                                     <p><strong>Consecration:</strong></p>
-                                    <p>{{ \Carbon\Carbon::parse($order->consecration_date)?->format('F d, Y A') }}</p>
+                                    <p class="ml-2">{{ \Carbon\Carbon::parse($order->consecration_date)?->format('F d, Y A') }}</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Cemetery:</strong></p>
-                                    <p>{{ $order->cemetery->name }}</p>
+                                    <p class="ml-2">{{ $order->cemetery->name }}</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Grave No.:</strong></p>
-                                    <p>{{ $order->grave_number }}</p>
+                                    <p class="ml-2">{{ $order->grave_number }}</p>
                                 </div>
                             </div>
                             <div class="col-12 mt-3">
@@ -97,7 +97,7 @@
             <div class="row">
                 <div class="col-6">
                     <!-- Fixing Schedule Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Fixing Schedule</h2>
                         </div>
@@ -128,7 +128,7 @@
                         </div>
                     </div>
                     <!-- Payment Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Payment</h2>
                         </div>
@@ -170,7 +170,7 @@
                         </div>
                     </div>
                     <!-- Design Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Design</h2>
                         </div>
@@ -182,7 +182,7 @@
                         </div>
                     </div>
                     <!-- View Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>View</h2>
                         </div>
@@ -213,7 +213,7 @@
                 </div>
                 <div class="col-6">
                     <!-- Details Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Details</h2>
                         </div>
@@ -228,7 +228,7 @@
                         </div>
                     </div>
                     <!-- Approval Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Approval</h2>
                         </div>
@@ -248,23 +248,23 @@
                         <div class="body row">
                             <div class="col-6">
                                 <div class="d-flex justify-content-between">
-                                    <p>Customer</p>
+                                    <p class="text-black">Customer</p>
                                     <x-input type="checkbox" label="" name="is_customer_approved" checked="{{ $customerApproved  }}" />
                                 </div>
                                 <div class="d-flex justify-content-between">
-                                    <p>Inscription at Factory</p>
+                                    <p class="text-black">Inscription at Factory</p>
                                     <x-input type="checkbox" label="" name="is_inscription_factory_approved" checked="{{ $inscriptionFactoryApproved }}"/>
                                     <input type="hidden" name="is_inscription_factory_timestamp" value="{{ isset($schedule) && $schedule->inscription_factory_approved_timestamp ? date('F d, Y', strtotime($schedule->inscription_factory_approved_timestamp))  : '' }}">
                                 </div>
                                 <div class="d-flex justify-content-between">
-                                    <p>Burial Society</p>
+                                    <p class="text-black">Burial Society</p>
                                     <x-input type="checkbox" label="" name="is_burial_society_approved" checked="{{ $burialSocietyApproved }}" />
                                 </div>
                             </div>
                         </div>
                     </div>
                     <!-- Email Card -->
-                    {{-- <div class="card top_widget">
+                    {{-- <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Email</h2>
                         </div>
@@ -286,14 +286,14 @@
                         </div>
                     </div> --}}
                     <!-- Permit Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Permit</h2>
                         </div>
                         <div class="body row">
                             <div class="col-4">
                                 <div class="d-flex justify-content-between">
-                                    <p>Back</p>
+                                    <p class="text-black">Back</p>
                                     <x-input type="checkbox" label="" name="is_permit_back" checked="{{$permitBack}}" />
                                 </div>
                             </div>
