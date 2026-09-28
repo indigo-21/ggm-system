@@ -30,38 +30,38 @@
             <input type="hidden" name="orderTypeId" value="{{ $order->order_type_id }}">
             <div class="row clearfix row-deck">
                 <div class="col-12">
-                    <div class="card top_widget">
-                        <div class="header">
+                    <div class="card top_widget bg-light-green">
+                        <div class="header text-black">
                             <h2>Washdown</h2>
                         </div>
                         <div class="body row px-5">
-                            <div class="col-6">
-                                <div class="d-flex justify-content-between">
+                            <div class="col-6 text-black">
+                                <div class="d-flex">
                                     <p><strong>Order Date:</strong></p>
-                                    <p>{{ \Carbon\Carbon::parse($order->created_at)?->format('F d, Y A') }} (Ref:
+                                    <p class="ml-2">{{ \Carbon\Carbon::parse($order->created_at)?->format('F d, Y A') }} (Ref:
                                         W/{{ $order->id }})</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Customer:</strong></p>
-                                    <p>{{ $order->customer->firstname }} {{ $order->customer->lastname }}</p>
+                                    <p class="ml-2">{{ $order->customer->firstname }} {{ $order->customer->lastname }}</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Deceased:</strong></p>
-                                    <p>{{ $order->deceased_name }}</p>
+                                    <p class="ml-2">{{ $order->deceased_name }}</p>
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="d-flex justify-content-between">
+                            <div class="col-6 text-black">
+                                <div class="d-flex">
                                     <p><strong>Consecration:</strong></p>
-                                    <p>{{ \Carbon\Carbon::parse($order->consecration_date)?->format('F d, Y A') }}</p>
+                                    <p class="ml-2">{{ \Carbon\Carbon::parse($order->consecration_date)?->format('F d, Y A') }}</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Cemetery:</strong></p>
-                                    <p>{{ $order->cemetery->name }}</p>
+                                    <p class="ml-2">{{ $order->cemetery->name }}</p>
                                 </div>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex">
                                     <p><strong>Grave No.:</strong></p>
-                                    <p>{{ $order->grave_number }}</p>
+                                    <p class="ml-2">{{ $order->grave_number }}</p>
                                 </div>
                             </div>
                             <div class="col-12 mt-3">
@@ -94,7 +94,7 @@
             <div class="row">
                 <div class="col-12">
                     <!-- Schedule Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Schedule</h2>
                         </div>
@@ -133,7 +133,7 @@
                 </div>
                 <div class="col-12">
                     <!-- Details Card -->
-                    <div class="card top_widget">
+                    <div class="card top_widget bg-light-green">
                         <div class="header d-flex justify-content-between align-items-center">
                             <h2>Details</h2>
                         </div>
