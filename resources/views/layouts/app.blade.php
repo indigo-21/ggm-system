@@ -95,6 +95,15 @@
                 outline: 2px solid rgba(0, 150, 136, 0.5);
                 outline-offset: -2px;
             }
+            .bg-light-green{
+                background-color: #b7b88c;
+            }
+            label{
+                color:black !important;
+            }
+            h2{
+                color:black !important;
+            }
         </style>
 
         {{ $customStyle ?? "" }}

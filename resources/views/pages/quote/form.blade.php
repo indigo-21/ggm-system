@@ -80,7 +80,7 @@
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
-                        <div class="body row">
+                        <div class="body row bg-light-green">
                             <div class="col-4">
                                 <x-select class="z-index show-tick" name="order_type_id" label="Order Type"
                                     :required="true" search="true">
@@ -143,7 +143,7 @@
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
-                        <div class="header d-flex justify-content-between align-items-center">
+                        <div class="header d-flex justify-content-between align-items-center bg-light-green">
                             <h2>Customer Details</h2>
                             <input type="hidden" name="customer_id"
                                 value="{{ isset($quote) ? $quote->customer_id : '' }}">
@@ -155,7 +155,7 @@
 
 
                         </div>
-                        <div class="body row">
+                        <div class="body row bg-light-green">
                             <div class="col-2">
                                 <x-select class="z-index show-tick" name="title" label="Title">
                                     <option value="" disabled selected>-Select Title-</option>
@@ -224,10 +224,10 @@
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
-                        <div class="header">
+                        <div class="header bg-light-green">
                             <h2>Order Details</h2>
                         </div>
-                        <div class="body row">
+                        <div class="body row bg-light-green">
                             <div class="col-6">
                                 @php
                                     $deceased_name =  isset($quote) ? $quote->deceased_name : old('deceased_name')
@@ -633,10 +633,10 @@
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
-                        <div class="header">
+                        <div class="header bg-light-green">
                             <h2>Cost</h2>
                         </div>
-                        <div class="body row">
+                        <div class="body row bg-light-green">
                             <div class="col-6 row px-5">
                                 <div class="col-12 row">
                                     <div class="col-7">
@@ -670,7 +670,7 @@
                                             value="{{ $old_letters_no }}" :label="false" />
                                     </div>
                                     <div class="col-2">
-                                        <small class="fw-bold">Letters @</small>
+                                        <small class="fw-bold text-black">Letters @</small>
                                     </div>
                                     <div class="col-3">
                                         @php
@@ -697,7 +697,7 @@
                                 @isset($order_inscription_count)
                                     <div class="col-12">
                                         <div class="">Inscription letter count: <strong
-                                                class="fw-bold">{{ $order_inscription_count }}</strong> </div>
+                                                class="fw-bold fw-bold">{{ $order_inscription_count }}</strong> </div>
                                     </div>
                                 @endisset
 
@@ -901,10 +901,10 @@
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
-                        <div class="header">
+                        <div class="header bg-light-green">
                             <h2>VAT Analysis</h2>
                         </div>
-                        <div class="body row">
+                        <div class="body row bg-light-green">
                             <div class="col-6 row px-5">
                                 @php
                                     $net_amount = $order_cost?->net_amount ?? 0;
@@ -978,10 +978,10 @@
                 <div class="row clearfix row-deck">
                     <div class="col-12">
                         <div class="card top_widget">
-                            <div class="header">
+                            <div class="header bg-light-green">
                                 <h2>Notes</h2>
                             </div>
-                            <div class="body row">
+                            <div class="body row bg-light-green">
                                 <div class="col-6 row px-5">
                                     <div class="col-12 row">
                                         <div class="col-6">
@@ -1266,7 +1266,7 @@
             <div class="row clearfix row-deck">
                 <div class="col-12">
                     <div class="card top_widget">
-                        <div class="body row">
+                        <div class="body row bg-light-green">
                             <div class="col-12">
                                 <x-input type="textarea" name="additional_note"
                                     value="{{ isset($quote) ? $quote->additional_notes : '' }}"
@@ -1281,10 +1281,10 @@
                 <div class="row clearfix row-deck">
                     <div class="col-12">
                         <div class="card top_widget">
-                            <div class="header">
+                            <div class="header bg-light-green">
                                 <h2>Order Actions</h2>
                             </div>
-                            <div class="body row d-flex justify-content-center align-items-center flex-wrap mt-3">
+                            <div class="body row d-flex justify-content-center align-items-center flex-wrap bg-light-green">
                                 <button type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="inscription_btn" order_id="{{ $quote?->id ?? '' }}">Inscription</button>
                                 <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
