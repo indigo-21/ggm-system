@@ -3,7 +3,7 @@
 @section('content')
     <div style="font-size:100%;">
         <center>
-            <h2>{{ $orderData->location->name }} Order {{ $orderData->id }}</h2>
+            <h2>{{ $orderData->location->name ?? '' }} Order {{ $orderData->id }}</h2>
         </center>
         <table class="table-bordered-none">
             <tr>
@@ -124,7 +124,7 @@
                 <td class="flex-td">
                     <div class="label-left">Burial Society Organization: </div>
                     <div class="label-right">
-                        {{ $orderData->burial_society_organization->name }}
+                        {{ $orderData->burial_society_organization->name ?? '' }}
 
                     </div>
                 </td>
@@ -139,7 +139,7 @@
                 <td class="flex-td">
                     <div class="label-left">Grave Space: </div>
                     <div class="label-right">
-                        {{ $orderData->grave_space->name }}
+                        {{ $orderData->grave_space->name ?? '' }}
                     </div>
                 </td>
                 <td class="flex-td">

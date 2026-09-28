@@ -36,10 +36,9 @@
         }
 
         body {
-            /* Base type scaled down ~15% (11px -> 9.5px) to improve
-               single-page printability while staying readable. */
+            /* Base type: bumped ~10% from the previous 9.5px for readability. */
             font-family: "DejaVu Sans", sans-serif;
-            font-size: 9.5px;
+            font-size: 10.5px;
             line-height: 1.35;
             color: #000;
             margin: 0;
@@ -62,20 +61,14 @@
         }
 
         /* ---------- Header ---------- */
-        .company-name {
+        .brand-header {
             text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 1px;
             margin: 0;
         }
 
-        .company-subtitle {
-            text-align: center;
-            font-size: 9.5px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin: 2px 0 0 0;
+        .brand-logo {
+            width: 364px;
+            height: auto;
         }
 
         .branch-table {
@@ -219,9 +212,57 @@
             line-height: 1.35;
         }
 
+        /* Two-column split: Cost on the left, Customer Notes on the right. */
+        .layout-split {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .layout-split > tr > td,
+        .layout-split td.split-left,
+        .layout-split td.split-right {
+            vertical-align: top;
+        }
+
+        .split-left {
+            width: 60%;
+            padding-right: 12px;
+        }
+
+        .split-right {
+            width: 40%;
+        }
+
+        /* Cost / Customer Notes header cells (the two section titles). */
+        .split-title {
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 0 3px 0;
+            border-bottom: 1px solid #000;
+            vertical-align: bottom;
+        }
+
+        .split-title-right {
+            padding-left: 12px;
+        }
+
+        /* The Notes body cell carries the border. Because it shares a table row
+           with the Cost cell, DomPDF equalises their heights, so the border
+           stretches to match the Cost section automatically (no height:100%). */
+        .notes-frame-body {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            font-size: 9.5px;
+            line-height: 1.35;
+            vertical-align: top;
+        }
+
         .terms {
             margin-top: 3px;
-            font-size: 8px;
+            font-size: 12px;
             line-height: 1.3;
         }
 
@@ -266,9 +307,8 @@
         /* =====================================================================
            COMPACT density (~15% smaller than the previous compact tier)
            ===================================================================== */
-        body.compact { font-size: 9px; line-height: 1.25; }
-        body.compact .company-name { font-size: 19.5px; }
-        body.compact .company-subtitle { font-size: 9px; }
+        body.compact { font-size: 10px; line-height: 1.25; }
+        body.compact .brand-logo { width: 328px; }
         body.compact .branch-table { margin-top: 7px; }
         body.compact .branch-table td { font-size: 8.5px; }
         body.compact .doc-title { font-size: 12px; margin: 9px 0 3px 0; padding-bottom: 4px; }
@@ -277,7 +317,7 @@
         body.compact .info-table td { padding: 1.5px 8px 1.5px 0; font-size: 9px; }
         body.compact .cost-table td { padding: 2px 6px; font-size: 9px; }
         body.compact .notes-box { padding: 4px 6px; min-height: 26px; font-size: 9px; }
-        body.compact .terms { font-size: 7.5px; line-height: 1.25; }
+        body.compact .terms { font-size: 10px; line-height: 1.25; }
         body.compact .produced-on { margin-top: 3px; font-size: 8px; }
         body.compact .declaration { margin-top: 9px; }
         body.compact .sign-table { margin-top: 11px; }
@@ -286,9 +326,8 @@
         /* =====================================================================
            DENSE density (~15% smaller than the previous dense tier)
            ===================================================================== */
-        body.dense { font-size: 8.5px; line-height: 1.25; }
-        body.dense .company-name { font-size: 18.5px; }
-        body.dense .company-subtitle { font-size: 8.5px; }
+        body.dense { font-size: 9.5px; line-height: 1.25; }
+        body.dense .brand-logo { width: 300px; }
         body.dense .branch-table { margin-top: 6px; }
         body.dense .branch-table td { font-size: 8.5px; line-height: 1.25; }
         body.dense .doc-title { font-size: 11px; margin: 8px 0 3px 0; padding-bottom: 4px; }
@@ -297,7 +336,7 @@
         body.dense .info-table td { padding: 1.5px 8px 1.5px 0; font-size: 8.5px; }
         body.dense .cost-table td { padding: 2px 5px; font-size: 8.5px; }
         body.dense .notes-box { padding: 4px 6px; min-height: 24px; font-size: 8.5px; }
-        body.dense .terms { font-size: 7.5px; line-height: 1.25; }
+        body.dense .terms { font-size: 10px; line-height: 1.25; }
         body.dense .produced-on { margin-top: 3px; font-size: 8px; }
         body.dense .declaration { margin-top: 9px; }
         body.dense .sign-table { margin-top: 12px; }
@@ -308,8 +347,10 @@
 <body class="{{ $density }}">
 
     {{-- ===================== Header ===================== --}}
-    <div class="company-name">Gary Green</div>
-    <div class="company-subtitle">- MONUMENTAL MASON LIMITED -</div>
+    <div class="brand-header">
+        <img class="brand-logo" src="{{ public_path('assets/images/xs/gary-green-pdf.png') }}"
+            alt="Gary Green - Monumental Mason Limited">
+    </div>
 
     <table class="branch-table">
         <tr>
@@ -446,77 +487,86 @@
             || (float) ($orderCost->discount_amount ?? 0) != 0;
     @endphp
 
-    <div class="section keep-together">
-        <div class="section-title">Cost</div>
-        <table class="cost-table">
-            {{-- ----- Price line items ----- --}}
-            @if ($orderCost && $orderCost->description && $orderCost->amount)
-                <tr>
-                    <td class="cost-label">Price :</td>
-                    <td class="cost-desc">{{ $orderCost->description }}</td>
-                    <td class="cost-amount">{{ $money($orderCost->amount) }}</td>
-                </tr>
-            @endif
+    <table class="layout-split section">
+        {{-- Title row: both section headings sit above their columns. --}}
+        <tr>
+            <td class="split-left split-title">Cost</td>
+            <td class="split-right split-title split-title-right">Customer Notes</td>
+        </tr>
+        {{-- Content row: Cost table (left) and the bordered Notes cell (right).
+             Sharing one row lets DomPDF equalise their heights, so the Notes
+             border stretches to match the Cost section. --}}
+        <tr>
+            <td class="split-left">
+                <div class="keep-together">
+                    <table class="cost-table">
+                        {{-- ----- Price line items ----- --}}
+                        @if ($orderCost && $orderCost->description && $orderCost->amount)
+                            <tr>
+                                <td class="cost-label">Price :</td>
+                                <td class="cost-desc">{{ $orderCost->description }}</td>
+                                <td class="cost-amount">{{ $money($orderCost->amount) }}</td>
+                            </tr>
+                        @endif
 
-            @if ($orderCost && $orderCost->letter_count && $orderCost->letter_amount)
-                <tr>
-                    <td class="cost-label"></td>
-                    <td class="cost-desc">{{ $orderCost->letter_count }} Letters @ £{{ number_format($orderCost->letter_amount, 2) }}</td>
-                    <td class="cost-amount">{{ $money($orderCost->letter_total_amount) }}</td>
-                </tr>
-            @endif
+                        @if ($orderCost && $orderCost->letter_count && $orderCost->letter_amount)
+                            <tr>
+                                <td class="cost-label"></td>
+                                <td class="cost-desc">{{ $orderCost->letter_count }} Letters @ £{{ number_format($orderCost->letter_amount, 2) }}</td>
+                                <td class="cost-amount">{{ $money($orderCost->letter_total_amount) }}</td>
+                            </tr>
+                        @endif
 
-            @if ($orderCost)
-                @foreach ($orderCost->additionals as $additional)
-                    @if ($additional->description)
-                        <tr>
-                            <td class="cost-label"></td>
-                            <td class="cost-desc">{{ $additional->description }}</td>
-                            <td class="cost-amount">{{ $money($additional->amount) }}</td>
+                        @if ($orderCost)
+                            @foreach ($orderCost->additionals as $additional)
+                                @if ($additional->description)
+                                    <tr>
+                                        <td class="cost-label"></td>
+                                        <td class="cost-desc">{{ $additional->description }}</td>
+                                        <td class="cost-amount">{{ $money($additional->amount) }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @endif
+
+                        {{-- ----- Discount (only when present) ----- --}}
+                        @if ($hasDiscount)
+                            <tr>
+                                <td class="cost-label">Discount :</td>
+                                <td class="cost-desc">{{ $orderCost->discount_description }}</td>
+                                <td class="cost-amount">{{ $moneyNeg($orderCost->discount_amount) }}</td>
+                            </tr>
+                        @endif
+
+                        {{-- ----- Grand Total ----- --}}
+                        <tr class="cost-summary">
+                            <td class="cost-label">Grand Total :</td>
+                            <td class="cost-desc"></td>
+                            <td class="cost-amount">{{ $money($grandTotal) }}</td>
                         </tr>
-                    @endif
-                @endforeach
-            @endif
 
-            {{-- ----- Discount (only when present) ----- --}}
-            @if ($hasDiscount)
-                <tr>
-                    <td class="cost-label">Discount :</td>
-                    <td class="cost-desc">{{ $orderCost->discount_description }}</td>
-                    <td class="cost-amount">{{ $moneyNeg($orderCost->discount_amount) }}</td>
-                </tr>
-            @endif
+                        {{-- ----- Deposit (only when a deposit/payment exists) ----- --}}
+                        @if ($orderDeposit)
+                            <tr class="cost-summary">
+                                <td class="cost-label">Deposit :</td>
+                                <td class="cost-desc">{{ $orderCost->deposit_description ?? '' }}</td>
+                                <td class="cost-amount">{{ $moneyNeg($depositAmount) }}</td>
+                            </tr>
+                        @endif
 
-            {{-- ----- Grand Total ----- --}}
-            <tr class="cost-summary">
-                <td class="cost-label">Grand Total :</td>
-                <td class="cost-desc"></td>
-                <td class="cost-amount">{{ $money($grandTotal) }}</td>
-            </tr>
-
-            {{-- ----- Deposit (only when a deposit/payment exists) ----- --}}
-            @if ($orderDeposit)
-                <tr class="cost-summary">
-                    <td class="cost-label">Deposit :</td>
-                    <td class="cost-desc">{{ $orderCost->deposit_description ?? '' }}</td>
-                    <td class="cost-amount">{{ $moneyNeg($depositAmount) }}</td>
-                </tr>
-            @endif
-
-            {{-- ----- Balance Due (emphasised) ----- --}}
-            <tr class="cost-balance">
-                <td class="cost-label">Balance :</td>
-                <td class="cost-desc"></td>
-                <td class="cost-amount">{{ $money($balanceDue) }}</td>
-            </tr>
-        </table>
-    </div>
-
-    {{-- ===================== Customer Notes ===================== --}}
-    <div class="section keep-together">
-        <div class="section-title">Customer Notes</div>
-        <div class="notes-box">{{ $orderData->customer_notes ?: 'N/A' }}</div>
-    </div>
+                        {{-- ----- Balance Due (emphasised) ----- --}}
+                        <tr class="cost-balance">
+                            <td class="cost-label">Balance :</td>
+                            <td class="cost-desc"></td>
+                            <td class="cost-amount">{{ $money($balanceDue) }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td class="split-right notes-frame-body">{{ $orderData->customer_notes ?: 'N/A' }}</td>
+        </tr>
+    </table>
+    
 
     {{-- ===================== Notes / Terms ===================== --}}
     <div class="section">

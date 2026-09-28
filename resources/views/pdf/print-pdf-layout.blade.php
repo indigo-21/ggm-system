@@ -10,7 +10,7 @@
         body {
             font-family: DejaVu Sans, sans-serif;
             margin: 25px;
-            font-size: 12px;
+            font-size: 13px;
         }
         .table-data{
             margin:10px 0px;
@@ -20,6 +20,17 @@
             text-align: center;
             margin: 0;
             padding: 0;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .brand-logo {
+            width: 419px;
+            height: auto;
         }
 
         .contact-table {
@@ -104,8 +115,10 @@
 <body>
 
     <!-- Header -->
-    <h1 class="header-title">Gary Green</h1>
-    <h4 class="header-title">- MONUMENTAL MASON LIMITED -</h4>
+    <div class="brand-header">
+        <img class="brand-logo" src="{{ public_path('assets/images/xs/gary-green-pdf.png') }}"
+            alt="Gary Green - Monumental Mason Limited">
+    </div>
 
     <!-- Two-column Contact Section -->
     <table class="contact-table">

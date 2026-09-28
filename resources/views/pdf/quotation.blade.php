@@ -23,7 +23,7 @@
 
         body {
             font-family: "DejaVu Sans", sans-serif;
-            font-size: 12px;
+            font-size: 13px;
             line-height: 1.45;
             color: #000;
             margin: 0;
@@ -57,20 +57,14 @@
         }
 
         /* ---------- Header ---------- */
-        .company-name {
+        .brand-header {
             text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 1px;
             margin: 0;
         }
 
-        .company-subtitle {
-            text-align: center;
-            font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin: 2px 0 0 0;
+        .brand-logo {
+            width: 419px;
+            height: auto;
         }
 
         .branch-table {
@@ -194,11 +188,11 @@
            closing block and bank details stay on the first page.
            ===================================================================== */
         body.compact {
-            font-size: 11px;
+            font-size: 12px;
             line-height: 1.35;
         }
 
-        body.compact .company-name { font-size: 26px; }
+        body.compact .brand-logo { width: 382px; }
         body.compact .branch-table { margin-top: 10px; }
         body.compact .branch-table td { font-size: 10.5px; line-height: 1.3; }
         body.compact .meta-table { margin-top: 20px; }
@@ -218,12 +212,11 @@
            readable type (>= 10px) and clear separation between sections.
            ===================================================================== */
         body.dense {
-            font-size: 10.5px;
+            font-size: 11.5px;
             line-height: 1.3;
         }
 
-        body.dense .company-name { font-size: 24px; }
-        body.dense .company-subtitle { font-size: 11px; }
+        body.dense .brand-logo { width: 355px; }
         body.dense .branch-table { margin-top: 8px; }
         body.dense .branch-table td { font-size: 10px; line-height: 1.25; }
         body.dense .meta-table { margin-top: 14px; }
@@ -244,8 +237,10 @@
 <body class="{{ $density }}">
 
     {{-- ===================== Header ===================== --}}
-    <div class="company-name">Gary Green</div>
-    <div class="company-subtitle">- MONUMENTAL MASON LIMITED -</div>
+    <div class="brand-header">
+        <img class="brand-logo" src="{{ public_path('assets/images/xs/gary-green-pdf.png') }}"
+            alt="Gary Green - Monumental Mason Limited">
+    </div>
 
     <table class="branch-table">
         <tr>
