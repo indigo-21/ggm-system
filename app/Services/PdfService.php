@@ -50,7 +50,7 @@ class PdfService
         $data = [
             'title' => 'Quotation-'.$orderId,
             'customerFistname' => $customerData->firstname,
-            'customerLastname' => $customerData->lastname ,
+            'customerLastname' => $customerData->lastname,
             // "printDate" => Carbon::now()->format('F d, Y H:i A'),
             'printDate' => Carbon::now()->format('jS F Y'),
             'customerAddress' => implode(' ', $addressLines),
@@ -185,28 +185,44 @@ class PdfService
         return 'compact';
     }
 
+    /**
+     * Build the shared header/customer payload used by the Order and Invoice
+     * PDFs so the "Company Header" and "Customer Details" sections stay visually
+     * identical across both documents. Returns the customer model alongside the
+     * address rendered both as a single string and as discrete lines (the
+     * templates use the line array for the stacked address layout).
+     *
+     * @return array{customerData: \App\Models\Customer, customerAddress: string, customerAddressLines: array<int, string>}
+     */
+    private static function customerHeaderData(Order $orderData): array
+    {
+        $customerData = $orderData->customer;
+        $addressLines = self::addressLines($customerData);
+
+        return [
+            'customerData' => $customerData,
+            'customerAddress' => implode(' ', $addressLines),
+            'customerAddressLines' => $addressLines,
+        ];
+    }
+
     public function generateOrder($order_id)
     {
         $orderId = $order_id;
 
         $orderData = Order::find($orderId);
-        $customerData = $orderData->customer;
         $orderCostData = $orderData->order_cost;
 
         // $locationData = $orderData->location;
-
-        $addressLines = self::addressLines($customerData);
 
         $data = [
             'title' => 'Order-'.$orderId,
             'printDate' => Carbon::now()->format('jS F Y'),
             'orderDate' => $orderData->created_at ? Carbon::parse($orderData->created_at)->format('F d, Y') : '',
-            'customerData' => $customerData,
-            'customerAddress' => implode(' ', $addressLines),
-            'customerAddressLines' => $addressLines,
             'orderData' => $orderData,
             'orderCost' => $orderCostData,
             'orderDeposit' => $orderData->payments->first(),
+            ...self::customerHeaderData($orderData),
         ];
 
         // Reuse the same content-density heuristic as the quotation so the order
@@ -237,24 +253,20 @@ class PdfService
         $orderId = $order_id;
 
         $orderData = Order::find($orderId);
-        $customerData = $orderData->customer;
-        $orderCostData = $orderData->order_cost;
 
         // $locationData = $orderData->location;
-
-        $addressOne = $customerData->address_one ?? '';
-        $addressTwo = $customerData->address_two ?? '';
-        $cityCounty = $customerData->city_county ?? '';
-        $postCode = $customerData->postcode ?? '';
 
         $data = [
             'title' => 'Order-'.$orderId,
             'printDate' => Carbon::now()->format('jS F Y'),
-            'orderDate' => Carbon::parse($orderData->createdAt)->format('F d, Y'),
-            'customerData' => $customerData,
-            'customerAddress' => $addressOne.' '.$addressTwo.' '.$cityCounty.' '.$postCode,
+            'orderDate' => $orderData->created_at ? Carbon::parse($orderData->created_at)->format('F d, Y') : '',
             'orderData' => $orderData,
+            ...self::customerHeaderData($orderData),
         ];
+
+        // Share the same layout density heuristic as the priced Order so the
+        // header / detail sections render identically.
+        $data['density'] = self::orderDensity($orderData);
 
         $pdf = Pdf::loadView('pdf.order-no-price', $data);
 
@@ -416,5 +428,41 @@ class PdfService
         }
 
         return $method;
+    }
+
+    public function generateInvoice($orderId)
+    {
+        $orderData = Order::find($orderId);
+        $orderCostData = $orderData->order_cost;
+
+        $data = [
+            'title' => 'Invoice-'.$orderId,
+            'printDate' => Carbon::now()->format('jS F Y'),
+            'invoiceNo' => $orderData->invoice_no,
+            'invoiceDate' => $orderData->invoice_date
+                ? Carbon::parse($orderData->invoice_date)->format('jS F Y')
+                : '',
+            'consecrationDate' => $orderData->consecration_date
+                ? Carbon::parse($orderData->consecration_date)->format('jS F Y')
+                : '',
+            'orderData' => $orderData,
+            'orderCost' => $orderCostData,
+            // The invoice mirrors the recorded amount received from order_costs;
+            // fall back to the sum of payments when it has not been captured.
+            'amountReceived' => $orderCostData && $orderCostData->amount_received !== null
+                ? (float) $orderCostData->amount_received
+                : (float) $orderData->payments->sum('amount'),
+            ...self::customerHeaderData($orderData),
+        ];
+
+        $pdf = Pdf::loadView('pdf.invoice', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        $filename = "Invoice-{$orderId}.pdf";
+        $relativePath = "pdfs/{$filename}";
+
+        Storage::put($relativePath, $pdf->output());
+
+        return $relativePath;
     }
 }

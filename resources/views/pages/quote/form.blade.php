@@ -1312,6 +1312,13 @@
                                 <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
                                     id="print_no_prices_btn" href="{{ url('pdf/order_no_price/' . $quote?->id) }}"
                                     target="_blank" order_id="{{ $quote?->id ?? '' }}">Print - No Prices</a>
+                                    
+                                @if($quote->invoice_no && $quote->invoice_date)
+                                    <a type="button" class="btn btn-danger btn-simple waves-effect m-2 w-25"
+                                        id="print_invoice_btn" href="{{ url('pdf/invoice/' . $quote?->id) }}"
+                                        target="_blank" order_id="{{ $quote?->id ?? '' }}">Print - Invoice</a>
+                                @endif
+                                
                             </div>
                         </div>
 

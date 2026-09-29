@@ -121,6 +121,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/quotation/{order_id}', [QuoteController::class, 'print_pdf'])->name('print_pdf');
         Route::get('/order/{order_id}', [OrderController::class, 'print_pdf'])->name('print_pdf');
         Route::get('/order_no_price/{order_id}', [OrderController::class, 'print_pdf_no_price'])->name('print_pdf_no_price');
+        Route::get('/invoice/{order_id}', [OrderController::class, 'print_invoice'])->name('print_invoice');
     });
 
     // ORDER MAIL

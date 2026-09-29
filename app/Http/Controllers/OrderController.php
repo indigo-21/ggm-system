@@ -167,4 +167,13 @@ class OrderController extends Controller
 
         // return view("pdf.order-no-price", $data);
     }
+
+    public function print_invoice($order_id)
+    {
+        $orderId = $order_id;
+
+        $path = $this->pdfService->generateInvoice($orderId);
+
+        return response()->download(storage_path('app/'.$path));
+    }
 }
