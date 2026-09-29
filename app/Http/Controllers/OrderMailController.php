@@ -86,6 +86,7 @@ class OrderMailController extends Controller
         $infoTimescale = $request->infoTimescale;
         $documentInsurance = $request->documentInsurance;
         $insurance = $request->insurance;
+        $invoice = $request->invoice;
         $termsCondition = $request->termsCondition;
 
         $quote = $request->quote;
@@ -112,6 +113,8 @@ class OrderMailController extends Controller
                                 "name" => "StoneGuard Flyer.pdf"
                             ];
         }
+
+        
 
         if($insurance){
             $attachments[] = [
@@ -140,6 +143,14 @@ class OrderMailController extends Controller
               $attachments[] = [
                         "path" => "$orderPath",
                         "name" => "Order-$orderId.pdf"
+                    ];
+        }
+
+        if($invoice){
+            $invoicePath = $this->pdfService->generateInvoice($orderId);
+              $attachments[] = [
+                        "path" => "$invoicePath",
+                        "name" => "Invoice-$orderId.pdf"
                     ];
         }
 

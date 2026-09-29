@@ -35,6 +35,10 @@
 
                             <x-input type="checkbox" name="is_insurance_checked" value="" label="Insurance" />
 
+                            @if($quote->invoice_no && $quote->invoice_date)
+                                <x-input type="checkbox" name="is_invoice_checked" value="" label="Invoice" />
+                            @endif
+
                             @isset($order_inscription)
                                 <x-input type="checkbox" name="is_inscription_checked" value="" label="Inscription" />
                             @endisset

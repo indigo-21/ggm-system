@@ -37,6 +37,7 @@ $(document).on("click", "#save_order_email_btn", function(){
     const infoTimescale = $("#is_info_timescale_checked").prop("checked");
     const documentInsurance = $("#is_document_insurance_checked").prop("checked");
     const insurance = $("#is_insurance_checked").prop("checked");
+    const invoice = $("#is_invoice_checked").prop("checked");
     const termsCondition = $("#is_terms_and_conditions_checked").prop("checked");
     const quote = $("#is_quotation_checked").prop("checked");
     const order = $("#is_order_checked").prop("checked");
@@ -54,6 +55,7 @@ $(document).on("click", "#save_order_email_btn", function(){
                     infoTimescale,
                     documentInsurance,
                     insurance,
+                    invoice,
                     inscription,
                     termsCondition,
                     quote,
