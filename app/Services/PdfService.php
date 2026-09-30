@@ -342,7 +342,7 @@ class PdfService
                 'amount' => number_format($orderPayment->amount, 2),
                 'method' => $this->payment_method($orderPayment->method),
                 'comment' => $orderPayment->comment,
-                'timestamp' => Carbon::parse($orderPayment->created_at)->format('F d, Y H:i A'),
+                'timestamp' => Carbon::parse($orderPayment->payment_datetime)->format('F d, Y H:i A'),
             ];
             $amountPaid += floatval($orderPayment->amount);
         }
