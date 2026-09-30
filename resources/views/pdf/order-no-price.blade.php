@@ -217,7 +217,7 @@
                 <td style="width:15%;" class="info-label">Customer Name</td>
                 <td style="width:35%;" class="info-value">{{ trim($customerData->firstname . ' ' . $customerData->lastname) }}</td>
                 <td style="width:15%;" class="info-label">Order Date</td>
-                <td style="width:35%;" class="info-value">{{ $orderDate }}</td>
+                <td style="width:35%;" class="info-value">{{ \Carbon\Carbon::parse($orderDate)->format('jS F Y')  }}</td>
             </tr>
             <tr>
                 <td class="info-label" style="vertical-align:top;">Address</td>
@@ -255,14 +255,16 @@
                 <td style="width:17%;" class="info-value">{{ $dateOfDeath ?: '—' }}</td>
                 <td style="width:16%;" class="info-label">Consecration</td>
                 <td style="width:18%;" class="info-value">
-                    @if($orderData->is_asap)
+                    @if($consecration)
+                        {{ $consecration }}
+                    @elseif($orderData->is_asap)
                         ASAP
                     @elseif($orderData->is_tba)
                         TBA
                     @elseif($orderData->is_approx)
                         Approx — {{$fixing_date}}
                     @else
-                        {{ $consecration ?: '—' }}
+                        —
                     @endif
                 </td>
             </tr>
